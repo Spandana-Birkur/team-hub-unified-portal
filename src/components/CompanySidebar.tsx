@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useRole } from '@/contexts/RoleContext';
 import { 
   Home, 
   Users, 
@@ -12,22 +13,32 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const CompanySidebar = () => {
+  const { userRole, setUserRole, hasAccess } = useRole();
+
   const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/employee', icon: Users, label: 'Employee Portal' },
-    { to: '/hr', icon: UserCheck, label: 'HR Management' },
-    { to: '/helpdesk', icon: Headphones, label: 'IT Helpdesk' },
-    { to: '/training', icon: BookOpen, label: 'Training' },
-    { to: '/calendar', icon: Calendar, label: 'Calendar' },
-    { to: '/documents', icon: FileText, label: 'Documents' },
+    { to: '/', icon: Home, label: 'Dashboard', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/employee', icon: Users, label: 'Employee Portal', roles: ['employee', 'hr', 'manager'] },
+    { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
+    { to: '/helpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager'] },
+    { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },
   ];
 
   const bottomNavItems = [
-    { to: '/settings', icon: Settings, label: 'Settings' },
-    { to: '/logout', icon: LogOut, label: 'Logout' },
+    { to: '/settings', icon: Settings, label: 'Settings', roles: ['employee', 'hr', 'manager', 'it'] },
   ];
+
+  const handleLogout = () => {
+    setUserRole(null);
+  };
+
+  // Filter navigation items based on user role
+  const visibleNavItems = navItems.filter(item => hasAccess(item.roles as any));
+  const visibleBottomNavItems = bottomNavItems.filter(item => hasAccess(item.roles as any));
 
   return (
     <div className="bg-gray-900 text-white w-64 min-h-screen flex flex-col">
@@ -39,13 +50,16 @@ const CompanySidebar = () => {
           <div>
             <h2 className="font-bold text-lg">Company Portal</h2>
             <p className="text-gray-400 text-sm">Acme Corporation</p>
+            {userRole && (
+              <p className="text-blue-400 text-xs capitalize">{userRole} Access</p>
+            )}
           </div>
         </div>
       </div>
       
       <nav className="flex-1 px-4">
         <ul className="space-y-2">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
@@ -66,7 +80,7 @@ const CompanySidebar = () => {
         
         <div className="mt-8 pt-8 border-t border-gray-700">
           <ul className="space-y-2">
-            {bottomNavItems.map((item) => (
+            {visibleBottomNavItems.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}
@@ -77,6 +91,16 @@ const CompanySidebar = () => {
                 </NavLink>
               </li>
             ))}
+            <li>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors w-full justify-start"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </Button>
+            </li>
           </ul>
         </div>
       </nav>

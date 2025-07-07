@@ -7,6 +7,8 @@ interface RoleContextType {
   userRole: UserRole;
   setUserRole: (role: UserRole) => void;
   hasAccess: (requiredRoles: UserRole[]) => boolean;
+  isLoggedIn: boolean;
+  logout: () => void;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -20,28 +22,35 @@ export const useRole = () => {
 };
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [userRole, setUserRoleState] = useState<UserRole>('employee'); // Default to employee
+  const [userRole, setUserRoleState] = useState<UserRole>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Load role from localStorage on mount, default to employee if none exists
+  // Load role from localStorage on mount
   useEffect(() => {
     const savedRole = localStorage.getItem('userRole') as UserRole;
-    if (savedRole) {
+    const loginStatus = localStorage.getItem('isLoggedIn');
+    
+    if (savedRole && loginStatus === 'true') {
       setUserRoleState(savedRole);
-    } else {
-      // Set default role as employee and save it
-      setUserRoleState('employee');
-      localStorage.setItem('userRole', 'employee');
+      setIsLoggedIn(true);
     }
   }, []);
 
   // Save role to localStorage when it changes
   const setUserRole = (role: UserRole) => {
     setUserRoleState(role);
+    setIsLoggedIn(true);
     if (role) {
       localStorage.setItem('userRole', role);
-    } else {
-      localStorage.removeItem('userRole');
+      localStorage.setItem('isLoggedIn', 'true');
     }
+  };
+
+  const logout = () => {
+    setUserRoleState(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('isLoggedIn');
   };
 
   const hasAccess = (requiredRoles: UserRole[]) => {
@@ -49,7 +58,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <RoleContext.Provider value={{ userRole, setUserRole, hasAccess }}>
+    <RoleContext.Provider value={{ userRole, setUserRole, hasAccess, isLoggedIn, logout }}>
       {children}
     </RoleContext.Provider>
   );

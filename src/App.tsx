@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,11 +12,16 @@ import HRManagement from "./pages/HRManagement";
 import ITHelpdesk from "./pages/ITHelpdesk";
 import Training from "./pages/Training";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./components/LoginPage";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { userRole } = useRole();
+  const { userRole, isLoggedIn } = useRole();
+
+  if (!isLoggedIn) {
+    return <LoginPage />;
+  }
 
   const getDefaultRoute = () => {
     switch (userRole) {

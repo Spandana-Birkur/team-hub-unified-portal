@@ -20,13 +20,17 @@ export const useRole = () => {
 };
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [userRole, setUserRoleState] = useState<UserRole>(null);
+  const [userRole, setUserRoleState] = useState<UserRole>('employee'); // Default to employee
 
-  // Load role from localStorage on mount
+  // Load role from localStorage on mount, default to employee if none exists
   useEffect(() => {
     const savedRole = localStorage.getItem('userRole') as UserRole;
     if (savedRole) {
       setUserRoleState(savedRole);
+    } else {
+      // Set default role as employee and save it
+      setUserRoleState('employee');
+      localStorage.setItem('userRole', 'employee');
     }
   }, []);
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Heart, 
   Eye, 
-  Teeth, 
+  Smile, 
   PiggyBank, 
   Shield, 
   Calendar,
@@ -171,7 +170,7 @@ const BenefitsOverview = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
                         {plan.type === 'Medical' && <Heart className="w-5 h-5 text-red-500" />}
-                        {plan.type === 'Dental' && <Teeth className="w-5 h-5 text-blue-500" />}
+                        {plan.type === 'Dental' && <Smile className="w-5 h-5 text-blue-500" />}
                         {plan.type === 'Vision' && <Eye className="w-5 h-5 text-green-500" />}
                         <div>
                           <h3 className="font-semibold text-gray-900">{plan.name}</h3>

@@ -4,7 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Calendar, FileText, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { 
+  Users, 
+  Calendar, 
+  FileText, 
+  TrendingUp, 
+  Clock, 
+  CheckCircle, 
+  Search,
+  Download,
+  Bell,
+  MessageSquare,
+  Award,
+  GraduationCap,
+  DollarSign,
+  Shield
+} from 'lucide-react';
 
 const HRManagement = () => {
   const leaveRequests = [
@@ -14,11 +30,24 @@ const HRManagement = () => {
     { id: 4, employee: 'Tom Wilson', type: 'Vacation', dates: 'Feb 5-9, 2024', status: 'approved', days: 5 },
   ];
 
-  const performanceMetrics = [
-    { employee: 'John Doe', department: 'Engineering', rating: 4.8, reviews: 12, lastReview: '2024-01-10' },
-    { employee: 'Sarah Johnson', department: 'Marketing', rating: 4.6, reviews: 8, lastReview: '2024-01-08' },
-    { employee: 'Mike Chen', department: 'Design', rating: 4.9, reviews: 15, lastReview: '2024-01-12' },
-    { employee: 'Emily Davis', department: 'Sales', rating: 4.7, reviews: 10, lastReview: '2024-01-05' },
+  const employees = [
+    { id: 1, name: 'John Doe', department: 'Engineering', role: 'Senior Developer', email: 'john@company.com', location: 'San Francisco' },
+    { id: 2, name: 'Sarah Johnson', department: 'Marketing', role: 'Marketing Manager', email: 'sarah@company.com', location: 'New York' },
+    { id: 3, name: 'Mike Chen', department: 'Design', role: 'UX Designer', email: 'mike@company.com', location: 'Remote' },
+    { id: 4, name: 'Emily Davis', department: 'Sales', role: 'Sales Representative', email: 'emily@company.com', location: 'Chicago' },
+  ];
+
+  const hrDocuments = [
+    { id: 1, title: 'Employee Handbook', type: 'Policy', lastUpdated: '2024-01-15', version: '2.1' },
+    { id: 2, title: 'Leave Request Form', type: 'Form', lastUpdated: '2024-01-10', version: '1.3' },
+    { id: 3, title: 'Code of Conduct', type: 'Policy', lastUpdated: '2024-01-08', version: '3.0' },
+    { id: 4, title: 'Expense Reimbursement Form', type: 'Form', lastUpdated: '2024-01-05', version: '1.2' },
+  ];
+
+  const hrAnnouncements = [
+    { id: 1, title: 'Holiday Schedule Updated', content: 'Please review the updated holiday schedule for 2024', priority: 'info', date: '2024-01-15' },
+    { id: 2, title: 'New Benefits Enrollment', content: 'Open enrollment period starts February 1st', priority: 'urgent', date: '2024-01-14' },
+    { id: 3, title: 'Team Building Event', content: 'Join us for the quarterly team building event', priority: 'reminder', date: '2024-01-12' },
   ];
 
   const employeeStats = [
@@ -28,11 +57,20 @@ const HRManagement = () => {
     { title: 'New Hires (Month)', value: '5', icon: CheckCircle, color: 'bg-purple-500' },
   ];
 
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return <Badge variant="destructive">Urgent</Badge>;
+      case 'info': return <Badge variant="default">Info</Badge>;
+      case 'reminder': return <Badge variant="secondary">Reminder</Badge>;
+      default: return <Badge variant="outline">Normal</Badge>;
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Management</h1>
-        <p className="text-gray-600">Manage employees, leave requests, and performance reviews.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Management Portal</h1>
+        <p className="text-gray-600">Comprehensive HR management and employee services.</p>
       </div>
 
       {/* Stats Overview */}
@@ -54,19 +92,56 @@ const HRManagement = () => {
         ))}
       </div>
 
-      <Tabs defaultValue="leave" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="directory" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="directory">Employee Directory</TabsTrigger>
           <TabsTrigger value="leave">Leave Management</TabsTrigger>
+          <TabsTrigger value="documents">HR Documents</TabsTrigger>
+          <TabsTrigger value="announcements">Announcements</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="employees">Employee Records</TabsTrigger>
+          <TabsTrigger value="support">HR Support</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="directory">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-5 h-5" />
+                <span>Employee Directory</span>
+              </CardTitle>
+              <div className="flex space-x-2">
+                <Input placeholder="Search employees..." className="w-64" />
+                <Button variant="outline">
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {employees.map((employee) => (
+                  <div key={employee.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{employee.name}</h4>
+                      <p className="text-sm text-gray-600">{employee.role} • {employee.department}</p>
+                      <p className="text-xs text-gray-500">{employee.email} • {employee.location}</p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">View Profile</Button>
+                      <Button size="sm" variant="outline">Contact</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="leave">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
-                <span>Leave Requests</span>
+                <span>Leave Management</span>
               </CardTitle>
               <Button>New Request</Button>
             </CardHeader>
@@ -101,34 +176,30 @@ const HRManagement = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="performance">
+        <TabsContent value="documents">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="w-5 h-5" />
-                <span>Performance Reviews</span>
+                <FileText className="w-5 h-5" />
+                <span>HR Policies & Documents</span>
               </CardTitle>
-              <Button>Schedule Review</Button>
+              <Button>Upload Document</Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {performanceMetrics.map((metric, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                {hrDocuments.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{metric.employee}</h4>
-                      <p className="text-sm text-gray-600">{metric.department}</p>
-                      <p className="text-xs text-gray-500">Last review: {metric.lastReview}</p>
+                      <h4 className="font-semibold text-gray-900">{doc.title}</h4>
+                      <p className="text-sm text-gray-600">Type: {doc.type} • Version: {doc.version}</p>
+                      <p className="text-xs text-gray-500">Last updated: {doc.lastUpdated}</p>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-green-600">{metric.rating}</p>
-                        <p className="text-xs text-gray-500">Rating</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-blue-600">{metric.reviews}</p>
-                        <p className="text-xs text-gray-500">Reviews</p>
-                      </div>
-                      <Button size="sm" variant="outline">View Details</Button>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline">
+                        <Download className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                      <Button size="sm" variant="outline">View</Button>
                     </div>
                   </div>
                 ))}
@@ -137,21 +208,128 @@ const HRManagement = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="employees">
+        <TabsContent value="announcements">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
-                <FileText className="w-5 h-5" />
-                <span>Employee Records</span>
+                <Bell className="w-5 h-5" />
+                <span>HR Announcements</span>
               </CardTitle>
-              <Button>Add Employee</Button>
+              <Button>New Announcement</Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Employee Database</h3>
-                <p className="text-gray-600 mb-4">Comprehensive employee records and documentation system.</p>
-                <Button>Import Employee Data</Button>
+              <div className="space-y-4">
+                {hrAnnouncements.map((announcement) => (
+                  <div key={announcement.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                      <div className="flex items-center space-x-2">
+                        {getPriorityBadge(announcement.priority)}
+                        <span className="text-xs text-gray-500">{announcement.date}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">{announcement.content}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5" />
+                <span>Performance Management</span>
+              </CardTitle>
+              <Button>Schedule Review</Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <Award className="w-8 h-8 text-yellow-500" />
+                    <div>
+                      <h3 className="font-semibold">Performance Reviews</h3>
+                      <p className="text-sm text-gray-600">Manage employee evaluations</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full">View Reviews</Button>
+                </Card>
+                
+                <Card className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <GraduationCap className="w-8 h-8 text-blue-500" />
+                    <div>
+                      <h3 className="font-semibold">Goal Tracking</h3>
+                      <p className="text-sm text-gray-600">Monitor individual & team goals</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full">Manage Goals</Button>
+                </Card>
+                
+                <Card className="p-4">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <MessageSquare className="w-8 h-8 text-green-500" />
+                    <div>
+                      <h3 className="font-semibold">Feedback</h3>
+                      <p className="text-sm text-gray-600">Peer & manager feedback</p>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full">Give Feedback</Button>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="support">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <MessageSquare className="w-5 h-5" />
+                <span>HR Support & Helpdesk</span>
+              </CardTitle>
+              <Button>Submit Request</Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="p-4">
+                  <h3 className="font-semibold mb-3">Quick Actions</h3>
+                  <div className="space-y-2">
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Name Change Request
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Payroll Inquiry
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Report Issue
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="p-4">
+                  <h3 className="font-semibold mb-3">Support Statistics</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Open Tickets</span>
+                      <Badge variant="secondary">12</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">In Progress</span>
+                      <Badge variant="default">8</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Resolved Today</span>
+                      <Badge variant="outline">15</Badge>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </CardContent>
           </Card>

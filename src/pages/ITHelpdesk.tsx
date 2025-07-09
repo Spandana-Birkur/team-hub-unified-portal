@@ -4,17 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle, CheckCircle2 } from 'lucide-react';
 import TicketEscalation from '@/components/TicketEscalation';
 import TicketAssignment from '@/components/TicketAssignment';
 import AssetLifecycle from '@/components/AssetLifecycle';
 import AssetHistory from '@/components/AssetHistory';
+import { useRole } from '@/contexts/RoleContext';
 
 const ITHelpdesk = () => {
   const [selectedAgent, setSelectedAgent] = useState('all');
   const [selectedTeam, setSelectedTeam] = useState('all');
-
-  const tickets = [
+  const { userRole } = useRole();
+  const [tickets, setTickets] = useState([
     {
       id: 'TKT-001',
       title: 'Laptop Screen Flickering',
@@ -55,7 +58,8 @@ const ITHelpdesk = () => {
       assignedTo: 'Bob Wilson',
       team: 'Software Support',
       escalated: false,
-      description: 'Need Adobe Creative Suite installed on my workstation.'
+      description: 'Need Adobe Creative Suite installed on my workstation.',
+      resolutionNotes: 'Adobe Creative Suite was successfully installed on the workstation.'
     },
     {
       id: 'TKT-004',
@@ -69,9 +73,34 @@ const ITHelpdesk = () => {
       assignedTo: 'Alice Brown',
       team: 'Software Support',
       escalated: true,
-      description: 'Outlook is not syncing emails properly since the last update.'
+      description: 'Outlook is not syncing emails properly since the last update.',
+      resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.'
     }
-  ];
+  ]);
+  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [resolutionNotes, setResolutionNotes] = useState('');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newTicket, setNewTicket] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    category: '',
+    assignedTo: '',
+    team: '',
+  });
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewedTicket, setViewedTicket] = useState<any>(null);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [ticketToUpdate, setTicketToUpdate] = useState<any>(null);
+  const [updateFields, setUpdateFields] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    category: '',
+    assignedTo: '',
+    team: '',
+  });
 
   const assets = [
     { 
@@ -137,6 +166,7 @@ const ITHelpdesk = () => {
 
   const agents = ['John Smith', 'Jane Doe', 'Bob Wilson', 'Alice Brown'];
   const teams = ['Hardware Support', 'Network Team', 'Software Support'];
+  const ticketCategories = ['Hardware', 'Software', 'Network', 'Email', 'Other'];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -154,6 +184,26 @@ const ITHelpdesk = () => {
       case 'resolved': return 'bg-green-100 text-green-800';
       case 'escalated': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleResolveTicket = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setResolveDialogOpen(true);
+  };
+
+  const confirmResolveTicket = () => {
+    if (selectedTicket) {
+      setTickets(prevTickets => 
+        prevTickets.map(ticket => 
+          ticket.id === selectedTicket.id 
+            ? { ...ticket, status: 'resolved', resolutionNotes }
+            : ticket
+        )
+      );
+      setResolveDialogOpen(false);
+      setSelectedTicket(null);
+      setResolutionNotes('');
     }
   };
 
@@ -229,7 +279,9 @@ const ITHelpdesk = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button>Create Ticket</Button>
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
+                  Create Ticket
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -259,7 +311,38 @@ const ITHelpdesk = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        <Button className="h-9 px-3">Update</Button>
+                        <Button
+                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
+                          onClick={() => { setViewedTicket(ticket); setViewDialogOpen(true); }}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          className="h-9 px-3"
+                          onClick={() => {
+                            setTicketToUpdate(ticket);
+                            setUpdateFields({
+                              title: ticket.title,
+                              description: ticket.description,
+                              priority: ticket.priority,
+                              category: ticket.category,
+                              assignedTo: ticket.assignedTo,
+                              team: ticket.team,
+                            });
+                            setUpdateDialogOpen(true);
+                          }}
+                        >
+                          Update
+                        </Button>
+                        {userRole === 'it' && ticket.status !== 'resolved' && (
+                          <Button 
+                            onClick={() => handleResolveTicket(ticket)}
+                            className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                            Resolve
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -346,6 +429,303 @@ const ITHelpdesk = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Resolve Ticket Dialog */}
+      <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resolve Ticket</DialogTitle>
+            <DialogDescription>
+              Please provide resolution notes for ticket: {selectedTicket?.id} - {selectedTicket?.title}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Resolution Notes</label>
+              <Textarea
+                placeholder="Describe the solution provided..."
+                value={resolutionNotes}
+                onChange={(e) => setResolutionNotes(e.target.value)}
+                className="mt-1"
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-auto border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800"
+              onClick={() => setResolveDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={confirmResolveTicket} className="bg-green-600 hover:bg-green-700">
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Resolve Ticket
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Ticket Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Ticket</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Title</label>
+              <input
+                className="w-full border rounded px-2 py-1 mt-1"
+                value={newTicket.title}
+                onChange={e => setNewTicket({ ...newTicket, title: e.target.value })}
+                placeholder="Ticket title"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <Textarea
+                className="w-full mt-1"
+                value={newTicket.description}
+                onChange={e => setNewTicket({ ...newTicket, description: e.target.value })}
+                placeholder="Describe the issue..."
+                rows={3}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <label className="text-sm font-medium">Priority</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={newTicket.priority}
+                  onChange={e => setNewTicket({ ...newTicket, priority: e.target.value })}
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium">Category</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={newTicket.category}
+                  onChange={e => setNewTicket({ ...newTicket, category: e.target.value })}
+                >
+                  <option value="">Select category</option>
+                  {ticketCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <label className="text-sm font-medium">Assigned To</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={newTicket.assignedTo}
+                  onChange={e => setNewTicket({ ...newTicket, assignedTo: e.target.value })}
+                >
+                  <option value="">Unassigned</option>
+                  {agents.map(agent => (
+                    <option key={agent} value={agent}>{agent}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium">Team</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={newTicket.team}
+                  onChange={e => setNewTicket({ ...newTicket, team: e.target.value })}
+                >
+                  <option value="">Unassigned</option>
+                  {teams.map(team => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => {
+                if (!newTicket.title.trim() || !newTicket.description.trim()) return;
+                setTickets([
+                  {
+                    id: `TKT-${(tickets.length + 1).toString().padStart(3, '0')}`,
+                    title: newTicket.title,
+                    user: 'Current User',
+                    priority: newTicket.priority,
+                    status: 'open',
+                    category: newTicket.category,
+                    created: new Date().toISOString().slice(0, 10),
+                    slaDeadline: '',
+                    assignedTo: newTicket.assignedTo,
+                    team: newTicket.team,
+                    escalated: false,
+                    description: newTicket.description,
+                  },
+                  ...tickets,
+                ]);
+                setNewTicket({ title: '', description: '', priority: 'medium', category: '', assignedTo: '', team: '' });
+                setCreateDialogOpen(false);
+              }}
+              disabled={!newTicket.title.trim() || !newTicket.description.trim()}
+            >
+              Create Ticket
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Ticket Dialog */}
+      <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Ticket</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Title</label>
+              <input
+                className="w-full border rounded px-2 py-1 mt-1"
+                value={updateFields.title}
+                onChange={e => setUpdateFields({ ...updateFields, title: e.target.value })}
+                placeholder="Ticket title"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <Textarea
+                className="w-full mt-1"
+                value={updateFields.description}
+                onChange={e => setUpdateFields({ ...updateFields, description: e.target.value })}
+                placeholder="Describe the issue..."
+                rows={3}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <label className="text-sm font-medium">Priority</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={updateFields.priority}
+                  onChange={e => setUpdateFields({ ...updateFields, priority: e.target.value })}
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium">Category</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={updateFields.category}
+                  onChange={e => setUpdateFields({ ...updateFields, category: e.target.value })}
+                >
+                  <option value="">Select category</option>
+                  {ticketCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <div className="flex-1">
+                <label className="text-sm font-medium">Assigned To</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={updateFields.assignedTo}
+                  onChange={e => setUpdateFields({ ...updateFields, assignedTo: e.target.value })}
+                >
+                  <option value="">Unassigned</option>
+                  {agents.map(agent => (
+                    <option key={agent} value={agent}>{agent}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium">Team</label>
+                <select
+                  className="w-full border rounded px-2 py-1 mt-1"
+                  value={updateFields.team}
+                  onChange={e => setUpdateFields({ ...updateFields, team: e.target.value })}
+                >
+                  <option value="">Unassigned</option>
+                  {teams.map(team => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setUpdateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => {
+                if (!updateFields.title.trim() || !updateFields.description.trim()) return;
+                setTickets(tickets.map(t =>
+                  t.id === ticketToUpdate.id
+                    ? { ...t, ...updateFields }
+                    : t
+                ));
+                setUpdateDialogOpen(false);
+              }}
+              disabled={!updateFields.title.trim() || !updateFields.description.trim()}
+            >
+              Update Ticket
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Ticket Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ticket Details</DialogTitle>
+          </DialogHeader>
+          {viewedTicket && (
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3 mb-2">
+                <h4 className="font-semibold text-gray-900">{viewedTicket.title}</h4>
+                <Badge className="border border-gray-300 bg-transparent text-gray-700">{viewedTicket.id}</Badge>
+                <Badge className={getPriorityColor(viewedTicket.priority)}>{viewedTicket.priority}</Badge>
+                <Badge className={getStatusColor(viewedTicket.status)}>{viewedTicket.status}</Badge>
+              </div>
+              <div className="text-sm text-gray-600 mb-2">{viewedTicket.description}</div>
+              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                <span>User: {viewedTicket.user}</span>
+                <span>Category: {viewedTicket.category}</span>
+                <span>Assigned to: {viewedTicket.assignedTo}</span>
+                <span>Team: {viewedTicket.team}</span>
+                <span>Created: {viewedTicket.created}</span>
+              </div>
+              {viewedTicket.resolutionNotes && (
+                <div className="mt-2 p-3 bg-white border-l-4 border-green-500 rounded">
+                  <div className="font-medium text-green-700 mb-1">Resolution Notes:</div>
+                  <div className="text-gray-800 whitespace-pre-line">{viewedTicket.resolutionNotes}</div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setViewDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

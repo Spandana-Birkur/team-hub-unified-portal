@@ -14,6 +14,7 @@ import Training from "./pages/Training";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./components/LoginPage";
 
+
 const queryClient = new QueryClient();
 
 const AppContent = () => {

@@ -1,4 +1,4 @@
-
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,8 +17,41 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+
+
+
 const AppContent = () => {
   const { userRole } = useRole();
+
+  const [currentAge, setCurrentAge] = useState("");
+
+  const [currentEmpcount, setCurrentEmpcount] = useState(0);
+
+  const [currentEmpnames, setCurrentEmpnames] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/age')
+      .then(res => res.text())
+      .then(age => {
+        setCurrentAge(age); // age is a string like "19"
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/employees/count')
+      .then(res => res.json())
+      .then(data => {
+        setCurrentEmpcount(data.count);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/employees/')
+      .then(res => res.json())
+      .then(data => {
+        setCurrentEmpnames(data.names);
+      });
+  }, []);
 
   if (!userRole) {
     return <RoleSelector />;
@@ -36,7 +69,7 @@ const AppContent = () => {
             <Route path="/hr" element={<HRManagement />} />
             <Route path="/helpdesk" element={<ITHelpdesk />} />
             <Route path="/training" element={<Training />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFound currentAge={currentAge} currentEmpcount={currentEmpcount} currentEmpnames={currentEmpnames} />} />
           </Routes>
         </main>
       </div>

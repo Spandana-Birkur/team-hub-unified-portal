@@ -14,9 +14,12 @@ import {
   LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useState } from 'react';
 
 const CompanySidebar = () => {
-  const { userRole, setUserRole, hasAccess } = useRole();
+  const { userRole, logout, hasAccess } = useRole();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard', roles: ['employee', 'hr', 'manager', 'it'] },
@@ -33,7 +36,14 @@ const CompanySidebar = () => {
   ];
 
   const handleLogout = () => {
-    setUserRole(null);
+    setLogoutDialogOpen(true);
+  };
+  const confirmLogout = () => {
+    logout();
+    setLogoutDialogOpen(false);
+  };
+  const cancelLogout = () => {
+    setLogoutDialogOpen(false);
   };
 
   // Filter navigation items based on user role
@@ -94,13 +104,25 @@ const CompanySidebar = () => {
             <li>
               <Button
                 onClick={handleLogout}
-                variant="ghost"
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors w-full justify-start"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors w-full justify-start bg-transparent border-none"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Logout</span>
               </Button>
             </li>
+           {/* Logout Confirmation Dialog */}
+           <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+             <DialogContent>
+               <DialogHeader>
+                 <DialogTitle>Confirm Logout</DialogTitle>
+               </DialogHeader>
+               <p>Are you sure you want to log out?</p>
+               <DialogFooter>
+                 <Button onClick={cancelLogout} className="bg-gray-200 text-gray-800 hover:bg-gray-300">Cancel</Button>
+                 <Button onClick={confirmLogout} className="bg-red-600 text-white hover:bg-red-700">Log out</Button>
+               </DialogFooter>
+             </DialogContent>
+           </Dialog>
           </ul>
         </div>
       </nav>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -241,7 +240,7 @@ const ITHelpdesk = () => {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h4 className="font-semibold text-gray-900">{ticket.title}</h4>
-                          <Badge variant="outline">{ticket.id}</Badge>
+                          <Badge className="border border-gray-300 bg-transparent text-gray-700">{ticket.id}</Badge>
                           <Badge className={getPriorityColor(ticket.priority)}>
                             {ticket.priority}
                           </Badge>
@@ -260,8 +259,7 @@ const ITHelpdesk = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">View</Button>
-                        <Button size="sm">Update</Button>
+                        <Button className="h-9 px-3">Update</Button>
                       </div>
                     </div>
                   </div>
@@ -306,11 +304,11 @@ const ITHelpdesk = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Badge variant={asset.status === 'assigned' ? 'default' : 'secondary'}>
+                      <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
                         {asset.status}
                       </Badge>
-                      <Button size="sm" variant="outline">View History</Button>
-                      <Button size="sm" variant="outline">Manage</Button>
+                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
+                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
                     </div>
                   </div>
                 ))}
@@ -338,10 +336,10 @@ const ITHelpdesk = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">IT Knowledge Base</h3>
                 <p className="text-gray-600 mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                  <Button variant="outline">Setup Guides</Button>
-                  <Button variant="outline">Troubleshooting</Button>
-                  <Button variant="outline">Security Policies</Button>
-                  <Button variant="outline">Software Manuals</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
                 </div>
               </div>
             </CardContent>

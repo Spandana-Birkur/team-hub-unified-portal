@@ -11,6 +11,7 @@ import EmployeePortal from "./pages/EmployeePortal";
 import HRManagement from "./pages/HRManagement";
 import ITHelpdesk from "./pages/ITHelpdesk";
 import Training from "./pages/Training";
+import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./components/LoginPage";
 
@@ -51,6 +52,7 @@ const AppContent = () => {
             <Route path="/hr" element={<HRManagement />} />
             <Route path="/helpdesk" element={<ITHelpdesk />} />
             <Route path="/training" element={<Training />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

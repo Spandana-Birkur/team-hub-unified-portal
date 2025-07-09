@@ -11,6 +11,7 @@ import {
   DollarSign, Plane, FileText, PartyPopper, Calculator, 
   GraduationCap, Clock
 } from 'lucide-react';
+import { useRole } from '@/contexts/RoleContext';
 
 const EmployeePortal = () => {
   const announcements = [
@@ -68,6 +69,8 @@ const EmployeePortal = () => {
     { title: 'Training Workshop', date: '2024-02-25', time: '9:00 AM', location: 'Training Room' },
   ];
 
+  const { userRole } = useRole();
+  const position = userRole === 'it' ? 'IT Specialist' : 'Senior Software Engineer';
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -106,7 +109,7 @@ const EmployeePortal = () => {
                   </Avatar>
                   <div>
                     <h3 className="text-lg font-semibold">John Doe</h3>
-                    <p className="text-gray-600">Senior Software Engineer</p>
+                    <p className="text-gray-600">{position}</p>
                     <Badge className="mt-1">Engineering</Badge>
                   </div>
                 </div>

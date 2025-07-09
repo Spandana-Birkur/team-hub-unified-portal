@@ -30,7 +30,8 @@ const ITHelpdesk = () => {
       assignedTo: 'John Smith',
       team: 'Hardware Support',
       escalated: false,
-      description: 'My laptop screen has been flickering intermittently since this morning.'
+      description: 'My laptop screen has been flickering intermittently since this morning.',
+      updatedAt: null
     },
     {
       id: 'TKT-002',
@@ -44,7 +45,8 @@ const ITHelpdesk = () => {
       assignedTo: 'Jane Doe',
       team: 'Network Team',
       escalated: false,
-      description: 'Cannot connect to the office WiFi network from conference room B.'
+      description: 'Cannot connect to the office WiFi network from conference room B.',
+      updatedAt: null
     },
     {
       id: 'TKT-003',
@@ -59,7 +61,8 @@ const ITHelpdesk = () => {
       team: 'Software Support',
       escalated: false,
       description: 'Need Adobe Creative Suite installed on my workstation.',
-      resolutionNotes: 'Adobe Creative Suite was successfully installed on the workstation.'
+      resolutionNotes: 'Adobe Creative Suite was successfully installed on the workstation.',
+      updatedAt: '2024-01-21T10:00:00Z'
     },
     {
       id: 'TKT-004',
@@ -74,7 +77,8 @@ const ITHelpdesk = () => {
       team: 'Software Support',
       escalated: true,
       description: 'Outlook is not syncing emails properly since the last update.',
-      resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.'
+      resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.',
+      updatedAt: null
     }
   ]);
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
@@ -157,10 +161,15 @@ const ITHelpdesk = () => {
     },
   ];
 
+  // Calculate dynamic stats
+  const today = new Date().toISOString().slice(0, 10);
+  const resolvedTodayCount = tickets.filter(ticket => ticket.status === 'resolved' && ticket.updatedAt && ticket.updatedAt.slice(0, 10) === today).length;
+  const openCount = tickets.filter(ticket => ticket.status === 'open').length;
+  const escalatedCount = tickets.filter(ticket => ticket.status === 'escalated').length;
   const helpdeskStats = [
-    { title: 'Open Tickets', value: '12', icon: AlertTriangle, color: 'bg-red-500' },
-    { title: 'Escalated', value: '3', icon: TrendingUp, color: 'bg-orange-500' },
-    { title: 'Resolved Today', value: '15', icon: CheckCircle, color: 'bg-green-500' },
+    { title: 'Open Tickets', value: openCount.toString(), icon: AlertTriangle, color: 'bg-red-500' },
+    { title: 'Escalated', value: escalatedCount.toString(), icon: TrendingUp, color: 'bg-orange-500' },
+    { title: 'Resolved Today', value: resolvedTodayCount.toString(), icon: CheckCircle, color: 'bg-green-500' },
     { title: 'Total Assets', value: '324', icon: Laptop, color: 'bg-blue-500' },
   ];
 
@@ -194,10 +203,11 @@ const ITHelpdesk = () => {
 
   const confirmResolveTicket = () => {
     if (selectedTicket) {
+      const now = new Date().toISOString();
       setTickets(prevTickets => 
         prevTickets.map(ticket => 
           ticket.id === selectedTicket.id 
-            ? { ...ticket, status: 'resolved', resolutionNotes }
+            ? { ...ticket, status: 'resolved', resolutionNotes, updatedAt: now }
             : ticket
         )
       );
@@ -570,6 +580,7 @@ const ITHelpdesk = () => {
                     team: newTicket.team,
                     escalated: false,
                     description: newTicket.description,
+                    updatedAt: null
                   },
                   ...tickets,
                 ]);

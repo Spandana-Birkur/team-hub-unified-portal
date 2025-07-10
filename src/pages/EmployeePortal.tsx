@@ -77,6 +77,12 @@ const EmployeePortal = () => {
     notes: ''
   });
 
+  const [timesheets, setTimesheets] = useState([
+    { weekEnding: 'Jan 12, 2024', regularHours: 40.0, overtimeHours: 2.5, status: 'Approved' },
+    { weekEnding: 'Jan 5, 2024', regularHours: 38.5, overtimeHours: 0.0, status: 'Approved' },
+    { weekEnding: 'Dec 29, 2023', regularHours: 32.0, overtimeHours: 0.0, status: 'Pending' },
+  ]);
+
   const announcements = [
     {
       id: 1,
@@ -204,11 +210,11 @@ const EmployeePortal = () => {
     setShowTaxUpdateModal(false);
   };
   const handleTimesheetSubmit = () => {
-    setPayStubs(prev => [
+    setTimesheets(prev => [
       {
-        period: timesheetData.weekEnding,
-        grossPay: '$0.00',
-        netPay: '$0.00',
+        weekEnding: timesheetData.weekEnding,
+        regularHours: timesheetData.hours.reduce((a, b) => a + b, 0),
+        overtimeHours: timesheetData.hours.filter(h => h > 8).reduce((a, b) => a + (b - 8), 0),
         status: 'Pending',
       },
       ...prev,
@@ -731,10 +737,10 @@ const EmployeePortal = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <p><strong>Filing Status:</strong> Single</p>
-                  <p><strong>Allowances:</strong> 2</p>
-                  <p><strong>Additional Withholding:</strong> $0</p>
-                  <p><strong>State:</strong> California</p>
+                  <p><strong>Filing Status:</strong> {taxInfo.filingStatus}</p>
+                  <p><strong>Allowances:</strong> {taxInfo.allowances}</p>
+                  <p><strong>Additional Withholding:</strong> ${taxInfo.additionalWithholding}</p>
+                  <p><strong>State:</strong> {taxInfo.state}</p>
                 </div>
                 <Button 
                   variant="outline" 
@@ -816,15 +822,15 @@ const EmployeePortal = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">40.0</p>
+                    <p className="text-2xl font-bold text-green-600">{timesheets[0]?.regularHours ?? 0}</p>
                     <p className="text-sm text-gray-600">Hours This Week</p>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">160.0</p>
+                    <p className="text-2xl font-bold text-blue-600">{timesheets.reduce((a, t) => a + t.regularHours, 0)}</p>
                     <p className="text-sm text-gray-600">Hours This Month</p>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">2.5</p>
+                    <p className="text-2xl font-bold text-purple-600">{timesheets.reduce((a, t) => a + t.overtimeHours, 0)}</p>
                     <p className="text-sm text-gray-600">Overtime Hours</p>
                   </div>
                 </div>
@@ -842,36 +848,15 @@ const EmployeePortal = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell>Jan 12, 2024</TableCell>
-                        <TableCell>40.0</TableCell>
-                        <TableCell>2.5</TableCell>
-                        <TableCell><Badge>Approved</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button></TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Jan 5, 2024</TableCell>
-                        <TableCell>38.5</TableCell>
-                        <TableCell>0.0</TableCell>
-                        <TableCell><Badge>Approved</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button></TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Dec 29, 2023</TableCell>
-                        <TableCell>32.0</TableCell>
-                        <TableCell>0.0</TableCell>
-                        <TableCell><Badge variant="secondary">Pending</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </Button></TableCell>
-                      </TableRow>
+                      {timesheets.map((ts, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>{ts.weekEnding}</TableCell>
+                          <TableCell>{ts.regularHours}</TableCell>
+                          <TableCell>{ts.overtimeHours}</TableCell>
+                          <TableCell><Badge variant={ts.status === 'Pending' ? 'secondary' : undefined}>{ts.status}</Badge></TableCell>
+                          <TableCell><Button variant="outline" size="sm">View</Button></TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </div>

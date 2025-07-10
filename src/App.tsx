@@ -10,7 +10,7 @@ import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
 import HRManagement from "./pages/HRManagement";
-import ITHelpdesk from "./pages/ITHelpdesk";
+import ITHelpdesk from "./pages/ITHelpdesk";  
 import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
 import Notifications from "./pages/Notifications";

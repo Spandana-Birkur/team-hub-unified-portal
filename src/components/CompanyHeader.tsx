@@ -17,18 +17,19 @@ const CompanyHeader = () => {
   };
   
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-4 py-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CP</span>
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">Company Portal</h1>
+            <img 
+              src="/logo.png" 
+              alt="Access Logo" 
+              className="h-12 w-auto object-contain" 
+              style={{maxHeight: 48}} 
+            />
           </div>
         </div>
-        
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <GlobalSearch />
           <NotificationDropdown />
           <div className="flex items-center space-x-2">
@@ -41,9 +42,9 @@ const CompanyHeader = () => {
               <AvatarImage src="" />
               <AvatarFallback>{userInfo.initials}</AvatarFallback>
             </Avatar>
-            <div className="text-sm">
-              <p className="font-medium text-gray-900">{userInfo.name}</p>
-              <p className="text-gray-500">{userInfo.position}</p>
+            <div className="text-xs">
+              <p className="font-medium text-gray-900 leading-tight">{userInfo.name}</p>
+              <p className="text-gray-500 leading-tight">{userInfo.position}</p>
             </div>
           </div>
         </div>

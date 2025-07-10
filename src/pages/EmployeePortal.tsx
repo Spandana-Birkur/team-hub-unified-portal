@@ -1,21 +1,66 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Mail, Phone, MapPin, Calendar, Users, Bell, User, CreditCard, 
   DollarSign, Plane, FileText, PartyPopper, Calculator, 
-  GraduationCap, Clock
+  GraduationCap, Clock, Download, Upload, Plus, Edit, Eye
 } from 'lucide-react';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 
 const EmployeePortal = () => {
+  const { toast } = useToast();
+  
+  // Modal states
+  const [showTimeOffModal, setShowTimeOffModal] = useState(false);
+  const [showDocumentUploadModal, setShowDocumentUploadModal] = useState(false);
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
+  const [showTaxUpdateModal, setShowTaxUpdateModal] = useState(false);
+  const [showTimesheetModal, setShowTimesheetModal] = useState(false);
+  const [showEventRSVPModal, setShowEventRSVPModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  
+  // Form states
+  const [timeOffForm, setTimeOffForm] = useState({
+    type: '',
+    startDate: '',
+    endDate: '',
+    reason: ''
+  });
+  
+  const [documentUpload, setDocumentUpload] = useState({
+    name: '',
+    type: '',
+    file: null
+  });
+  
+  const [taxInfo, setTaxInfo] = useState({
+    filingStatus: 'Single',
+    allowances: 2,
+    additionalWithholding: 0,
+    state: 'California'
+  });
+  
+  const [timesheetData, setTimesheetData] = useState({
+    weekEnding: '',
+    hours: Array(7).fill(8),
+    notes: ''
+  });
+
   const announcements = [
     {
       id: 1,
@@ -88,6 +133,95 @@ const EmployeePortal = () => {
     it: 'IT Support',
   };
   const navigate = useNavigate();
+  
+  // Helper functions
+  const handleDownloadPayStub = (period: string) => {
+    toast({
+      title: "Download Started",
+      description: `Pay stub for ${period} is being downloaded.`,
+    });
+  };
+  
+  const handleDownloadDocument = (docName: string) => {
+    toast({
+      title: "Download Started",
+      description: `${docName} is being downloaded.`,
+    });
+  };
+  
+  const handleDownloadTaxDocument = (docName: string) => {
+    toast({
+      title: "Download Started",
+      description: `${docName} is being downloaded.`,
+    });
+  };
+  
+  const handleTimeOffSubmit = () => {
+    toast({
+      title: "Time Off Request Submitted",
+      description: "Your time off request has been submitted for approval.",
+    });
+    setShowTimeOffModal(false);
+    setTimeOffForm({ type: '', startDate: '', endDate: '', reason: '' });
+  };
+  
+  const handleDocumentUpload = () => {
+    toast({
+      title: "Document Uploaded",
+      description: "Your document has been uploaded successfully.",
+    });
+    setShowDocumentUploadModal(false);
+    setDocumentUpload({ name: '', type: '', file: null });
+  };
+  
+  const handleBenefitsUpdate = () => {
+    toast({
+      title: "Benefits Updated",
+      description: "Your benefits information has been updated.",
+    });
+    setShowBenefitsModal(false);
+  };
+  
+  const handleTaxInfoUpdate = () => {
+    toast({
+      title: "Tax Information Updated",
+      description: "Your tax information has been updated successfully.",
+    });
+    setShowTaxUpdateModal(false);
+  };
+  
+  const handleTimesheetSubmit = () => {
+    toast({
+      title: "Timesheet Submitted",
+      description: "Your timesheet has been submitted for approval.",
+    });
+    setShowTimesheetModal(false);
+    setTimesheetData({ weekEnding: '', hours: Array(7).fill(8), notes: '' });
+  };
+  
+  const handleEventRSVP = (event: any, response: string) => {
+    toast({
+      title: "RSVP Submitted",
+      description: `You have ${response} for ${event.title}.`,
+    });
+    setShowEventRSVPModal(false);
+    setSelectedEvent(null);
+  };
+  
+  const handleAnnouncementClick = (announcement: any) => {
+    toast({
+      title: announcement.title,
+      description: announcement.content,
+    });
+  };
+  
+  const handleEmployeeContact = (employee: any) => {
+    toast({
+      title: "Contact Information",
+      description: `Contact ${employee.name} at ${employee.email || 'email@company.com'}`,
+    });
+  };
+  
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -165,7 +299,11 @@ const EmployeePortal = () => {
               <CardContent>
                 <div className="space-y-4">
                   {announcements.map((announcement) => (
-                    <div key={announcement.id} className="border-l-4 border-blue-500 pl-4 py-2">
+                    <div 
+                      key={announcement.id} 
+                      className="border-l-4 border-blue-500 pl-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => handleAnnouncementClick(announcement)}
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
                         <Badge variant={announcement.priority === 'high' ? 'destructive' : announcement.priority === 'medium' ? 'default' : 'secondary'}>
@@ -193,7 +331,11 @@ const EmployeePortal = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {teamMembers.map((member, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg border hover:shadow-md transition-shadow">
+                  <div 
+                    key={index} 
+                    className="flex items-center space-x-3 p-3 rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleEmployeeContact(member)}
+                  >
                     <Avatar>
                       <AvatarImage src="" />
                       <AvatarFallback className="bg-purple-100 text-purple-600">{member.avatar}</AvatarFallback>
@@ -226,7 +368,13 @@ const EmployeePortal = () => {
                   <p><strong>Vision Plan:</strong> Complete Vision Care</p>
                   <p><strong>Deductible:</strong> $1,500 (Individual)</p>
                 </div>
-                <Button variant="outline" className="w-full">View Details</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowBenefitsModal(true)}
+                >
+                  View Details
+                </Button>
               </CardContent>
             </Card>
 
@@ -321,7 +469,14 @@ const EmployeePortal = () => {
                           <Badge variant="secondary">{stub.status}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm">Download</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDownloadPayStub(stub.period)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Download
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -363,7 +518,7 @@ const EmployeePortal = () => {
               <Card className="md:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Time Off Requests</CardTitle>
-                  <Button>Request Time Off</Button>
+                  <Button onClick={() => setShowTimeOffModal(true)}>Request Time Off</Button>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -403,7 +558,7 @@ const EmployeePortal = () => {
                 <FileText className="w-5 h-5" />
                 <span>My Documents</span>
               </CardTitle>
-              <Button>Upload Document</Button>
+              <Button onClick={() => setShowDocumentUploadModal(true)}>Upload Document</Button>
             </CardHeader>
             <CardContent>
               <Table>
@@ -425,8 +580,18 @@ const EmployeePortal = () => {
                       <TableCell>{doc.uploadDate}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">View</Button>
-                          <Button variant="outline" size="sm">Download</Button>
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDownloadDocument(doc.name)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Download
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -460,8 +625,28 @@ const EmployeePortal = () => {
                       </div>
                     </div>
                     <div className="mt-3 flex space-x-2">
-                      <Button variant="outline" size="sm">RSVP</Button>
-                      <Button variant="outline" size="sm">Add to Calendar</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedEvent(event);
+                          setShowEventRSVPModal(true);
+                        }}
+                      >
+                        RSVP
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          toast({
+                            title: "Added to Calendar",
+                            description: `${event.title} has been added to your calendar.`,
+                          });
+                        }}
+                      >
+                        Add to Calendar
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -483,15 +668,36 @@ const EmployeePortal = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-3 border rounded">
                     <span>W-2 Form 2023</span>
-                    <Button variant="outline" size="sm">Download</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadTaxDocument('W-2 Form 2023')}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download
+                    </Button>
                   </div>
                   <div className="flex justify-between items-center p-3 border rounded">
                     <span>1095-C Form 2023</span>
-                    <Button variant="outline" size="sm">Download</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadTaxDocument('1095-C Form 2023')}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download
+                    </Button>
                   </div>
                   <div className="flex justify-between items-center p-3 border rounded">
                     <span>Tax Summary 2023</span>
-                    <Button variant="outline" size="sm">Download</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadTaxDocument('Tax Summary 2023')}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -508,7 +714,13 @@ const EmployeePortal = () => {
                   <p><strong>Additional Withholding:</strong> $0</p>
                   <p><strong>State:</strong> California</p>
                 </div>
-                <Button variant="outline" className="w-full">Update Tax Information</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowTaxUpdateModal(true)}
+                >
+                  Update Tax Information
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -576,7 +788,7 @@ const EmployeePortal = () => {
                 <Clock className="w-5 h-5" />
                 <span>Timesheets</span>
               </CardTitle>
-              <Button>Submit Timesheet</Button>
+              <Button onClick={() => setShowTimesheetModal(true)}>Submit Timesheet</Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -613,21 +825,30 @@ const EmployeePortal = () => {
                         <TableCell>40.0</TableCell>
                         <TableCell>2.5</TableCell>
                         <TableCell><Badge>Approved</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">View</Button></TableCell>
+                        <TableCell><Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button></TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Jan 5, 2024</TableCell>
                         <TableCell>38.5</TableCell>
                         <TableCell>0.0</TableCell>
                         <TableCell><Badge>Approved</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">View</Button></TableCell>
+                        <TableCell><Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button></TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>Dec 29, 2023</TableCell>
                         <TableCell>32.0</TableCell>
                         <TableCell>0.0</TableCell>
                         <TableCell><Badge variant="secondary">Pending</Badge></TableCell>
-                        <TableCell><Button variant="outline" size="sm">Edit</Button></TableCell>
+                        <TableCell><Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button></TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -637,6 +858,316 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Time Off Request Modal */}
+      <Dialog open={showTimeOffModal} onOpenChange={setShowTimeOffModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Request Time Off</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="type" className="text-right">Type</Label>
+              <Select value={timeOffForm.type} onValueChange={(value) => setTimeOffForm({...timeOffForm, type: value})}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vacation">Vacation</SelectItem>
+                  <SelectItem value="sick">Sick Leave</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="bereavement">Bereavement</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="startDate" className="text-right">Start Date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                className="col-span-3"
+                value={timeOffForm.startDate}
+                onChange={(e) => setTimeOffForm({...timeOffForm, startDate: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="endDate" className="text-right">End Date</Label>
+              <Input
+                id="endDate"
+                type="date"
+                className="col-span-3"
+                value={timeOffForm.endDate}
+                onChange={(e) => setTimeOffForm({...timeOffForm, endDate: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="reason" className="text-right">Reason</Label>
+              <Textarea
+                id="reason"
+                className="col-span-3"
+                placeholder="Please provide a reason for your time off request"
+                value={timeOffForm.reason}
+                onChange={(e) => setTimeOffForm({...timeOffForm, reason: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowTimeOffModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTimeOffSubmit}>
+              Submit Request
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Upload Modal */}
+      <Dialog open={showDocumentUploadModal} onOpenChange={setShowDocumentUploadModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Upload Document</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="docName" className="text-right">Document Name</Label>
+              <Input
+                id="docName"
+                className="col-span-3"
+                placeholder="Enter document name"
+                value={documentUpload.name}
+                onChange={(e) => setDocumentUpload({...documentUpload, name: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="docType" className="text-right">Type</Label>
+              <Select value={documentUpload.type} onValueChange={(value) => setDocumentUpload({...documentUpload, type: value})}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="doc">Word Document</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="file" className="text-right">File</Label>
+              <Input
+                id="file"
+                type="file"
+                className="col-span-3"
+                onChange={(e) => setDocumentUpload({...documentUpload, file: e.target.files?.[0] || null})}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowDocumentUploadModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDocumentUpload}>
+              Upload
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Benefits Details Modal */}
+      <Dialog open={showBenefitsModal} onOpenChange={setShowBenefitsModal}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Benefits Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold">Medical Benefits</h4>
+                <p className="text-sm text-gray-600">Premium Health Plus Plan</p>
+                <p className="text-sm text-gray-600">Coverage: 90% after deductible</p>
+                <p className="text-sm text-gray-600">Deductible: $1,500 individual</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Dental Benefits</h4>
+                <p className="text-sm text-gray-600">Comprehensive Dental Plan</p>
+                <p className="text-sm text-gray-600">Coverage: 100% preventive, 80% basic</p>
+                <p className="text-sm text-gray-600">Annual maximum: $2,000</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold">Vision Benefits</h4>
+              <p className="text-sm text-gray-600">Complete Vision Care</p>
+              <p className="text-sm text-gray-600">Coverage: Annual eye exam, frames every 2 years</p>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleBenefitsUpdate}>
+              Update Benefits
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tax Information Update Modal */}
+      <Dialog open={showTaxUpdateModal} onOpenChange={setShowTaxUpdateModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Update Tax Information</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filingStatus" className="text-right">Filing Status</Label>
+              <Select value={taxInfo.filingStatus} onValueChange={(value) => setTaxInfo({...taxInfo, filingStatus: value})}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Single">Single</SelectItem>
+                  <SelectItem value="Married">Married</SelectItem>
+                  <SelectItem value="Head of Household">Head of Household</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="allowances" className="text-right">Allowances</Label>
+              <Input
+                id="allowances"
+                type="number"
+                className="col-span-3"
+                value={taxInfo.allowances}
+                onChange={(e) => setTaxInfo({...taxInfo, allowances: parseInt(e.target.value)})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="additionalWithholding" className="text-right">Additional Withholding</Label>
+              <Input
+                id="additionalWithholding"
+                type="number"
+                className="col-span-3"
+                value={taxInfo.additionalWithholding}
+                onChange={(e) => setTaxInfo({...taxInfo, additionalWithholding: parseInt(e.target.value)})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="state" className="text-right">State</Label>
+              <Select value={taxInfo.state} onValueChange={(value) => setTaxInfo({...taxInfo, state: value})}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="California">California</SelectItem>
+                  <SelectItem value="New York">New York</SelectItem>
+                  <SelectItem value="Texas">Texas</SelectItem>
+                  <SelectItem value="Florida">Florida</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowTaxUpdateModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTaxInfoUpdate}>
+              Update
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Timesheet Submission Modal */}
+      <Dialog open={showTimesheetModal} onOpenChange={setShowTimesheetModal}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Submit Timesheet</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="weekEnding" className="text-right">Week Ending</Label>
+              <Input
+                id="weekEnding"
+                type="date"
+                className="col-span-3"
+                value={timesheetData.weekEnding}
+                onChange={(e) => setTimesheetData({...timesheetData, weekEnding: e.target.value})}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Daily Hours</Label>
+              <div className="grid grid-cols-7 gap-2">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
+                  <div key={day} className="space-y-1">
+                    <Label className="text-xs">{day}</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="24"
+                      step="0.5"
+                      value={timesheetData.hours[index]}
+                      onChange={(e) => {
+                        const newHours = [...timesheetData.hours];
+                        newHours[index] = parseFloat(e.target.value) || 0;
+                        setTimesheetData({...timesheetData, hours: newHours});
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">Notes</Label>
+              <Textarea
+                id="notes"
+                className="col-span-3"
+                placeholder="Any additional notes about your timesheet"
+                value={timesheetData.notes}
+                onChange={(e) => setTimesheetData({...timesheetData, notes: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTimesheetSubmit}>
+              Submit Timesheet
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Event RSVP Modal */}
+      <Dialog open={showEventRSVPModal} onOpenChange={setShowEventRSVPModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>RSVP for Event</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedEvent && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">{selectedEvent.title}</h4>
+                <p className="text-sm text-gray-600">{selectedEvent.date} at {selectedEvent.time}</p>
+                <p className="text-sm text-gray-600">Location: {selectedEvent.location}</p>
+              </div>
+            )}
+            <div className="flex space-x-2">
+              <Button 
+                className="flex-1" 
+                onClick={() => selectedEvent && handleEventRSVP(selectedEvent, 'accepted')}
+              >
+                Accept
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => selectedEvent && handleEventRSVP(selectedEvent, 'declined')}
+              >
+                Decline
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

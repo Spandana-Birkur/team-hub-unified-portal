@@ -23,7 +23,6 @@ const CompanySidebar = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/employee', icon: Users, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
     { to: '/helpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
@@ -55,17 +54,11 @@ const CompanySidebar = () => {
   return (
     <div className="bg-gray-900 text-white w-64 min-h-screen flex flex-col">
       <div className="p-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">CP</span>
-          </div>
-          <div>
-            <h2 className="font-bold text-lg">Company Portal</h2>
-            <p className="text-gray-400 text-sm">Acme Corporation</p>
-            {userRole && (
-              <p className="text-blue-400 text-xs capitalize">{userRole} Access</p>
-            )}
-          </div>
+        <div>
+          <h2 className="font-bold text-lg">Access Company Portal</h2>
+          {userRole && (
+            <p className="text-blue-400 text-xs capitalize">{userRole} Access</p>
+          )}
         </div>
       </div>
       

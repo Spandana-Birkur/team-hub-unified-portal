@@ -241,7 +241,10 @@ const Notifications: React.FC = () => {
           ) : (
             <div className="divide-y">
               {filteredNotifications.map((notification, index) => (
-                <div key={notification.id} className="p-4 hover:bg-muted/50 transition-colors">
+                <div
+                  key={notification.id}
+                  className={`p-4 hover:bg-muted/50 transition-colors ${!notification.read ? 'border-l-4 border-blue-500 bg-blue-50' : ''}`}
+                >
                   <div className="flex items-start gap-3">
                     <Checkbox
                       checked={selectedNotifications.includes(notification.id)}
@@ -254,7 +257,8 @@ const Notifications: React.FC = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className={`text-sm font-medium ${!notification.read ? 'font-semibold' : ''}`}>
+                            <p className={`text-sm font-medium flex items-center ${!notification.read ? 'font-semibold' : ''}`}>
+                              {!notification.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />}
                               {notification.title}
                             </p>
                             <Badge 
@@ -311,4 +315,4 @@ const Notifications: React.FC = () => {
   );
 };
 
-export default Notifications; 
+export default Notifications;

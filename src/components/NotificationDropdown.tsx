@@ -112,14 +112,15 @@ const NotificationDropdown: React.FC = () => {
             ) : (
               filteredNotifications.map((notification, index) => (
                 <div key={notification.id}>
-                  <div className="flex items-start gap-3 p-3 hover:bg-muted/50 transition-colors">
+                  <div className={`flex items-start gap-3 p-3 hover:bg-muted/50 transition-colors ${!notification.read ? 'border-l-4 border-blue-500 bg-blue-50' : ''}`}>
                     <div className="flex-shrink-0 mt-1">
                       <span className="text-lg">{getTypeIcon(notification.type)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${!notification.read ? 'font-semibold' : ''}`}>
+                          <p className={`text-sm font-medium flex items-center ${!notification.read ? 'font-semibold' : ''}`}> 
+                            {!notification.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />}
                             {notification.title}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useNavigate } from 'react-router-dom';
+import { useRole } from '@/contexts/RoleContext';
 
 const EmployeePortal = () => {
   const announcements = [
@@ -71,6 +72,7 @@ const EmployeePortal = () => {
   ];
 
   const { profile } = useUserProfile();
+  const { userRole } = useRole();
   const userProfile = {
     name: profile.firstName + ' ' + profile.lastName,
     email: profile.email,
@@ -78,6 +80,12 @@ const EmployeePortal = () => {
     position: profile.position,
     department: profile.department,
     initials: (profile.firstName[0] || '') + (profile.lastName[0] || ''),
+  };
+  const roleLabels = {
+    employee: 'Employee',
+    hr: 'HR Manager',
+    manager: 'Manager',
+    it: 'IT Support',
   };
   const navigate = useNavigate();
   return (
@@ -119,7 +127,7 @@ const EmployeePortal = () => {
                   <div>
                     <h3 className="text-lg font-semibold">{userProfile.name}</h3>
                     <p className="text-gray-600">{userProfile.position}</p>
-                    <Badge className="mt-1">{userProfile.department}</Badge>
+                    <Badge className="mt-1" variant="secondary">{roleLabels[userRole] || 'Employee'}</Badge>
                   </div>
                 </div>
                 <div className="space-y-3">

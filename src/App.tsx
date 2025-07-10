@@ -8,7 +8,6 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
-import Dashboard from "./pages/Dashboard";
 import EmployeePortal from "./pages/EmployeePortal";
 import HRManagement from "./pages/HRManagement";
 import ITHelpdesk from "./pages/ITHelpdesk";
@@ -59,7 +58,6 @@ const AppContent = () => {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

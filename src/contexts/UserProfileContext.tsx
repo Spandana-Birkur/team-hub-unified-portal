@@ -8,6 +8,7 @@ export interface UserProfile {
   department: string;
   position: string;
   bio: string;
+  gender: string; // 'male', 'female', 'non-binary', etc.
 }
 
 interface UserProfileContextType {
@@ -23,7 +24,8 @@ const defaultProfile: UserProfile = {
   phone: '+1 (555) 123-4567',
   department: 'IT',
   position: 'Software Engineer',
-  bio: 'Experienced software engineer with expertise in React and TypeScript.'
+  bio: 'Experienced software engineer with expertise in React and TypeScript.',
+  gender: 'male',
 };
 
 const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);

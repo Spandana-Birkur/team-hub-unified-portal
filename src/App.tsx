@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./components/LoginPage";
 import Documents from "./pages/Documents";
+import EmployeeSafetyConduct from "./pages/EmployeeSafetyConduct";
 
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const AppContent = () => {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/documents" element={<Documents />} />
+            <Route path="/safety" element={<EmployeeSafetyConduct />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

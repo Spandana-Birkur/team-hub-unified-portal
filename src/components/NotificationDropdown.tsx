@@ -10,7 +10,7 @@ import { useNotifications, Notification } from '../contexts/NotificationContext'
 import { useNavigate } from 'react-router-dom';
 
 const NotificationDropdown: React.FC = () => {
-  const { notifications, unreadCount, markAsRead, deleteNotification } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
@@ -91,6 +91,16 @@ const NotificationDropdown: React.FC = () => {
               <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                 <Filter className="h-4 w-4" />
               </Button>
+              {unreadCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 px-2 py-0 text-xs"
+                  onClick={markAllAsRead}
+                >
+                  Mark All as Read
+                </Button>
+              )}
             </div>
           </div>
           <div className="relative">

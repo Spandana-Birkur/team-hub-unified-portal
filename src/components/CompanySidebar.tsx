@@ -11,7 +11,8 @@ import {
   Calendar,
   FileText,
   Settings,
-  LogOut
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -28,6 +29,7 @@ const CompanySidebar = () => {
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/safety', icon: ShieldCheck, label: 'Employee Safety', roles: ['employee', 'hr', 'manager', 'it'] },
   ];
 
   const bottomNavItems = [

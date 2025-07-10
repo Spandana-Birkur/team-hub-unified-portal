@@ -48,6 +48,22 @@ const EmployeePortal = () => {
     file: null
   });
   
+  // State for dynamic data
+  const [payStubs, setPayStubs] = useState([
+    { period: 'Dec 15 - Dec 31, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
+    { period: 'Dec 1 - Dec 14, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
+    { period: 'Nov 15 - Nov 30, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
+  ]);
+  const [documents, setDocuments] = useState([
+    { name: 'Employee Handbook 2024', type: 'PDF', uploadDate: '2024-01-01' },
+    { name: 'W-2 Form 2023', type: 'PDF', uploadDate: '2024-01-15' },
+    { name: 'Benefits Enrollment', type: 'PDF', uploadDate: '2023-12-01' },
+  ]);
+  const [timeOffRequests, setTimeOffRequests] = useState([
+    { type: 'Vacation', dates: 'Feb 14 - Feb 16, 2024', days: 3, status: 'Approved' },
+    { type: 'Sick Leave', dates: 'Jan 10, 2024', days: 1, status: 'Approved' },
+    { type: 'Personal', dates: 'Jan 5, 2024', days: 1, status: 'Pending' },
+  ]);
   const [taxInfo, setTaxInfo] = useState({
     filingStatus: 'Single',
     allowances: 2,
@@ -90,24 +106,6 @@ const EmployeePortal = () => {
     { name: 'Bob Johnson', role: 'Designer', avatar: 'BJ', department: 'Design' },
     { name: 'Carol White', role: 'Developer', avatar: 'CW', department: 'Engineering' },
     { name: 'David Brown', role: 'Product Manager', avatar: 'DB', department: 'Product' },
-  ];
-
-  const payStubs = [
-    { period: 'Dec 15 - Dec 31, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Dec 1 - Dec 14, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Nov 15 - Nov 30, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-  ];
-
-  const timeOffRequests = [
-    { type: 'Vacation', dates: 'Feb 14 - Feb 16, 2024', days: 3, status: 'Approved' },
-    { type: 'Sick Leave', dates: 'Jan 10, 2024', days: 1, status: 'Approved' },
-    { type: 'Personal', dates: 'Jan 5, 2024', days: 1, status: 'Pending' },
-  ];
-
-  const documents = [
-    { name: 'Employee Handbook 2024', type: 'PDF', uploadDate: '2024-01-01' },
-    { name: 'W-2 Form 2023', type: 'PDF', uploadDate: '2024-01-15' },
-    { name: 'Benefits Enrollment', type: 'PDF', uploadDate: '2023-12-01' },
   ];
 
   const upcomingEvents = [
@@ -156,7 +154,17 @@ const EmployeePortal = () => {
     });
   };
   
+  // Update handlers
   const handleTimeOffSubmit = () => {
+    setTimeOffRequests(prev => [
+      {
+        type: timeOffForm.type,
+        dates: `${timeOffForm.startDate} - ${timeOffForm.endDate}`,
+        days: timeOffForm.startDate && timeOffForm.endDate ? (new Date(timeOffForm.endDate).getDate() - new Date(timeOffForm.startDate).getDate() + 1) : 1,
+        status: 'Pending',
+      },
+      ...prev,
+    ]);
     toast({
       title: "Time Off Request Submitted",
       description: "Your time off request has been submitted for approval.",
@@ -164,8 +172,15 @@ const EmployeePortal = () => {
     setShowTimeOffModal(false);
     setTimeOffForm({ type: '', startDate: '', endDate: '', reason: '' });
   };
-  
   const handleDocumentUpload = () => {
+    setDocuments(prev => [
+      {
+        name: documentUpload.name || (documentUpload.file ? documentUpload.file.name : 'Untitled'),
+        type: documentUpload.type || 'PDF',
+        uploadDate: new Date().toISOString().slice(0, 10),
+      },
+      ...prev,
+    ]);
     toast({
       title: "Document Uploaded",
       description: "Your document has been uploaded successfully.",
@@ -173,7 +188,6 @@ const EmployeePortal = () => {
     setShowDocumentUploadModal(false);
     setDocumentUpload({ name: '', type: '', file: null });
   };
-  
   const handleBenefitsUpdate = () => {
     toast({
       title: "Benefits Updated",
@@ -181,16 +195,24 @@ const EmployeePortal = () => {
     });
     setShowBenefitsModal(false);
   };
-  
   const handleTaxInfoUpdate = () => {
+    setTaxInfo({ ...taxInfo }); // Already updated via form binding
     toast({
       title: "Tax Information Updated",
       description: "Your tax information has been updated successfully.",
     });
     setShowTaxUpdateModal(false);
   };
-  
   const handleTimesheetSubmit = () => {
+    setPayStubs(prev => [
+      {
+        period: timesheetData.weekEnding,
+        grossPay: '$0.00',
+        netPay: '$0.00',
+        status: 'Pending',
+      },
+      ...prev,
+    ]);
     toast({
       title: "Timesheet Submitted",
       description: "Your timesheet has been submitted for approval.",

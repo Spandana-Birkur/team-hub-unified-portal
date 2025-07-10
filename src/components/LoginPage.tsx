@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useRole } from '@/contexts/RoleContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ interface LoginFormData {
 
 const LoginPage = () => {
   const { setUserRole } = useRole();
+  const { setProfile } = useUserProfile();
   const [selectedRole, setSelectedRole] = useState<'employee' | 'hr' | 'manager' | 'it'>('employee');
 
   const form = useForm<LoginFormData>({
@@ -56,6 +58,18 @@ const LoginPage = () => {
     // Simple validation - in a real app, this would authenticate with a backend
     if (data.email && data.password) {
       setUserRole(selectedRole);
+      if (data.email.toLowerCase() === 'jane.doe@company.com') {
+        setProfile({
+          firstName: 'Jane',
+          lastName: 'Doe',
+          email: 'jane.doe@company.com',
+          phone: '+1 (555) 987-6543',
+          department: 'HR',
+          position: 'HR Specialist',
+          bio: 'Passionate about employee well-being and workplace safety.',
+          gender: 'female',
+        });
+      }
     }
   };
 

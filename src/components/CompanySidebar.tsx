@@ -11,6 +11,7 @@ import {
   Calendar,
   FileText,
   Settings,
+  Bell,
   LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ const CompanySidebar = () => {
     { to: '/helpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/notifications', icon: Bell, label: 'Notifications', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },
   ];
 

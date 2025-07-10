@@ -11,7 +11,6 @@ import {
   Calendar,
   FileText,
   Settings,
-  Bell,
   LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,12 +22,11 @@ const CompanySidebar = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const navItems = [
-    { to: '/employee', icon: Users, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
     { to: '/helpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/notifications', icon: Bell, label: 'Notifications', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },
   ];
 

@@ -11,7 +11,8 @@ import {
   DollarSign, Plane, FileText, PartyPopper, Calculator, 
   GraduationCap, Clock
 } from 'lucide-react';
-import { useRole } from '@/contexts/RoleContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
+import { useNavigate } from 'react-router-dom';
 
 const EmployeePortal = () => {
   const announcements = [
@@ -69,8 +70,16 @@ const EmployeePortal = () => {
     { title: 'Training Workshop', date: '2024-02-25', time: '9:00 AM', location: 'Training Room' },
   ];
 
-  const { userRole } = useRole();
-  const position = userRole === 'it' ? 'IT Specialist' : 'Senior Software Engineer';
+  const { profile } = useUserProfile();
+  const userProfile = {
+    name: profile.firstName + ' ' + profile.lastName,
+    email: profile.email,
+    phone: profile.phone,
+    position: profile.position,
+    department: profile.department,
+    initials: (profile.firstName[0] || '') + (profile.lastName[0] || ''),
+  };
+  const navigate = useNavigate();
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -105,23 +114,22 @@ const EmployeePortal = () => {
                 <div className="flex items-center space-x-4">
                   <Avatar className="w-16 h-16">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-bold">JD</AvatarFallback>
+                    <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-bold">{userProfile.initials}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="text-lg font-semibold">John Doe</h3>
-                    <p className="text-gray-600">{position}</p>
-                    <Badge className="mt-1">Engineering</Badge>
+                    <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+                    <p className="text-gray-600">{userProfile.position}</p>
+                    <Badge className="mt-1">{userProfile.department}</Badge>
                   </div>
                 </div>
-                
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-sm">
                     <Mail className="w-4 h-4 text-gray-400" />
-                    <span>john.doe@company.com</span>
+                    <span>{userProfile.email}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
                     <Phone className="w-4 h-4 text-gray-400" />
-                    <span>+1 (555) 123-4567</span>
+                    <span>{userProfile.phone}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
                     <MapPin className="w-4 h-4 text-gray-400" />
@@ -133,7 +141,7 @@ const EmployeePortal = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full mt-4">Edit Profile</Button>
+                <Button className="w-full mt-4" onClick={() => navigate('/settings')}>Edit Profile</Button>
               </CardContent>
             </Card>
 

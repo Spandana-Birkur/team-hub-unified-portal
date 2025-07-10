@@ -89,6 +89,19 @@ function getEventsForDate(dateStr, events) {
   return events.filter(event => event.date === dateStr);
 }
 
+function getWeekDates(date) {
+  // Returns array of Date objects for the week containing 'date' (Sunday to Saturday)
+  const d = new Date(date);
+  const day = d.getDay();
+  const start = new Date(d);
+  start.setDate(d.getDate() - day);
+  return Array.from({ length: 7 }, (_, i) => {
+    const dt = new Date(start);
+    dt.setDate(start.getDate() + i);
+    return dt;
+  });
+}
+
 const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -103,6 +116,7 @@ const CalendarPage = () => {
     location: '',
     description: '',
   });
+  const [viewMode, setViewMode] = useState('month'); // 'month' or 'week'
 
   const handleDateSelect = (date) => {
     const iso = date.toISOString().slice(0, 10);
@@ -112,18 +126,62 @@ const CalendarPage = () => {
     setShowDialog(true);
   };
 
+  // For weekly view, default to today or selectedDate
+  const weekBaseDate = selectedDate ? new Date(selectedDate) : new Date();
+  const weekDates = getWeekDates(weekBaseDate);
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Card>
+    <div className="p-6 w-full">
+      <Card className="w-full">
         <CardHeader className="flex items-center space-x-2">
           <CalendarIcon className="w-6 h-6 text-blue-600" />
           <CardTitle>Company Calendar</CardTitle>
         </CardHeader>
-        <CardContent>
-          <CalendarUI
-            mode="single"
-            onSelect={handleDateSelect}
-          />
+        <CardContent className="w-full">
+          <div className="flex items-center mb-4 space-x-2">
+            <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} onClick={() => setViewMode('month')}>Monthly View</Button>
+            <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} onClick={() => setViewMode('week')}>Weekly View</Button>
+          </div>
+          {viewMode === 'month' ? (
+            <div className="w-full">
+              <CalendarUI
+                mode="single"
+                onSelect={handleDateSelect}
+                className="w-full"
+              />
+            </div>
+          ) : (
+            <div className="border rounded-lg p-4 bg-white w-full">
+              <div className="flex justify-between mb-2 w-full">
+                {weekDates.map(date => (
+                  <div key={date.toISOString()} className="flex-1 text-center">
+                    <div className="font-semibold text-gray-700">{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                    <div className="text-xs text-gray-500">{date.toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between w-full">
+                {weekDates.map(date => {
+                  const iso = date.toISOString().slice(0, 10);
+                  const dayEvents = getEventsForDate(iso, events);
+                  return (
+                    <div key={iso} className="flex-1 min-h-[60px] border rounded p-1 mx-1 bg-gray-50">
+                      {dayEvents.length === 0 ? (
+                        <div className="text-xs text-gray-400 text-center">No events</div>
+                      ) : (
+                        dayEvents.map(event => (
+                          <div key={event.id} className="mb-1 p-1 rounded bg-blue-100 cursor-pointer" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
+                            <Badge className="mr-1 text-xs">{event.type}</Badge>
+                            <span className="text-xs font-medium">{event.title}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       <div className="flex justify-end mb-4">

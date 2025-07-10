@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,10 +37,14 @@ const HRManagement = () => {
   ];
 
   const hrDocuments = [
-    { id: 1, title: 'Employee Handbook', type: 'Policy', lastUpdated: '2024-01-15', version: '2.1' },
-    { id: 2, title: 'Leave Request Form', type: 'Form', lastUpdated: '2024-01-10', version: '1.3' },
-    { id: 3, title: 'Code of Conduct', type: 'Policy', lastUpdated: '2024-01-08', version: '3.0' },
-    { id: 4, title: 'Expense Reimbursement Form', type: 'Form', lastUpdated: '2024-01-05', version: '1.2' },
+    { id: 1, title: 'Employee Handbook', type: 'Policy', lastUpdated: '2024-01-15', version: '2.1', category: 'Policies' },
+    { id: 2, title: 'Leave Request Form', type: 'Form', lastUpdated: '2024-01-10', version: '1.3', category: 'Forms' },
+    { id: 3, title: 'Code of Conduct', type: 'Policy', lastUpdated: '2024-01-08', version: '3.0', category: 'Policies' },
+    { id: 4, title: 'Expense Reimbursement Form', type: 'Form', lastUpdated: '2024-01-05', version: '1.2', category: 'Forms' },
+    { id: 5, title: 'Onboarding Checklist', type: 'Checklist', lastUpdated: '2024-01-02', version: '1.0', category: 'Onboarding' },
+    { id: 6, title: 'Remote Work Policy', type: 'Policy', lastUpdated: '2023-12-20', version: '1.1', category: 'Policies' },
+    { id: 7, title: 'Performance Review Template', type: 'Template', lastUpdated: '2023-12-15', version: '2.0', category: 'Templates' },
+    { id: 8, title: 'Employee Guide', type: 'Guide', lastUpdated: '2023-12-10', version: '1.0', category: 'Guides' },
   ];
 
   const hrAnnouncements = [
@@ -65,6 +68,13 @@ const HRManagement = () => {
       default: return <Badge variant="outline">Normal</Badge>;
     }
   };
+
+  // Helper to group documents by category
+  const documentsByCategory = hrDocuments.reduce((acc, doc) => {
+    acc[doc.category] = acc[doc.category] || [];
+    acc[doc.category].push(doc);
+    return acc;
+  }, {} as Record<string, typeof hrDocuments>);
 
   return (
     <div className="p-6">
@@ -186,20 +196,27 @@ const HRManagement = () => {
               <Button>Upload Document</Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {hrDocuments.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{doc.title}</h4>
-                      <p className="text-sm text-gray-600">Type: {doc.type} • Version: {doc.version}</p>
-                      <p className="text-xs text-gray-500">Last updated: {doc.lastUpdated}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </Button>
-                      <Button size="sm" variant="outline">View</Button>
+              <div className="space-y-8">
+                {Object.keys(documentsByCategory).map((category) => (
+                  <div key={category}>
+                    <h3 className="text-lg font-semibold mb-2 text-blue-700">{category}</h3>
+                    <div className="space-y-4">
+                      {documentsByCategory[category].map((doc) => (
+                        <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">{doc.title}</h4>
+                            <p className="text-sm text-gray-600">Type: {doc.type} • Version: {doc.version}</p>
+                            <p className="text-xs text-gray-500">Last updated: {doc.lastUpdated}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline">
+                              <Download className="w-4 h-4 mr-1" />
+                              Download
+                            </Button>
+                            <Button size="sm" variant="outline">View</Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}

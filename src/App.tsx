@@ -14,6 +14,7 @@ import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./components/LoginPage";
+import Documents from "./pages/Documents";
 
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const AppContent = () => {
             <Route path="/training" element={<Training />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/documents" element={<Documents />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

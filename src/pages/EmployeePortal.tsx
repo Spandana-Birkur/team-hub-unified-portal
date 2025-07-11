@@ -21,9 +21,11 @@ import {
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
+import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
 
 const EmployeePortal = () => {
   const { toast } = useToast();
+  const { submitLeaveRequest, getRequestsByEmployee } = useLeaveRequests();
   
   // Modal states
   const [showTimeOffModal, setShowTimeOffModal] = useState(false);
@@ -59,11 +61,14 @@ const EmployeePortal = () => {
     { name: 'W-2 Form 2023', type: 'PDF', uploadDate: '2024-01-15' },
     { name: 'Benefits Enrollment', type: 'PDF', uploadDate: '2023-12-01' },
   ]);
-  const [timeOffRequests, setTimeOffRequests] = useState([
-    { type: 'Vacation', dates: 'Feb 14 - Feb 16, 2024', days: 3, status: 'Approved' },
-    { type: 'Sick Leave', dates: 'Jan 10, 2024', days: 1, status: 'Approved' },
-    { type: 'Personal', dates: 'Jan 5, 2024', days: 1, status: 'Pending' },
-  ]);
+  // Get user's leave requests from context
+  const userEmployeeId = 'emp001'; // This would come from user profile in a real app
+  const timeOffRequests = getRequestsByEmployee(userEmployeeId).map(request => ({
+    type: request.type,
+    dates: `${request.startDate} - ${request.endDate}`,
+    days: request.days,
+    status: request.status === 'pending' ? 'Pending' : request.status === 'approved' ? 'Approved' : 'Rejected'
+  }));
   const [taxInfo, setTaxInfo] = useState({
     filingStatus: 'Single',
     allowances: 2,
@@ -162,15 +167,19 @@ const EmployeePortal = () => {
   
   // Update handlers
   const handleTimeOffSubmit = () => {
-    setTimeOffRequests(prev => [
-      {
-        type: timeOffForm.type,
-        dates: `${timeOffForm.startDate} - ${timeOffForm.endDate}`,
-        days: timeOffForm.startDate && timeOffForm.endDate ? (new Date(timeOffForm.endDate).getDate() - new Date(timeOffForm.startDate).getDate() + 1) : 1,
-        status: 'Pending',
-      },
-      ...prev,
-    ]);
+    const days = timeOffForm.startDate && timeOffForm.endDate ? 
+      Math.ceil((new Date(timeOffForm.endDate).getTime() - new Date(timeOffForm.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1;
+    
+    submitLeaveRequest({
+      employeeId: userEmployeeId,
+      employeeName: profile.firstName + ' ' + profile.lastName,
+      type: timeOffForm.type as 'Vacation' | 'Sick Leave' | 'Personal' | 'Other',
+      startDate: timeOffForm.startDate,
+      endDate: timeOffForm.endDate,
+      reason: timeOffForm.reason,
+      days: days
+    });
+    
     toast({
       title: "Time Off Request Submitted",
       description: "Your time off request has been submitted for approval.",

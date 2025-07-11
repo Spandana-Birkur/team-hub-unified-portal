@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { employees } from '@/data/employees';
 import { SearchableDropdown } from '@/components/SearchableDropdown';
+import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
 import { 
   Users, 
   Calendar, 
@@ -28,28 +29,18 @@ import {
   User,
   Building,
   CalendarDays,
-  Star
+  Star,
+  Eye
 } from 'lucide-react';
 
 const HRManagement = () => {
+  const { leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useLeaveRequests();
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [leaveRequests, setLeaveRequests] = useState([
-    { id: 1, employee: 'Sarah Johnson', type: 'Vacation', dates: 'Jan 15-19, 2024', status: 'pending', days: 5 },
-    { id: 2, employee: 'Mike Chen', type: 'Sick Leave', dates: 'Jan 12, 2024', status: 'approved', days: 1 },
-    { id: 3, employee: 'Emily Davis', type: 'Personal', dates: 'Jan 22-23, 2024', status: 'pending', days: 2 },
-    { id: 4, employee: 'Tom Wilson', type: 'Vacation', dates: 'Feb 5-9, 2024', status: 'approved', days: 5 },
-  ]);
-  const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
-  const [newRequest, setNewRequest] = useState({
-    employee: '',
-    type: 'Vacation',
-    startDate: '',
-    endDate: '',
-    reason: ''
-  });
+  const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<any>(null);
+  const [leaveRequestDetailModalOpen, setLeaveRequestDetailModalOpen] = useState(false);
   const [hrDocuments, setHrDocuments] = useState([
     { id: 1, title: 'Employee Handbook', type: 'Policy', lastUpdated: '2024-01-15', version: '2.1', category: 'Policies' },
     { id: 2, title: 'Leave Request Form', type: 'Form', lastUpdated: '2024-01-10', version: '1.3', category: 'Forms' },
@@ -99,9 +90,11 @@ const HRManagement = () => {
 
 
 
+  const pendingLeaveCount = leaveRequests.filter(request => request.status === 'pending').length;
+  
   const employeeStats = [
     { title: 'Total Employees', value: '247', icon: Users, color: 'bg-blue-500' },
-    { title: 'Pending Leave', value: '8', icon: Clock, color: 'bg-yellow-500' },
+    { title: 'Pending Leave', value: pendingLeaveCount.toString(), icon: Clock, color: 'bg-yellow-500' },
     { title: 'Performance Reviews', value: '23', icon: TrendingUp, color: 'bg-green-500' },
     { title: 'New Hires (Month)', value: '5', icon: CheckCircle, color: 'bg-purple-500' },
   ];
@@ -149,64 +142,21 @@ const HRManagement = () => {
 
   // Leave management functions
   const handleApproveLeave = (requestId: number) => {
-    setLeaveRequests(prev => 
-      prev.map(request => 
-        request.id === requestId 
-          ? { ...request, status: 'approved' }
-          : request
-      )
-    );
+    approveLeaveRequest(requestId);
   };
 
   const handleRejectLeave = (requestId: number) => {
-    setLeaveRequests(prev => 
-      prev.map(request => 
-        request.id === requestId 
-          ? { ...request, status: 'rejected' }
-          : request
-      )
-    );
+    rejectLeaveRequest(requestId);
   };
 
-  const handleNewRequest = () => {
-    setNewRequestModalOpen(true);
+  const handleViewLeaveRequest = (request: any) => {
+    setSelectedLeaveRequest(request);
+    setLeaveRequestDetailModalOpen(true);
   };
 
-  const handleSubmitNewRequest = () => {
-    const newId = Math.max(...leaveRequests.map(r => r.id)) + 1;
-    const startDate = new Date(newRequest.startDate);
-    const endDate = new Date(newRequest.endDate);
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    
-    const newLeaveRequest = {
-      id: newId,
-      employee: newRequest.employee,
-      type: newRequest.type,
-      dates: `${newRequest.startDate} - ${newRequest.endDate}`,
-      status: 'pending',
-      days: days
-    };
-
-    setLeaveRequests(prev => [...prev, newLeaveRequest]);
-    setNewRequest({
-      employee: '',
-      type: 'Vacation',
-      startDate: '',
-      endDate: '',
-      reason: ''
-    });
-    setNewRequestModalOpen(false);
-  };
-
-  const closeNewRequestModal = () => {
-    setNewRequestModalOpen(false);
-    setNewRequest({
-      employee: '',
-      type: 'Vacation',
-      startDate: '',
-      endDate: '',
-      reason: ''
-    });
+  const closeLeaveRequestDetailModal = () => {
+    setLeaveRequestDetailModalOpen(false);
+    setSelectedLeaveRequest(null);
   };
 
   // HR Documents functions
@@ -499,12 +449,11 @@ const HRManagement = () => {
 
         <TabsContent value="leave">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
                 <span>Leave Management</span>
               </CardTitle>
-              <Button onClick={handleNewRequest}>New Request</Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -513,9 +462,9 @@ const HRManagement = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-4">
                         <div>
-                          <h4 className="font-semibold text-gray-900">{request.employee}</h4>
+                          <h4 className="font-semibold text-gray-900">{request.employeeName}</h4>
                           <p className="text-sm text-gray-600">{request.type} • {request.days} days</p>
-                          <p className="text-xs text-gray-500">{request.dates}</p>
+                          <p className="text-xs text-gray-500">{request.startDate} - {request.endDate}</p>
                         </div>
                       </div>
                     </div>
@@ -523,6 +472,14 @@ const HRManagement = () => {
                       <Badge variant={request.status === 'approved' ? 'default' : 'secondary'}>
                         {request.status}
                       </Badge>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleViewLeaveRequest(request)}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
                       {request.status === 'pending' && (
                         <div className="flex space-x-2">
                           <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>Reject</Button>
@@ -865,84 +822,108 @@ const HRManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* New Leave Request Modal */}
-      <Dialog open={newRequestModalOpen} onOpenChange={setNewRequestModalOpen}>
-        <DialogContent className="max-w-md">
+      {/* Leave Request Detail Modal */}
+      <Dialog open={leaveRequestDetailModalOpen} onOpenChange={setLeaveRequestDetailModalOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <Calendar className="w-5 h-5" />
-              <span>New Leave Request</span>
+              <span>Leave Request Details</span>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Employee</label>
-              <SearchableDropdown
-                options={employeeOptions}
-                value={newRequest.employee}
-                onValueChange={(value) => setNewRequest(prev => ({ ...prev, employee: value }))}
-                placeholder="Select Employee"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Leave Type</label>
-              <select 
-                className="w-full mt-1 p-2 border rounded-md"
-                value={newRequest.type}
-                onChange={(e) => setNewRequest(prev => ({ ...prev, type: e.target.value }))}
-              >
-                <option value="Vacation">Vacation</option>
-                <option value="Sick Leave">Sick Leave</option>
-                <option value="Personal">Personal</option>
-                <option value="Maternity">Maternity</option>
-                <option value="Paternity">Paternity</option>
-                <option value="Bereavement">Bereavement</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Start Date</label>
-                <input 
-                  type="date" 
-                  className="w-full mt-1 p-2 border rounded-md"
-                  value={newRequest.startDate}
-                  onChange={(e) => setNewRequest(prev => ({ ...prev, startDate: e.target.value }))}
-                />
+          {selectedLeaveRequest && (
+            <div className="space-y-6">
+              {/* Header Section */}
+              <div className="flex items-start justify-between border-b pb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">{selectedLeaveRequest.employeeName}</h2>
+                  <p className="text-lg text-gray-600">{selectedLeaveRequest.type}</p>
+                  <Badge variant={selectedLeaveRequest.status === 'approved' ? 'default' : selectedLeaveRequest.status === 'rejected' ? 'destructive' : 'secondary'}>
+                    {selectedLeaveRequest.status}
+                  </Badge>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Request ID: {selectedLeaveRequest.id}</p>
+                  <p className="text-sm text-gray-500">Submitted: {new Date(selectedLeaveRequest.submittedAt).toLocaleDateString()}</p>
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-medium">End Date</label>
-                <input 
-                  type="date" 
-                  className="w-full mt-1 p-2 border rounded-md"
-                  value={newRequest.endDate}
-                  onChange={(e) => setNewRequest(prev => ({ ...prev, endDate: e.target.value }))}
-                />
+
+              {/* Request Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Request Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm">Type: {selectedLeaveRequest.type}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CalendarDays className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm">Duration: {selectedLeaveRequest.days} days</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Clock className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm">Status: {selectedLeaveRequest.status}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Date Range</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm">Start Date: {selectedLeaveRequest.startDate}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-4 h-4 text-green-500" />
+                      <span className="text-sm">End Date: {selectedLeaveRequest.endDate}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Clock className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm">Total Days: {selectedLeaveRequest.days}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Reason */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Reason for Leave</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {selectedLeaveRequest.reason || "No reason provided"}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons for Pending Requests */}
+              {selectedLeaveRequest.status === 'pending' && (
+                <div className="flex justify-end space-x-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => handleRejectLeave(selectedLeaveRequest.id)}>
+                    Reject Request
+                  </Button>
+                  <Button onClick={() => handleApproveLeave(selectedLeaveRequest.id)}>
+                    Approve Request
+                  </Button>
+                </div>
+              )}
+
+              {/* Close Button */}
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <Button variant="outline" onClick={closeLeaveRequestDetailModal}>
+                  Close
+                </Button>
               </div>
             </div>
-
-            <div>
-              <label className="text-sm font-medium">Reason</label>
-              <textarea 
-                className="w-full mt-1 p-2 border rounded-md"
-                rows={3}
-                placeholder="Enter reason for leave request..."
-                value={newRequest.reason}
-                onChange={(e) => setNewRequest(prev => ({ ...prev, reason: e.target.value }))}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button variant="outline" onClick={closeNewRequestModal}>
-                Cancel
-              </Button>
-              <Button onClick={handleSubmitNewRequest} disabled={!newRequest.employee || !newRequest.startDate || !newRequest.endDate}>
-                Submit Request
-              </Button>
-            </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 

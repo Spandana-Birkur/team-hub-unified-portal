@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
+import { LeaveRequestProvider } from "@/contexts/LeaveRequestContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
@@ -79,7 +80,9 @@ const App = () => (
         <RoleProvider>
           <UserProfileProvider>
             <NotificationProvider>
-              <AppContent />
+              <LeaveRequestProvider>
+                <AppContent />
+              </LeaveRequestProvider>
             </NotificationProvider>
           </UserProfileProvider>
         </RoleProvider>

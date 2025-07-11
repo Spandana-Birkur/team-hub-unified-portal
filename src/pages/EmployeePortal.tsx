@@ -22,10 +22,12 @@ import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
+import { useEvents } from '@/contexts/EventsContext';
 
 const EmployeePortal = () => {
   const { toast } = useToast();
   const { submitLeaveRequest, getRequestsByEmployee } = useLeaveRequests();
+  const { addEvent, getCompanyEvents } = useEvents();
   
   // Modal states
   const [showTimeOffModal, setShowTimeOffModal] = useState(false);
@@ -35,6 +37,18 @@ const EmployeePortal = () => {
   const [showTimesheetModal, setShowTimesheetModal] = useState(false);
   const [showEventRSVPModal, setShowEventRSVPModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [newEventForm, setNewEventForm] = useState({
+    type: 'Event' as 'Meeting' | 'Holiday' | 'Deadline' | 'Event' | 'Personal',
+    title: '',
+    date: '',
+    time: '',
+    endTime: '',
+    isAllDay: false,
+    location: '',
+    description: '',
+    isPersonal: false
+  });
   
   // Form states
   const [timeOffForm, setTimeOffForm] = useState({
@@ -119,11 +133,11 @@ const EmployeePortal = () => {
     { name: 'David Brown', role: 'Product Manager', avatar: 'DB', department: 'Product' },
   ];
 
-  const upcomingEvents = [
-    { title: 'All Hands Meeting', date: '2024-02-15', time: '10:00 AM', location: 'Conference Room A' },
-    { title: 'Team Building Event', date: '2024-02-20', time: '2:00 PM', location: 'Outdoor Park' },
-    { title: 'Training Workshop', date: '2024-02-25', time: '9:00 AM', location: 'Training Room' },
-  ];
+  // Get upcoming events from context
+  const upcomingEvents = getCompanyEvents()
+    .filter(event => new Date(event.date) >= new Date())
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 5); // Show next 5 events
 
   const { profile } = useUserProfile();
   const { userRole } = useRole();
@@ -243,6 +257,48 @@ const EmployeePortal = () => {
     });
     setShowEventRSVPModal(false);
     setSelectedEvent(null);
+  };
+
+  const handleCreateEvent = () => {
+    addEvent({
+      type: newEventForm.type,
+      title: newEventForm.title,
+      date: newEventForm.date,
+      time: newEventForm.isAllDay ? undefined : newEventForm.time || undefined,
+      endTime: newEventForm.isAllDay ? undefined : newEventForm.endTime || undefined,
+      isAllDay: newEventForm.isAllDay,
+      location: newEventForm.location || undefined,
+      description: newEventForm.description || undefined,
+      createdBy: userEmployeeId,
+      isPersonal: newEventForm.isPersonal
+    });
+    
+    toast({
+      title: "Event Created",
+      description: `${newEventForm.title} has been added to the calendar.`,
+    });
+    
+    setShowCreateEventModal(false);
+    setNewEventForm({
+      type: 'Event',
+      title: '',
+      date: '',
+      time: '',
+      endTime: '',
+      isAllDay: false,
+      location: '',
+      description: '',
+      isPersonal: false
+    });
+  };
+
+  const handleAddToCalendar = (event: any) => {
+    // This would typically add to the user's personal calendar
+    // For now, we'll just show a toast
+    toast({
+      title: "Added to Calendar",
+      description: `${event.title} has been added to your personal calendar.`,
+    });
   };
   
   const handleAnnouncementClick = (announcement: any) => {
@@ -641,11 +697,12 @@ const EmployeePortal = () => {
 
         <TabsContent value="events">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <PartyPopper className="w-5 h-5" />
                 <span>Upcoming Events</span>
               </CardTitle>
+              <Button onClick={() => setShowCreateEventModal(true)}>Create Event</Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -675,12 +732,7 @@ const EmployeePortal = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => {
-                          toast({
-                            title: "Added to Calendar",
-                            description: `${event.title} has been added to your calendar.`,
-                          });
-                        }}
+                        onClick={() => handleAddToCalendar(event)}
                       >
                         Add to Calendar
                       </Button>
@@ -1181,6 +1233,238 @@ const EmployeePortal = () => {
                 Decline
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Event Modal */}
+      <Dialog open={showCreateEventModal} onOpenChange={setShowCreateEventModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Event</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventType" className="text-right">Event Type</Label>
+              <Select 
+                value={newEventForm.type} 
+                onValueChange={(value) => setNewEventForm({...newEventForm, type: value as any})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Meeting">Meeting</SelectItem>
+                  <SelectItem value="Event">Event</SelectItem>
+                  <SelectItem value="Deadline">Deadline</SelectItem>
+                  <SelectItem value="Holiday">Holiday</SelectItem>
+                  <SelectItem value="Personal">Personal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventTitle" className="text-right">Title</Label>
+              <Input
+                id="eventTitle"
+                className="col-span-3"
+                placeholder="Event title"
+                value={newEventForm.title}
+                onChange={(e) => setNewEventForm({...newEventForm, title: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventDate" className="text-right">Date</Label>
+              <Input
+                id="eventDate"
+                type="date"
+                className="col-span-3"
+                value={newEventForm.date}
+                onChange={(e) => setNewEventForm({...newEventForm, date: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventAllDay" className="text-right">All Day Event</Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <input
+                  id="eventAllDay"
+                  type="checkbox"
+                  checked={newEventForm.isAllDay}
+                  onChange={(e) => setNewEventForm({...newEventForm, isAllDay: e.target.checked})}
+                  className="rounded"
+                />
+                <Label htmlFor="eventAllDay" className="text-sm">This is an all-day event</Label>
+              </div>
+            </div>
+            {!newEventForm.isAllDay && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="eventTime" className="text-right">Start Time</Label>
+                  <Select 
+                    value={newEventForm.time} 
+                    onValueChange={(value) => setNewEventForm({...newEventForm, time: value})}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select start time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12:00 AM">12:00 AM</SelectItem>
+                      <SelectItem value="12:30 AM">12:30 AM</SelectItem>
+                      <SelectItem value="1:00 AM">1:00 AM</SelectItem>
+                      <SelectItem value="1:30 AM">1:30 AM</SelectItem>
+                      <SelectItem value="2:00 AM">2:00 AM</SelectItem>
+                      <SelectItem value="2:30 AM">2:30 AM</SelectItem>
+                      <SelectItem value="3:00 AM">3:00 AM</SelectItem>
+                      <SelectItem value="3:30 AM">3:30 AM</SelectItem>
+                      <SelectItem value="4:00 AM">4:00 AM</SelectItem>
+                      <SelectItem value="4:30 AM">4:30 AM</SelectItem>
+                      <SelectItem value="5:00 AM">5:00 AM</SelectItem>
+                      <SelectItem value="5:30 AM">5:30 AM</SelectItem>
+                      <SelectItem value="6:00 AM">6:00 AM</SelectItem>
+                      <SelectItem value="6:30 AM">6:30 AM</SelectItem>
+                      <SelectItem value="7:00 AM">7:00 AM</SelectItem>
+                      <SelectItem value="7:30 AM">7:30 AM</SelectItem>
+                      <SelectItem value="8:00 AM">8:00 AM</SelectItem>
+                      <SelectItem value="8:30 AM">8:30 AM</SelectItem>
+                      <SelectItem value="9:00 AM">9:00 AM</SelectItem>
+                      <SelectItem value="9:30 AM">9:30 AM</SelectItem>
+                      <SelectItem value="10:00 AM">10:00 AM</SelectItem>
+                      <SelectItem value="10:30 AM">10:30 AM</SelectItem>
+                      <SelectItem value="11:00 AM">11:00 AM</SelectItem>
+                      <SelectItem value="11:30 AM">11:30 AM</SelectItem>
+                      <SelectItem value="12:00 PM">12:00 PM</SelectItem>
+                      <SelectItem value="12:30 PM">12:30 PM</SelectItem>
+                      <SelectItem value="1:00 PM">1:00 PM</SelectItem>
+                      <SelectItem value="1:30 PM">1:30 PM</SelectItem>
+                      <SelectItem value="2:00 PM">2:00 PM</SelectItem>
+                      <SelectItem value="2:30 PM">2:30 PM</SelectItem>
+                      <SelectItem value="3:00 PM">3:00 PM</SelectItem>
+                      <SelectItem value="3:30 PM">3:30 PM</SelectItem>
+                      <SelectItem value="4:00 PM">4:00 PM</SelectItem>
+                      <SelectItem value="4:30 PM">4:30 PM</SelectItem>
+                      <SelectItem value="5:00 PM">5:00 PM</SelectItem>
+                      <SelectItem value="5:30 PM">5:30 PM</SelectItem>
+                      <SelectItem value="6:00 PM">6:00 PM</SelectItem>
+                      <SelectItem value="6:30 PM">6:30 PM</SelectItem>
+                      <SelectItem value="7:00 PM">7:00 PM</SelectItem>
+                      <SelectItem value="7:30 PM">7:30 PM</SelectItem>
+                      <SelectItem value="8:00 PM">8:00 PM</SelectItem>
+                      <SelectItem value="8:30 PM">8:30 PM</SelectItem>
+                      <SelectItem value="9:00 PM">9:00 PM</SelectItem>
+                      <SelectItem value="9:30 PM">9:30 PM</SelectItem>
+                      <SelectItem value="10:00 PM">10:00 PM</SelectItem>
+                      <SelectItem value="10:30 PM">10:30 PM</SelectItem>
+                      <SelectItem value="11:00 PM">11:00 PM</SelectItem>
+                      <SelectItem value="11:30 PM">11:30 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="eventEndTime" className="text-right">End Time</Label>
+                  <Select 
+                    value={newEventForm.endTime} 
+                    onValueChange={(value) => setNewEventForm({...newEventForm, endTime: value})}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select end time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12:00 AM">12:00 AM</SelectItem>
+                      <SelectItem value="12:30 AM">12:30 AM</SelectItem>
+                      <SelectItem value="1:00 AM">1:00 AM</SelectItem>
+                      <SelectItem value="1:30 AM">1:30 AM</SelectItem>
+                      <SelectItem value="2:00 AM">2:00 AM</SelectItem>
+                      <SelectItem value="2:30 AM">2:30 AM</SelectItem>
+                      <SelectItem value="3:00 AM">3:00 AM</SelectItem>
+                      <SelectItem value="3:30 AM">3:30 AM</SelectItem>
+                      <SelectItem value="4:00 AM">4:00 AM</SelectItem>
+                      <SelectItem value="4:30 AM">4:30 AM</SelectItem>
+                      <SelectItem value="5:00 AM">5:00 AM</SelectItem>
+                      <SelectItem value="5:30 AM">5:30 AM</SelectItem>
+                      <SelectItem value="6:00 AM">6:00 AM</SelectItem>
+                      <SelectItem value="6:30 AM">6:30 AM</SelectItem>
+                      <SelectItem value="7:00 AM">7:00 AM</SelectItem>
+                      <SelectItem value="7:30 AM">7:30 AM</SelectItem>
+                      <SelectItem value="8:00 AM">8:00 AM</SelectItem>
+                      <SelectItem value="8:30 AM">8:30 AM</SelectItem>
+                      <SelectItem value="9:00 AM">9:00 AM</SelectItem>
+                      <SelectItem value="9:30 AM">9:30 AM</SelectItem>
+                      <SelectItem value="10:00 AM">10:00 AM</SelectItem>
+                      <SelectItem value="10:30 AM">10:30 AM</SelectItem>
+                      <SelectItem value="11:00 AM">11:00 AM</SelectItem>
+                      <SelectItem value="11:30 AM">11:30 AM</SelectItem>
+                      <SelectItem value="12:00 PM">12:00 PM</SelectItem>
+                      <SelectItem value="12:30 PM">12:30 PM</SelectItem>
+                      <SelectItem value="1:00 PM">1:00 PM</SelectItem>
+                      <SelectItem value="1:30 PM">1:30 PM</SelectItem>
+                      <SelectItem value="2:00 PM">2:00 PM</SelectItem>
+                      <SelectItem value="2:30 PM">2:30 PM</SelectItem>
+                      <SelectItem value="3:00 PM">3:00 PM</SelectItem>
+                      <SelectItem value="3:30 PM">3:30 PM</SelectItem>
+                      <SelectItem value="4:00 PM">4:00 PM</SelectItem>
+                      <SelectItem value="4:30 PM">4:30 PM</SelectItem>
+                      <SelectItem value="5:00 PM">5:00 PM</SelectItem>
+                      <SelectItem value="5:30 PM">5:30 PM</SelectItem>
+                      <SelectItem value="6:00 PM">6:00 PM</SelectItem>
+                      <SelectItem value="6:30 PM">6:30 PM</SelectItem>
+                      <SelectItem value="7:00 PM">7:00 PM</SelectItem>
+                      <SelectItem value="7:30 PM">7:30 PM</SelectItem>
+                      <SelectItem value="8:00 PM">8:00 PM</SelectItem>
+                      <SelectItem value="8:30 PM">8:30 PM</SelectItem>
+                      <SelectItem value="9:00 PM">9:00 PM</SelectItem>
+                      <SelectItem value="9:30 PM">9:30 PM</SelectItem>
+                      <SelectItem value="10:00 PM">10:00 PM</SelectItem>
+                      <SelectItem value="10:30 PM">10:30 PM</SelectItem>
+                      <SelectItem value="11:00 PM">11:00 PM</SelectItem>
+                      <SelectItem value="11:30 PM">11:30 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventLocation" className="text-right">Location</Label>
+              <Input
+                id="eventLocation"
+                className="col-span-3"
+                placeholder="Event location (optional)"
+                value={newEventForm.location}
+                onChange={(e) => setNewEventForm({...newEventForm, location: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventDescription" className="text-right">Description</Label>
+              <Textarea
+                id="eventDescription"
+                className="col-span-3"
+                placeholder="Event description (optional)"
+                value={newEventForm.description}
+                onChange={(e) => setNewEventForm({...newEventForm, description: e.target.value})}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="eventPersonal" className="text-right">Personal Event</Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <input
+                  id="eventPersonal"
+                  type="checkbox"
+                  checked={newEventForm.isPersonal}
+                  onChange={(e) => setNewEventForm({...newEventForm, isPersonal: e.target.checked})}
+                  className="rounded"
+                />
+                <Label htmlFor="eventPersonal" className="text-sm">Make this a personal event</Label>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowCreateEventModal(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateEvent}
+              disabled={!newEventForm.title || !newEventForm.date}
+            >
+              Create Event
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

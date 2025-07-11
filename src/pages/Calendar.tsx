@@ -5,87 +5,10 @@ import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { useEvents } from '@/contexts/EventsContext';
 
-// Mock company events data
-const initialEvents = [
-  {
-    id: 'EVT-001',
-    type: 'Meeting',
-    title: 'Quarterly Planning Meeting',
-    date: '2024-07-10',
-    time: '10:00 AM',
-    location: 'Conference Room A',
-    description: 'Discuss Q3 goals and strategies with all department heads.'
-  },
-  {
-    id: 'EVT-002',
-    type: 'Holiday',
-    title: 'Independence Day (Observed)',
-    date: '2024-07-12',
-    description: 'Office closed for national holiday.'
-  },
-  {
-    id: 'EVT-003',
-    type: 'Deadline',
-    title: 'Payroll Submission Deadline',
-    date: '2024-07-15',
-    time: '5:00 PM',
-    description: 'Submit all payroll documents to HR.'
-  },
-  {
-    id: 'EVT-004',
-    type: 'Event',
-    title: 'Company Picnic',
-    date: '2024-07-20',
-    time: '12:00 PM',
-    location: 'Central Park',
-    description: 'Annual company picnic for employees and families.'
-  },
-  {
-    id: 'EVT-005',
-    type: 'Meeting',
-    title: 'IT Security Briefing',
-    date: '2024-07-10',
-    time: '2:00 PM',
-    location: 'Zoom',
-    description: 'Mandatory security training for all staff.'
-  },
-  {
-    id: 'EVT-006',
-    type: 'Event',
-    title: 'Product Launch',
-    date: '2024-07-18',
-    time: '3:00 PM',
-    location: 'Main Auditorium',
-    description: 'Launch of the new product line.'
-  },
-  {
-    id: 'EVT-007',
-    type: 'Meeting',
-    title: '1:1 with Manager',
-    date: '2024-07-13',
-    time: '11:00 AM',
-    location: 'Manager Office',
-    description: 'Monthly check-in with your manager.'
-  },
-  {
-    id: 'EVT-008',
-    type: 'Holiday',
-    title: 'Summer Break',
-    date: '2024-07-25',
-    description: 'Office closed for summer break.'
-  },
-  {
-    id: 'EVT-009',
-    type: 'Deadline',
-    title: 'Expense Report Due',
-    date: '2024-07-22',
-    time: '6:00 PM',
-    description: 'Submit all expense reports for July.'
-  },
-];
-
-function getEventsForDate(dateStr, events) {
+// Helper function to get events for a specific date
+function getEventsForDate(dateStr: string, events: any[]) {
   return events.filter(event => event.date === dateStr);
 }
 
@@ -103,16 +26,18 @@ function getWeekDates(date) {
 }
 
 const CalendarPage = () => {
+  const { events, addEvent } = useEvents();
   const [selectedDate, setSelectedDate] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [events, setEvents] = useState(initialEvents);
   const [eventsForDay, setEventsForDay] = useState([]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
-    type: 'Meeting',
+    type: 'Meeting' as 'Meeting' | 'Holiday' | 'Deadline' | 'Event' | 'Personal',
     title: '',
     date: '',
     time: '',
+    endTime: '',
+    isAllDay: false,
     location: '',
     description: '',
   });
@@ -204,7 +129,13 @@ const CalendarPage = () => {
                     <Badge className="border border-gray-300 bg-transparent text-gray-700">{event.type}</Badge>
                     <span className="font-semibold text-gray-900">{event.title}</span>
                   </div>
-                  {event.time && <div className="text-xs text-gray-500">Time: {event.time}</div>}
+                  {event.isAllDay ? (
+                    <div className="text-xs text-gray-500">All Day Event</div>
+                  ) : event.time ? (
+                    <div className="text-xs text-gray-500">
+                      Time: {event.time}{event.endTime && ` - ${event.endTime}`}
+                    </div>
+                  ) : null}
                   {event.location && <div className="text-xs text-gray-500">Location: {event.location}</div>}
                   <div className="text-xs text-gray-500">{event.description}</div>
                 </div>
@@ -230,7 +161,7 @@ const CalendarPage = () => {
               <select
                 className="w-full border rounded px-2 py-1 mt-1"
                 value={newEvent.type}
-                onChange={e => setNewEvent({ ...newEvent, type: e.target.value })}
+                onChange={e => setNewEvent({ ...newEvent, type: e.target.value as 'Meeting' | 'Holiday' | 'Deadline' | 'Event' | 'Personal' })}
               >
                 <option value="Meeting">Meeting</option>
                 <option value="Holiday">Holiday</option>
@@ -257,14 +188,137 @@ const CalendarPage = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Time</label>
-              <input
-                className="w-full border rounded px-2 py-1 mt-1"
-                value={newEvent.time}
-                onChange={e => setNewEvent({ ...newEvent, time: e.target.value })}
-                placeholder="e.g. 2:00 PM"
-              />
+              <label className="text-sm font-medium">All Day Event</label>
+              <div className="flex items-center space-x-2 mt-1">
+                <input
+                  type="checkbox"
+                  checked={newEvent.isAllDay}
+                  onChange={e => setNewEvent({ ...newEvent, isAllDay: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm">This is an all-day event</span>
+              </div>
             </div>
+            {!newEvent.isAllDay && (
+              <>
+                <div>
+                  <label className="text-sm font-medium">Start Time</label>
+                  <select
+                    className="w-full border rounded px-2 py-1 mt-1"
+                    value={newEvent.time}
+                    onChange={e => setNewEvent({ ...newEvent, time: e.target.value })}
+                  >
+                    <option value="">Select start time</option>
+                    <option value="12:00 AM">12:00 AM</option>
+                    <option value="12:30 AM">12:30 AM</option>
+                    <option value="1:00 AM">1:00 AM</option>
+                    <option value="1:30 AM">1:30 AM</option>
+                    <option value="2:00 AM">2:00 AM</option>
+                    <option value="2:30 AM">2:30 AM</option>
+                    <option value="3:00 AM">3:00 AM</option>
+                    <option value="3:30 AM">3:30 AM</option>
+                    <option value="4:00 AM">4:00 AM</option>
+                    <option value="4:30 AM">4:30 AM</option>
+                    <option value="5:00 AM">5:00 AM</option>
+                    <option value="5:30 AM">5:30 AM</option>
+                    <option value="6:00 AM">6:00 AM</option>
+                    <option value="6:30 AM">6:30 AM</option>
+                    <option value="7:00 AM">7:00 AM</option>
+                    <option value="7:30 AM">7:30 AM</option>
+                    <option value="8:00 AM">8:00 AM</option>
+                    <option value="8:30 AM">8:30 AM</option>
+                    <option value="9:00 AM">9:00 AM</option>
+                    <option value="9:30 AM">9:30 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="10:30 AM">10:30 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="11:30 AM">11:30 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="12:30 PM">12:30 PM</option>
+                    <option value="1:00 PM">1:00 PM</option>
+                    <option value="1:30 PM">1:30 PM</option>
+                    <option value="2:00 PM">2:00 PM</option>
+                    <option value="2:30 PM">2:30 PM</option>
+                    <option value="3:00 PM">3:00 PM</option>
+                    <option value="3:30 PM">3:30 PM</option>
+                    <option value="4:00 PM">4:00 PM</option>
+                    <option value="4:30 PM">4:30 PM</option>
+                    <option value="5:00 PM">5:00 PM</option>
+                    <option value="5:30 PM">5:30 PM</option>
+                    <option value="6:00 PM">6:00 PM</option>
+                    <option value="6:30 PM">6:30 PM</option>
+                    <option value="7:00 PM">7:00 PM</option>
+                    <option value="7:30 PM">7:30 PM</option>
+                    <option value="8:00 PM">8:00 PM</option>
+                    <option value="8:30 PM">8:30 PM</option>
+                    <option value="9:00 PM">9:00 PM</option>
+                    <option value="9:30 PM">9:30 PM</option>
+                    <option value="10:00 PM">10:00 PM</option>
+                    <option value="10:30 PM">10:30 PM</option>
+                    <option value="11:00 PM">11:00 PM</option>
+                    <option value="11:30 PM">11:30 PM</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">End Time</label>
+                  <select
+                    className="w-full border rounded px-2 py-1 mt-1"
+                    value={newEvent.endTime}
+                    onChange={e => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                  >
+                    <option value="">Select end time</option>
+                    <option value="12:00 AM">12:00 AM</option>
+                    <option value="12:30 AM">12:30 AM</option>
+                    <option value="1:00 AM">1:00 AM</option>
+                    <option value="1:30 AM">1:30 AM</option>
+                    <option value="2:00 AM">2:00 AM</option>
+                    <option value="2:30 AM">2:30 AM</option>
+                    <option value="3:00 AM">3:00 AM</option>
+                    <option value="3:30 AM">3:30 AM</option>
+                    <option value="4:00 AM">4:00 AM</option>
+                    <option value="4:30 AM">4:30 AM</option>
+                    <option value="5:00 AM">5:00 AM</option>
+                    <option value="5:30 AM">5:30 AM</option>
+                    <option value="6:00 AM">6:00 AM</option>
+                    <option value="6:30 AM">6:30 AM</option>
+                    <option value="7:00 AM">7:00 AM</option>
+                    <option value="7:30 AM">7:30 AM</option>
+                    <option value="8:00 AM">8:00 AM</option>
+                    <option value="8:30 AM">8:30 AM</option>
+                    <option value="9:00 AM">9:00 AM</option>
+                    <option value="9:30 AM">9:30 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="10:30 AM">10:30 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="11:30 AM">11:30 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="12:30 PM">12:30 PM</option>
+                    <option value="1:00 PM">1:00 PM</option>
+                    <option value="1:30 PM">1:30 PM</option>
+                    <option value="2:00 PM">2:00 PM</option>
+                    <option value="2:30 PM">2:30 PM</option>
+                    <option value="3:00 PM">3:00 PM</option>
+                    <option value="3:30 PM">3:30 PM</option>
+                    <option value="4:00 PM">4:00 PM</option>
+                    <option value="4:30 PM">4:30 PM</option>
+                    <option value="5:00 PM">5:00 PM</option>
+                    <option value="5:30 PM">5:30 PM</option>
+                    <option value="6:00 PM">6:00 PM</option>
+                    <option value="6:30 PM">6:30 PM</option>
+                    <option value="7:00 PM">7:00 PM</option>
+                    <option value="7:30 PM">7:30 PM</option>
+                    <option value="8:00 PM">8:00 PM</option>
+                    <option value="8:30 PM">8:30 PM</option>
+                    <option value="9:00 PM">9:00 PM</option>
+                    <option value="9:30 PM">9:30 PM</option>
+                    <option value="10:00 PM">10:00 PM</option>
+                    <option value="10:30 PM">10:30 PM</option>
+                    <option value="11:00 PM">11:00 PM</option>
+                    <option value="11:30 PM">11:30 PM</option>
+                  </select>
+                </div>
+              </>
+            )}
             <div>
               <label className="text-sm font-medium">Location</label>
               <input
@@ -293,14 +347,28 @@ const CalendarPage = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => {
                 if (!newEvent.title.trim() || !newEvent.date.trim()) return;
-                setEvents([
-                  ...events,
-                  {
-                    ...newEvent,
-                    id: `EVT-${(events.length + 1).toString().padStart(3, '0')}`,
-                  },
-                ]);
-                setNewEvent({ type: 'Meeting', title: '', date: '', time: '', location: '', description: '' });
+                addEvent({
+                  type: newEvent.type,
+                  title: newEvent.title,
+                  date: newEvent.date,
+                  time: newEvent.isAllDay ? undefined : newEvent.time || undefined,
+                  endTime: newEvent.isAllDay ? undefined : newEvent.endTime || undefined,
+                  isAllDay: newEvent.isAllDay,
+                  location: newEvent.location || undefined,
+                  description: newEvent.description || undefined,
+                  createdBy: 'current-user',
+                  isPersonal: false
+                });
+                setNewEvent({ 
+                  type: 'Meeting' as 'Meeting' | 'Holiday' | 'Deadline' | 'Event' | 'Personal', 
+                  title: '', 
+                  date: '', 
+                  time: '', 
+                  endTime: '',
+                  isAllDay: false,
+                  location: '', 
+                  description: '' 
+                });
                 setCreateDialogOpen(false);
               }}
               disabled={!newEvent.title.trim() || !newEvent.date.trim()}

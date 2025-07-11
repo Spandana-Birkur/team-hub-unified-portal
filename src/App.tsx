@@ -7,6 +7,7 @@ import { RoleProvider, useRole } from "@/contexts/RoleContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
 import { LeaveRequestProvider } from "@/contexts/LeaveRequestContext";
+import { EventsProvider } from "@/contexts/EventsContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
@@ -81,7 +82,9 @@ const App = () => (
           <UserProfileProvider>
             <NotificationProvider>
               <LeaveRequestProvider>
-                <AppContent />
+                <EventsProvider>
+                  <AppContent />
+                </EventsProvider>
               </LeaveRequestProvider>
             </NotificationProvider>
           </UserProfileProvider>

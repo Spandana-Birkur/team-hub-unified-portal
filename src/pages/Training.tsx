@@ -121,10 +121,11 @@ const Training = () => {
       </div>
 
       <Tabs defaultValue="courses" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="courses">Available Courses</TabsTrigger>
           <TabsTrigger value="progress">My Progress</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          <TabsTrigger value="management">Training Management</TabsTrigger>
         </TabsList>
 
         <TabsContent value="courses">
@@ -256,6 +257,188 @@ const Training = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="management">
+          <div className="space-y-6">
+            {/* Training Management Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <p className="text-2xl font-bold">45</p>
+                      <p className="text-sm text-gray-600">Team Members</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <BookOpen className="w-8 h-8 text-green-600" />
+                    <div>
+                      <p className="text-2xl font-bold">12</p>
+                      <p className="text-sm text-gray-600">Required Courses</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-8 h-8 text-yellow-600" />
+                    <div>
+                      <p className="text-2xl font-bold">78%</p>
+                      <p className="text-sm text-gray-600">Completion Rate</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-8 h-8 text-red-600" />
+                    <div>
+                      <p className="text-2xl font-bold">8</p>
+                      <p className="text-sm text-gray-600">Overdue Training</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Team Training Progress */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5" />
+                  <span>Team Training Progress</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[
+                      { name: 'Alice Smith', progress: 85, courses: 8, completed: 6 },
+                      { name: 'Bob Johnson', progress: 92, courses: 10, completed: 9 },
+                      { name: 'Carol White', progress: 67, courses: 6, completed: 4 },
+                      { name: 'David Brown', progress: 100, courses: 12, completed: 12 },
+                      { name: 'Eva Garcia', progress: 45, courses: 5, completed: 2 },
+                      { name: 'Frank Miller', progress: 78, courses: 7, completed: 5 }
+                    ].map((member, index) => (
+                      <div key={index} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-sm">{member.name}</h4>
+                          <Badge variant={member.progress === 100 ? 'default' : 'secondary'}>
+                            {member.progress}%
+                          </Badge>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span>Progress</span>
+                            <span>{member.progress}%</span>
+                          </div>
+                          <Progress value={member.progress} className="h-2" />
+                          <div className="flex justify-between text-xs text-gray-500">
+                            <span>{member.completed}/{member.courses} completed</span>
+                            <span>{member.courses - member.completed} remaining</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Training Management Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BookOpen className="w-5 h-5" />
+                  <span>Training Management</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Users className="w-6 h-6" />
+                    <span>Assign Training</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Award className="w-6 h-6" />
+                    <span>Track Certifications</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Clock className="w-6 h-6" />
+                    <span>Set Deadlines</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Star className="w-6 h-6" />
+                    <span>Performance Reviews</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <BookOpen className="w-6 h-6" />
+                    <span>Create Courses</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Users className="w-6 h-6" />
+                    <span>Team Reports</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Required Training Alerts */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5" />
+                  <span>Required Training Alerts</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { name: 'Eva Garcia', course: 'Cybersecurity Fundamentals', dueDate: '2024-02-01', status: 'overdue' },
+                    { name: 'Frank Miller', course: 'Project Management Basics', dueDate: '2024-02-15', status: 'due-soon' },
+                    { name: 'Carol White', course: 'Leadership and Communication', dueDate: '2024-02-20', status: 'due-soon' }
+                  ].map((alert, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium text-sm">{alert.name}</p>
+                        <p className="text-xs text-gray-600">{alert.course}</p>
+                        <p className="text-xs text-gray-500">Due: {alert.dueDate}</p>
+                      </div>
+                      <Badge variant={alert.status === 'overdue' ? 'destructive' : 'secondary'}>
+                        {alert.status === 'overdue' ? 'Overdue' : 'Due Soon'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

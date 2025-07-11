@@ -18,6 +18,12 @@ export interface Employee {
     relationship: string;
     phone: string;
   };
+  leaveBalance: {
+    vacation: number;
+    sickLeave: number;
+    personal: number;
+    other: number;
+  };
 }
 
 export const employees: Employee[] = [
@@ -36,7 +42,8 @@ export const employees: Employee[] = [
     skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'Docker'],
     projects: ['E-commerce Platform', 'Mobile App Redesign', 'API Gateway'],
     certifications: ['AWS Certified Developer', 'Google Cloud Professional'],
-    emergencyContact: { name: 'Jane Doe', relationship: 'Spouse', phone: '+1 (555) 987-6543' }
+    emergencyContact: { name: 'Jane Doe', relationship: 'Spouse', phone: '+1 (555) 987-6543' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 2, 
@@ -53,7 +60,8 @@ export const employees: Employee[] = [
     skills: ['Digital Marketing', 'SEO', 'Google Analytics', 'Content Strategy', 'Social Media'],
     projects: ['Brand Campaign 2024', 'Social Media Strategy', 'Lead Generation'],
     certifications: ['Google Ads Certification', 'HubSpot Inbound Marketing'],
-    emergencyContact: { name: 'Robert Johnson', relationship: 'Father', phone: '+1 (555) 876-5432' }
+    emergencyContact: { name: 'Robert Johnson', relationship: 'Father', phone: '+1 (555) 876-5432' },
+    leaveBalance: { vacation: 8, sickLeave: 4, personal: 2, other: 1 }
   },
   { 
     id: 3, 
@@ -70,7 +78,8 @@ export const employees: Employee[] = [
     skills: ['Figma', 'Adobe Creative Suite', 'User Research', 'Prototyping', 'Design Systems'],
     projects: ['Website Redesign', 'Mobile App UX', 'Design System'],
     certifications: ['Google UX Design Certificate', 'Adobe Certified Expert'],
-    emergencyContact: { name: 'Anna Chen', relationship: 'Sister', phone: '+1 (555) 765-4321' }
+    emergencyContact: { name: 'Anna Chen', relationship: 'Sister', phone: '+1 (555) 765-4321' },
+    leaveBalance: { vacation: 12, sickLeave: 6, personal: 4, other: 3 }
   },
   { 
     id: 4, 
@@ -87,7 +96,8 @@ export const employees: Employee[] = [
     skills: ['CRM Systems', 'Sales Strategy', 'Client Relations', 'Negotiation', 'Lead Qualification'],
     projects: ['Enterprise Sales Initiative', 'Client Retention Program', 'New Market Expansion'],
     certifications: ['Salesforce Administrator', 'HubSpot Sales Certification'],
-    emergencyContact: { name: 'Michael Davis', relationship: 'Husband', phone: '+1 (555) 654-3210' }
+    emergencyContact: { name: 'Michael Davis', relationship: 'Husband', phone: '+1 (555) 654-3210' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 5, 
@@ -104,7 +114,8 @@ export const employees: Employee[] = [
     skills: ['Kubernetes', 'Docker', 'AWS', 'Terraform', 'Jenkins', 'Linux'],
     projects: ['CI/CD Pipeline', 'Infrastructure Automation', 'Cloud Migration'],
     certifications: ['AWS Solutions Architect', 'Kubernetes Administrator'],
-    emergencyContact: { name: 'Maria Rodriguez', relationship: 'Wife', phone: '+1 (555) 543-2109' }
+    emergencyContact: { name: 'Maria Rodriguez', relationship: 'Wife', phone: '+1 (555) 543-2109' },
+    leaveBalance: { vacation: 15, sickLeave: 8, personal: 5, other: 4 }
   },
   { 
     id: 6, 
@@ -121,7 +132,8 @@ export const employees: Employee[] = [
     skills: ['Product Strategy', 'User Research', 'Agile', 'Data Analysis', 'Stakeholder Management'],
     projects: ['Product Roadmap 2024', 'User Experience Optimization', 'Feature Launch'],
     certifications: ['Certified Scrum Master', 'Google Analytics Individual'],
-    emergencyContact: { name: 'Daniel Kim', relationship: 'Brother', phone: '+1 (555) 432-1098' }
+    emergencyContact: { name: 'Daniel Kim', relationship: 'Brother', phone: '+1 (555) 432-1098' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 7, 
@@ -138,7 +150,8 @@ export const employees: Employee[] = [
     skills: ['Financial Modeling', 'Excel', 'SQL', 'Budgeting', 'Forecasting'],
     projects: ['Annual Budget Planning', 'Financial Reporting', 'Cost Analysis'],
     certifications: ['CFA Level 1', 'Excel Expert Certification'],
-    emergencyContact: { name: 'Sofia Martinez', relationship: 'Sister', phone: '+1 (555) 321-0987' }
+    emergencyContact: { name: 'Sofia Martinez', relationship: 'Sister', phone: '+1 (555) 321-0987' },
+    leaveBalance: { vacation: 8, sickLeave: 4, personal: 2, other: 1 }
   },
   { 
     id: 8, 
@@ -155,7 +168,8 @@ export const employees: Employee[] = [
     skills: ['Recruitment', 'Employee Relations', 'HRIS', 'Compliance', 'Benefits Administration'],
     projects: ['Recruitment Campaign', 'Employee Handbook Update', 'Benefits Enrollment'],
     certifications: ['PHR Certification', 'SHRM-CP'],
-    emergencyContact: { name: 'Tom Green', relationship: 'Husband', phone: '+1 (555) 210-9876' }
+    emergencyContact: { name: 'Tom Green', relationship: 'Husband', phone: '+1 (555) 210-9876' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 9, 
@@ -172,7 +186,8 @@ export const employees: Employee[] = [
     skills: ['Selenium', 'Jest', 'Cypress', 'Test Automation', 'API Testing'],
     projects: ['Test Automation Framework', 'Quality Assurance Process', 'Performance Testing'],
     certifications: ['ISTQB Certified Tester', 'Selenium WebDriver'],
-    emergencyContact: { name: 'Patricia O\'Brien', relationship: 'Mother', phone: '+1 (555) 109-8765' }
+    emergencyContact: { name: 'Patricia O\'Brien', relationship: 'Mother', phone: '+1 (555) 109-8765' },
+    leaveBalance: { vacation: 12, sickLeave: 6, personal: 4, other: 3 }
   },
   { 
     id: 10, 
@@ -189,7 +204,8 @@ export const employees: Employee[] = [
     skills: ['Content Creation', 'SEO', 'Social Media', 'Copywriting', 'Brand Voice'],
     projects: ['Content Calendar 2024', 'Blog Strategy', 'Social Media Campaigns'],
     certifications: ['Content Marketing Institute', 'Google Analytics Individual'],
-    emergencyContact: { name: 'James Lee', relationship: 'Father', phone: '+1 (555) 098-7654' }
+    emergencyContact: { name: 'James Lee', relationship: 'Father', phone: '+1 (555) 098-7654' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 11, 
@@ -206,7 +222,8 @@ export const employees: Employee[] = [
     skills: ['Team Leadership', 'Sales Strategy', 'CRM Management', 'Client Relations', 'Pipeline Management'],
     projects: ['Sales Team Training', 'Revenue Growth Initiative', 'Client Success Program'],
     certifications: ['Salesforce Administrator', 'Sales Management Certification'],
-    emergencyContact: { name: 'Tiffany Johnson', relationship: 'Wife', phone: '+1 (555) 987-6544' }
+    emergencyContact: { name: 'Tiffany Johnson', relationship: 'Wife', phone: '+1 (555) 987-6544' },
+    leaveBalance: { vacation: 15, sickLeave: 8, personal: 5, other: 4 }
   },
   { 
     id: 12, 
@@ -223,7 +240,8 @@ export const employees: Employee[] = [
     skills: ['UI Design', 'Sketch', 'Figma', 'Design Systems', 'Prototyping'],
     projects: ['Mobile App Design', 'Design System Update', 'User Interface Redesign'],
     certifications: ['UI/UX Design Certificate', 'Adobe Creative Suite'],
-    emergencyContact: { name: 'Ethan Williams', relationship: 'Brother', phone: '+1 (555) 876-5433' }
+    emergencyContact: { name: 'Ethan Williams', relationship: 'Brother', phone: '+1 (555) 876-5433' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 13, 
@@ -240,7 +258,8 @@ export const employees: Employee[] = [
     skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'Docker', 'AWS'],
     projects: ['API Development', 'Database Optimization', 'Microservices Architecture'],
     certifications: ['Python Developer Certificate', 'AWS Developer Associate'],
-    emergencyContact: { name: 'Hannah Taylor', relationship: 'Sister', phone: '+1 (555) 765-4322' }
+    emergencyContact: { name: 'Hannah Taylor', relationship: 'Sister', phone: '+1 (555) 765-4322' },
+    leaveBalance: { vacation: 12, sickLeave: 6, personal: 4, other: 3 }
   },
   { 
     id: 14, 
@@ -257,7 +276,8 @@ export const employees: Employee[] = [
     skills: ['SQL', 'Python', 'Tableau', 'Power BI', 'Statistical Analysis', 'Data Visualization'],
     projects: ['Customer Analytics Dashboard', 'A/B Testing Analysis', 'Data Pipeline'],
     certifications: ['Google Data Analytics', 'Tableau Desktop Specialist'],
-    emergencyContact: { name: 'Raj Patel', relationship: 'Father', phone: '+1 (555) 654-3211' }
+    emergencyContact: { name: 'Raj Patel', relationship: 'Father', phone: '+1 (555) 654-3211' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 15, 
@@ -274,7 +294,8 @@ export const employees: Employee[] = [
     skills: ['Linux Administration', 'Windows Server', 'VMware', 'Network Security', 'Backup Systems'],
     projects: ['Infrastructure Migration', 'Security Hardening', 'Disaster Recovery'],
     certifications: ['CompTIA Security+', 'VMware Certified Professional'],
-    emergencyContact: { name: 'Isabella Mendez', relationship: 'Wife', phone: '+1 (555) 543-2100' }
+    emergencyContact: { name: 'Isabella Mendez', relationship: 'Wife', phone: '+1 (555) 543-2100' },
+    leaveBalance: { vacation: 15, sickLeave: 8, personal: 5, other: 4 }
   },
   { 
     id: 16, 
@@ -291,7 +312,8 @@ export const employees: Employee[] = [
     skills: ['Design Leadership', 'Team Management', 'Design Strategy', 'User Experience', 'Creative Direction'],
     projects: ['Design Team Leadership', 'Brand Identity Redesign', 'Design System Implementation'],
     certifications: ['Design Leadership Certificate', 'Adobe Creative Suite Expert'],
-    emergencyContact: { name: 'Michael Chen', relationship: 'Husband', phone: '+1 (555) 432-1099' }
+    emergencyContact: { name: 'Michael Chen', relationship: 'Husband', phone: '+1 (555) 432-1099' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 17, 
@@ -308,7 +330,8 @@ export const employees: Employee[] = [
     skills: ['Product Strategy', 'Team Leadership', 'Business Strategy', 'Stakeholder Management', 'Data Analysis'],
     projects: ['Product Vision 2024', 'Team Expansion', 'Strategic Planning'],
     certifications: ['Product Management Professional', 'Leadership Certificate'],
-    emergencyContact: { name: 'Sarah Wilson', relationship: 'Wife', phone: '+1 (555) 321-0988' }
+    emergencyContact: { name: 'Sarah Wilson', relationship: 'Wife', phone: '+1 (555) 321-0988' },
+    leaveBalance: { vacation: 15, sickLeave: 8, personal: 5, other: 4 }
   },
   { 
     id: 18, 
@@ -325,7 +348,8 @@ export const employees: Employee[] = [
     skills: ['Team Leadership', 'Technical Architecture', 'Agile Management', 'Code Review', 'System Design'],
     projects: ['Engineering Team Growth', 'Technical Architecture Review', 'Development Process Optimization'],
     certifications: ['AWS Solutions Architect', 'Scrum Master Certification'],
-    emergencyContact: { name: 'Robert Smith', relationship: 'Husband', phone: '+1 (555) 210-9877' }
+    emergencyContact: { name: 'Robert Smith', relationship: 'Husband', phone: '+1 (555) 210-9877' },
+    leaveBalance: { vacation: 12, sickLeave: 6, personal: 4, other: 3 }
   },
   { 
     id: 19, 
@@ -342,7 +366,8 @@ export const employees: Employee[] = [
     skills: ['Sales Leadership', 'Team Management', 'Revenue Strategy', 'Client Relations', 'Sales Operations'],
     projects: ['Sales Team Expansion', 'Revenue Growth Strategy', 'Client Success Program'],
     certifications: ['Sales Leadership Certificate', 'Salesforce Administrator'],
-    emergencyContact: { name: 'Jennifer Thompson', relationship: 'Wife', phone: '+1 (555) 109-8766' }
+    emergencyContact: { name: 'Jennifer Thompson', relationship: 'Wife', phone: '+1 (555) 109-8766' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 20, 
@@ -359,7 +384,8 @@ export const employees: Employee[] = [
     skills: ['Google Ads', 'Facebook Ads', 'Email Marketing', 'Analytics', 'Conversion Optimization'],
     projects: ['Digital Campaign Management', 'Email Marketing Automation', 'Conversion Rate Optimization'],
     certifications: ['Google Ads Certification', 'Facebook Blueprint'],
-    emergencyContact: { name: 'William Brown', relationship: 'Father', phone: '+1 (555) 098-7655' }
+    emergencyContact: { name: 'William Brown', relationship: 'Father', phone: '+1 (555) 098-7655' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 21, 
@@ -376,7 +402,8 @@ export const employees: Employee[] = [
     skills: ['React', 'Vue.js', 'JavaScript', 'CSS', 'HTML', 'Webpack'],
     projects: ['Frontend Component Library', 'Website Performance Optimization', 'User Interface Development'],
     certifications: ['React Developer Certificate', 'JavaScript Specialist'],
-    emergencyContact: { name: 'Grace Davis', relationship: 'Sister', phone: '+1 (555) 987-6545' }
+    emergencyContact: { name: 'Grace Davis', relationship: 'Sister', phone: '+1 (555) 987-6545' },
+    leaveBalance: { vacation: 12, sickLeave: 6, personal: 4, other: 3 }
   },
   { 
     id: 22, 
@@ -393,7 +420,8 @@ export const employees: Employee[] = [
     skills: ['Talent Acquisition', 'Interviewing', 'ATS Management', 'Employer Branding', 'Candidate Experience'],
     projects: ['Technical Recruitment', 'Employer Branding Campaign', 'Interview Process Optimization'],
     certifications: ['Talent Acquisition Certificate', 'LinkedIn Recruiter'],
-    emergencyContact: { name: 'Lucas Anderson', relationship: 'Brother', phone: '+1 (555) 876-5434' }
+    emergencyContact: { name: 'Lucas Anderson', relationship: 'Brother', phone: '+1 (555) 876-5434' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 23, 
@@ -410,7 +438,8 @@ export const employees: Employee[] = [
     skills: ['Financial Reporting', 'GAAP', 'QuickBooks', 'Tax Preparation', 'Audit Support'],
     projects: ['Financial Statement Preparation', 'Tax Filing', 'Audit Coordination'],
     certifications: ['CPA Candidate', 'QuickBooks ProAdvisor'],
-    emergencyContact: { name: 'Sofia Garcia', relationship: 'Wife', phone: '+1 (555) 765-4323' }
+    emergencyContact: { name: 'Sofia Garcia', relationship: 'Wife', phone: '+1 (555) 765-4323' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 24, 
@@ -427,7 +456,8 @@ export const employees: Employee[] = [
     skills: ['User Research', 'Usability Testing', 'Data Analysis', 'Survey Design', 'Persona Development'],
     projects: ['User Research Study', 'Usability Testing Program', 'Customer Journey Mapping'],
     certifications: ['UX Research Certificate', 'Google Analytics Individual'],
-    emergencyContact: { name: 'Diego Rodriguez', relationship: 'Husband', phone: '+1 (555) 654-3212' }
+    emergencyContact: { name: 'Diego Rodriguez', relationship: 'Husband', phone: '+1 (555) 654-3212' },
+    leaveBalance: { vacation: 10, sickLeave: 5, personal: 3, other: 2 }
   },
   { 
     id: 25, 
@@ -444,6 +474,7 @@ export const employees: Employee[] = [
     skills: ['Network Design', 'Cisco Systems', 'Network Security', 'Troubleshooting', 'VPN Configuration'],
     projects: ['Network Infrastructure Upgrade', 'Security Implementation', 'Remote Access Setup'],
     certifications: ['Cisco CCNA', 'CompTIA Network+'],
-    emergencyContact: { name: 'Emma Wilson', relationship: 'Sister', phone: '+1 (555) 543-2101' }
+    emergencyContact: { name: 'Emma Wilson', relationship: 'Sister', phone: '+1 (555) 543-2101' },
+    leaveBalance: { vacation: 15, sickLeave: 8, personal: 5, other: 4 }
   }
 ]; 

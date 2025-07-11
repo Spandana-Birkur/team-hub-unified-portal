@@ -344,7 +344,7 @@ const ITHelpdesk = () => {
                         >
                           Update
                         </Button>
-                        {userRole === 'it' && ticket.status !== 'resolved' && (
+                        {(userRole === 'it' || userRole === 'manager') && ticket.status !== 'resolved' && (
                           <Button 
                             onClick={() => handleResolveTicket(ticket)}
                             className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"

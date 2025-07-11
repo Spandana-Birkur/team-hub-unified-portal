@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Mail, Phone, MapPin, Calendar, Users, Bell, User, CreditCard, 
   DollarSign, Plane, FileText, PartyPopper, Calculator, 
-  GraduationCap, Clock, Download, Upload, Plus, Edit, Eye
+  GraduationCap, Clock, Download, Upload, Plus, Edit, Eye,
+  TrendingUp, AlertTriangle, Shield, UserCheck, Headphones, BookOpen, ShieldCheck
 } from 'lucide-react';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useNavigate } from 'react-router-dom';
@@ -333,6 +334,7 @@ const EmployeePortal = () => {
           <TabsTrigger value="taxes">Taxes</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
           <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
+          {userRole === 'manager' && <TabsTrigger value="management">Management</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="personal" className="space-y-6">
@@ -925,6 +927,205 @@ const EmployeePortal = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {userRole === 'manager' && (
+          <TabsContent value="management">
+            <div className="space-y-6">
+              {/* Manager Dashboard Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-2">
+                      <Users className="w-8 h-8 text-blue-600" />
+                      <div>
+                        <p className="text-2xl font-bold">12</p>
+                        <p className="text-sm text-gray-600">Team Members</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-8 h-8 text-yellow-600" />
+                      <div>
+                        <p className="text-2xl font-bold">3</p>
+                        <p className="text-sm text-gray-600">Pending Approvals</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="w-8 h-8 text-green-600" />
+                      <div>
+                        <p className="text-2xl font-bold">85%</p>
+                        <p className="text-sm text-gray-600">Team Performance</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-2">
+                      <AlertTriangle className="w-8 h-8 text-red-600" />
+                      <div>
+                        <p className="text-2xl font-bold">2</p>
+                        <p className="text-sm text-gray-600">Active Issues</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Team Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="w-5 h-5" />
+                    <span>Team Management</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Direct Reports</h3>
+                      <Button variant="outline" size="sm">View All Team</Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {teamMembers.slice(0, 6).map((member, index) => (
+                        <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-center space-x-3">
+                            <Avatar>
+                              <AvatarImage src="" />
+                              <AvatarFallback className="bg-purple-100 text-purple-600">{member.avatar}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{member.name}</p>
+                              <p className="text-xs text-gray-600">{member.role}</p>
+                              <Badge variant="outline" className="text-xs mt-1">{member.department}</Badge>
+                            </div>
+                            <Button variant="outline" size="sm">Manage</Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions for Managers */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Shield className="w-5 h-5" />
+                    <span>Manager Actions</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/hr')}
+                    >
+                      <UserCheck className="w-6 h-6" />
+                      <span>HR Management</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/helpdesk')}
+                    >
+                      <Headphones className="w-6 h-6" />
+                      <span>IT Helpdesk</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/training')}
+                    >
+                      <BookOpen className="w-6 h-6" />
+                      <span>Training Management</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/calendar')}
+                    >
+                      <Calendar className="w-6 h-6" />
+                      <span>Calendar Management</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/documents')}
+                    >
+                      <FileText className="w-6 h-6" />
+                      <span>Document Center</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="h-20 flex flex-col items-center justify-center space-y-2"
+                      onClick={() => navigate('/safety')}
+                    >
+                      <ShieldCheck className="w-6 h-6" />
+                      <span>Safety & Compliance</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Performance Overview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="w-5 h-5" />
+                    <span>Team Performance</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 border rounded-lg">
+                        <p className="text-2xl font-bold text-green-600">92%</p>
+                        <p className="text-sm text-gray-600">On-time Delivery</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <p className="text-2xl font-bold text-blue-600">4.2/5</p>
+                        <p className="text-sm text-gray-600">Team Satisfaction</p>
+                      </div>
+                      <div className="text-center p-4 border rounded-lg">
+                        <p className="text-2xl font-bold text-purple-600">85%</p>
+                        <p className="text-sm text-gray-600">Goal Achievement</p>
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">Recent Performance Reviews</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <p className="font-medium">Alice Smith</p>
+                            <p className="text-sm text-gray-600">Software Engineer</p>
+                          </div>
+                          <Badge variant="default">Exceeds Expectations</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-3 border rounded">
+                          <div>
+                            <p className="font-medium">Bob Johnson</p>
+                            <p className="text-sm text-gray-600">UI Designer</p>
+                          </div>
+                          <Badge variant="secondary">Meets Expectations</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Time Off Request Modal */}

@@ -26,7 +26,7 @@ const RoleSelector = () => {
     {
       id: 'manager' as const,
       title: 'Manager',
-      description: 'Team management and employee oversight',
+      description: 'Full system access - manage employees, HR, IT, training, and all company operations',
       icon: Shield,
       color: 'bg-purple-500'
     },

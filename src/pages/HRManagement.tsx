@@ -30,7 +30,9 @@ import {
   Building,
   CalendarDays,
   Star,
-  Eye
+  Eye,
+  AlertTriangle,
+  Headphones
 } from 'lucide-react';
 
 const HRManagement = () => {
@@ -363,6 +365,45 @@ const HRManagement = () => {
     return acc;
   }, {} as Record<string, typeof hrDocuments>);
 
+  // Function to calculate remaining leave balance for an employee
+  const calculateRemainingLeaveBalance = (employeeId: string, leaveType: string) => {
+    const employee = employees.find(emp => emp.id.toString() === employeeId.replace('emp', ''));
+    if (!employee) return 0;
+
+    const approvedRequests = leaveRequests.filter(
+      request => request.employeeId === employeeId && 
+      request.status === 'approved' && 
+      request.type.toLowerCase().includes(leaveType.toLowerCase())
+    );
+
+    const usedDays = approvedRequests.reduce((total, request) => total + request.days, 0);
+    
+    let initialBalance = 0;
+    switch (leaveType.toLowerCase()) {
+      case 'vacation':
+        initialBalance = employee.leaveBalance.vacation;
+        break;
+      case 'sick':
+        initialBalance = employee.leaveBalance.sickLeave;
+        break;
+      case 'personal':
+        initialBalance = employee.leaveBalance.personal;
+        break;
+      case 'other':
+        initialBalance = employee.leaveBalance.other;
+        break;
+      default:
+        return 0;
+    }
+
+    return Math.max(0, initialBalance - usedDays);
+  };
+
+  // Function to get employee by ID
+  const getEmployeeById = (employeeId: string) => {
+    return employees.find(emp => emp.id.toString() === employeeId.replace('emp', ''));
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -390,12 +431,13 @@ const HRManagement = () => {
       </div>
 
       <Tabs defaultValue="directory" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="directory">Employee Directory</TabsTrigger>
           <TabsTrigger value="leave">Leave Management</TabsTrigger>
           <TabsTrigger value="documents">HR Documents</TabsTrigger>
           <TabsTrigger value="announcements">Announcements</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="manager">Manager Tools</TabsTrigger>
         </TabsList>
 
         <TabsContent value="directory">
@@ -448,50 +490,140 @@ const HRManagement = () => {
         </TabsContent>
 
         <TabsContent value="leave">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="w-5 h-5" />
-                <span>Leave Management</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {leaveRequests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{request.employeeName}</h4>
-                          <p className="text-sm text-gray-600">{request.type} • {request.days} days</p>
-                          <p className="text-xs text-gray-500">{request.startDate} - {request.endDate}</p>
-                        </div>
-                      </div>
+          <div className="space-y-6">
+            {/* Leave Management Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Clock className="w-5 h-5 text-blue-600" />
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge variant={request.status === 'approved' ? 'default' : 'secondary'}>
-                        {request.status}
-                      </Badge>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleViewLeaveRequest(request)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                      {request.status === 'pending' && (
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>Reject</Button>
-                          <Button size="sm" onClick={() => handleApproveLeave(request.id)}>Approve</Button>
-                        </div>
-                      )}
+                    <div>
+                      <p className="text-sm text-gray-600">Pending Requests</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {leaveRequests.filter(r => r.status === 'pending').length}
+                      </p>
                     </div>
                   </div>
-                ))}
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Approved This Month</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {leaveRequests.filter(r => r.status === 'approved' && 
+                          new Date(r.submittedAt).getMonth() === new Date().getMonth()).length}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-red-100 rounded-lg">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Low Balance Alerts</p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {leaveRequests.filter(r => {
+                          const balance = calculateRemainingLeaveBalance(r.employeeId, r.type.toLowerCase());
+                          return r.status === 'pending' && (balance - r.days) < 0;
+                        }).length}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Users className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Total Requests</p>
+                      <p className="text-2xl font-bold text-purple-600">
+                        {leaveRequests.length}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Leave Requests List */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5" />
+                  <span>Leave Requests</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+              <div className="space-y-4">
+                {leaveRequests.map((request) => {
+                  const employee = getEmployeeById(request.employeeId);
+                  const remainingBalance = calculateRemainingLeaveBalance(request.employeeId, request.type.toLowerCase());
+                  const willExceed = request.status === 'pending' && (remainingBalance - request.days) < 0;
+                  
+                  return (
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{request.employeeName}</h4>
+                            <p className="text-sm text-gray-600">{request.type} • {request.days} days</p>
+                            <p className="text-xs text-gray-500">{request.startDate} - {request.endDate}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span className="text-xs text-gray-500">
+                                {request.type} balance: {remainingBalance} days remaining
+                              </span>
+                              {willExceed && (
+                                <Badge variant="destructive" className="text-xs">
+                                  Would exceed balance
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Badge variant={request.status === 'approved' ? 'default' : 'secondary'}>
+                          {request.status}
+                        </Badge>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleViewLeaveRequest(request)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                        {request.status === 'pending' && (
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>Reject</Button>
+                            <Button size="sm" onClick={() => handleApproveLeave(request.id)}>Approve</Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="documents">
@@ -609,7 +741,213 @@ const HRManagement = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="manager">
+          <div className="space-y-6">
+            {/* Manager Dashboard Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <p className="text-2xl font-bold">15</p>
+                      <p className="text-sm text-gray-600">Direct Reports</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-8 h-8 text-yellow-600" />
+                    <div>
+                      <p className="text-2xl font-bold">8</p>
+                      <p className="text-sm text-gray-600">Pending Approvals</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-8 h-8 text-green-600" />
+                    <div>
+                      <p className="text-2xl font-bold">92%</p>
+                      <p className="text-sm text-gray-600">Team Performance</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="w-8 h-8 text-red-600" />
+                    <div>
+                      <p className="text-2xl font-bold">3</p>
+                      <p className="text-sm text-gray-600">Active Issues</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
+            {/* Manager Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Shield className="w-5 h-5" />
+                  <span>Manager Quick Actions</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => window.location.href = '/helpdesk'}
+                  >
+                    <Headphones className="w-6 h-6" />
+                    <span>IT Helpdesk</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => window.location.href = '/training'}
+                  >
+                    <GraduationCap className="w-6 h-6" />
+                    <span>Training Management</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => window.location.href = '/calendar'}
+                  >
+                    <Calendar className="w-6 h-6" />
+                    <span>Calendar Management</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => window.location.href = '/documents'}
+                  >
+                    <FileText className="w-6 h-6" />
+                    <span>Document Center</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => window.location.href = '/safety'}
+                  >
+                    <Shield className="w-6 h-6" />
+                    <span>Safety & Compliance</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <MessageSquare className="w-6 h-6" />
+                    <span>Team Communication</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Team Performance Overview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5" />
+                  <span>Team Performance Overview</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 border rounded-lg">
+                      <p className="text-2xl font-bold text-green-600">94%</p>
+                      <p className="text-sm text-gray-600">On-time Delivery</p>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <p className="text-2xl font-bold text-blue-600">4.3/5</p>
+                      <p className="text-sm text-gray-600">Team Satisfaction</p>
+                    </div>
+                    <div className="text-center p-4 border rounded-lg">
+                      <p className="text-2xl font-bold text-purple-600">88%</p>
+                      <p className="text-sm text-gray-600">Goal Achievement</p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-2">Recent Team Activities</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 border rounded">
+                        <div>
+                          <p className="font-medium">Team Meeting - Q1 Planning</p>
+                          <p className="text-sm text-gray-600">Scheduled for tomorrow at 10 AM</p>
+                        </div>
+                        <Badge variant="default">Scheduled</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 border rounded">
+                        <div>
+                          <p className="font-medium">Performance Reviews Due</p>
+                          <p className="text-sm text-gray-600">5 reviews pending completion</p>
+                        </div>
+                        <Badge variant="secondary">Pending</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Manager Reports */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5" />
+                  <span>Manager Reports</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold">HR Reports</h4>
+                    <div className="space-y-2">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Team Leave Report
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Performance Summary
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Training Completion
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-semibold">IT Reports</h4>
+                    <div className="space-y-2">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        System Access Report
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Equipment Inventory
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Security Compliance
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Employee Profile Modal */}
@@ -891,6 +1229,65 @@ const HRManagement = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Leave Balance Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Employee Leave Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {calculateRemainingLeaveBalance(selectedLeaveRequest.employeeId, 'vacation')}
+                      </div>
+                      <div className="text-sm text-blue-600 font-medium">Vacation Days</div>
+                      <div className="text-xs text-gray-500">Remaining</div>
+                    </div>
+                    <div className="text-center p-3 bg-red-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">
+                        {calculateRemainingLeaveBalance(selectedLeaveRequest.employeeId, 'sick')}
+                      </div>
+                      <div className="text-sm text-red-600 font-medium">Sick Leave</div>
+                      <div className="text-xs text-gray-500">Remaining</div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {calculateRemainingLeaveBalance(selectedLeaveRequest.employeeId, 'personal')}
+                      </div>
+                      <div className="text-sm text-green-600 font-medium">Personal Days</div>
+                      <div className="text-xs text-gray-500">Remaining</div>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {calculateRemainingLeaveBalance(selectedLeaveRequest.employeeId, 'other')}
+                      </div>
+                      <div className="text-sm text-purple-600 font-medium">Other Leave</div>
+                      <div className="text-xs text-gray-500">Remaining</div>
+                    </div>
+                  </div>
+                  
+                  {/* Request Impact */}
+                  {selectedLeaveRequest.status === 'pending' && (
+                    <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm font-medium text-yellow-800">Request Impact</span>
+                      </div>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        If approved, this request will use {selectedLeaveRequest.days} {selectedLeaveRequest.type.toLowerCase()} days.
+                        {(() => {
+                          const remaining = calculateRemainingLeaveBalance(selectedLeaveRequest.employeeId, selectedLeaveRequest.type.toLowerCase());
+                          const afterApproval = remaining - selectedLeaveRequest.days;
+                          return afterApproval >= 0 
+                            ? ` After approval, ${selectedLeaveRequest.employeeName} will have ${afterApproval} days remaining.`
+                            : ` Warning: This would exceed the available balance by ${Math.abs(afterApproval)} days.`;
+                        })()}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Reason */}
               <Card>

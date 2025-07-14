@@ -34,6 +34,7 @@ import {
   AlertTriangle,
   Headphones
 } from 'lucide-react';
+import { safetyReports } from '../data/safetyReports';
 
 const HRManagement = () => {
   const { leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useLeaveRequests();
@@ -85,12 +86,8 @@ const HRManagement = () => {
     { id: 1, from: 'Jane Smith', to: 'John Doe', type: 'positive', content: 'Excellent work on the recent project', date: '2024-01-15' },
     { id: 2, from: 'David Wilson', to: 'Sarah Johnson', type: 'constructive', content: 'Great leadership shown in team meetings', date: '2024-01-14' },
   ]);
-
-
-
-
-
-
+  const [reports, setReports] = useState(safetyReports);
+  const [viewReport, setViewReport] = React.useState(null);
 
   const pendingLeaveCount = leaveRequests.filter(request => request.status === 'pending').length;
   
@@ -404,6 +401,15 @@ const HRManagement = () => {
     return employees.find(emp => emp.id.toString() === employeeId.replace('emp', ''));
   };
 
+  const handleDownloadReport = (report: any) => {
+    alert(`Downloading ${report.file}...`);
+  };
+
+  const handleResolveReport = (id) => {
+    setReports(prev => prev.map(r => r.id === id ? { ...r, status: 'Resolved' } : r));
+    setViewReport(null);
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -431,13 +437,14 @@ const HRManagement = () => {
       </div>
 
       <Tabs defaultValue="directory" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="directory">Employee Directory</TabsTrigger>
           <TabsTrigger value="leave">Leave Management</TabsTrigger>
           <TabsTrigger value="documents">HR Documents</TabsTrigger>
           <TabsTrigger value="announcements">Announcements</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="manager">Manager Tools</TabsTrigger>
+          <TabsTrigger value="feedback">Feedback & Reports</TabsTrigger>
         </TabsList>
 
         <TabsContent value="directory">
@@ -947,6 +954,145 @@ const HRManagement = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="feedback">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <MessageSquare className="w-5 h-5" />
+                <span>Employee Feedback</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {feedbackEntries.length === 0 ? (
+                  <div className="text-gray-500">No feedback entries yet.</div>
+                ) : (
+                  feedbackEntries.map(entry => (
+                    <div key={entry.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between hover:shadow-md transition-shadow">
+                      <div>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className={`text-xs font-semibold ${entry.type === 'positive' ? 'text-green-600' : 'text-yellow-600'}`}>{entry.type === 'positive' ? 'Positive' : 'Constructive'}</span>
+                          <span className="text-xs text-gray-400">{entry.date}</span>
+                        </div>
+                        <div className="font-medium text-gray-900">{entry.content}</div>
+                        <div className="text-xs text-gray-500 mt-1">From: {entry.from} &rarr; To: {entry.to}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <FileText className="w-5 h-5" />
+                <span>Reports</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="px-4 py-2 text-left">Category</th>
+                      <th className="px-4 py-2 text-left">Description</th>
+                      <th className="px-4 py-2 text-left">Employee</th>
+                      <th className="px-4 py-2 text-left">Date</th>
+                      <th className="px-4 py-2 text-left">Status</th>
+                      <th className="px-4 py-2 text-left">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reports.filter(r => r.type !== 'Special').length === 0 ? (
+                      <tr><td colSpan={6} className="text-gray-500 px-4 py-4 text-center">No reports available.</td></tr>
+                    ) : (
+                      reports.filter(r => r.type !== 'Special').map(report => (
+                        <tr key={report.id} className="border-b hover:bg-gray-50">
+                          <td className="px-4 py-2">{report.category}</td>
+                          <td className="px-4 py-2">{report.description}</td>
+                          <td className="px-4 py-2">{report.employee}</td>
+                          <td className="px-4 py-2">{report.date}</td>
+                          <td className="px-4 py-2">
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${report.status === 'Submitted' ? 'bg-yellow-100 text-yellow-700' : report.status === 'In Review' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{report.status}</span>
+                          </td>
+                          <td className="px-4 py-2">
+                            <Button size="sm" variant="outline" onClick={() => setViewReport(report)}>View</Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Special Reports Section */}
+              <div className="mt-10">
+                <h3 className="font-semibold text-lg mb-2">Special Reports (Non-Male Form)</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="px-4 py-2 text-left">Category</th>
+                        <th className="px-4 py-2 text-left">Description</th>
+                        <th className="px-4 py-2 text-left">Employee</th>
+                        <th className="px-4 py-2 text-left">Date</th>
+                        <th className="px-4 py-2 text-left">Status</th>
+                        <th className="px-4 py-2 text-left">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reports.filter(r => r.type === 'Special').length === 0 ? (
+                        <tr><td colSpan={6} className="text-gray-500 px-4 py-4 text-center">No special reports available.</td></tr>
+                      ) : (
+                        reports.filter(r => r.type === 'Special').map(report => (
+                          <tr key={report.id} className="border-b hover:bg-gray-50">
+                            <td className="px-4 py-2">{report.category}</td>
+                            <td className="px-4 py-2">{report.description}</td>
+                            <td className="px-4 py-2">{report.employee}</td>
+                            <td className="px-4 py-2">{report.date}</td>
+                            <td className="px-4 py-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${report.status === 'Submitted' ? 'bg-yellow-100 text-yellow-700' : report.status === 'In Review' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{report.status}</span>
+                            </td>
+                            <td className="px-4 py-2">
+                              <Button size="sm" variant="outline" onClick={() => setViewReport(report)}>View</Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          {/* Report View Dialog */}
+          <Dialog open={!!viewReport} onOpenChange={open => !open && setViewReport(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Report Details</DialogTitle>
+              </DialogHeader>
+              {viewReport && (
+                <div className="space-y-2">
+                  <p><strong>Category:</strong> {viewReport.category}</p>
+                  <p><strong>Description:</strong> {viewReport.description}</p>
+                  <p><strong>Employee:</strong> {viewReport.employee}</p>
+                  <p><strong>Date:</strong> {viewReport.date}</p>
+                  <div><strong>Status:</strong> {viewReport.status}</div>
+                  <p><strong>Details:</strong> {viewReport.details || 'N/A'}</p>
+                  <p><strong>Anonymous:</strong> {viewReport.anonymous ? 'Yes' : 'No'}</p>
+                  {viewReport.status !== 'Resolved' && (
+                    <div className="flex justify-end pt-4">
+                      <Button onClick={() => handleResolveReport(viewReport.id)}>
+                        Mark as Resolved
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
 
@@ -1541,10 +1687,10 @@ const HRManagement = () => {
                         <div 
                           className="bg-blue-600 h-2 rounded-full" 
                           style={{ width: `${goal.progress}%` }}
-                        ></div>
+                        />
                       </div>
-                      <p className="text-xs text-gray-500">Due: {goal.dueDate}</p>
                     </div>
+                    <p className="text-xs text-gray-500 mt-2">Due: {goal.dueDate}</p>
                   </div>
                 ))}
               </div>
@@ -1559,57 +1705,13 @@ const HRManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Feedback Modal */}
-      <Dialog open={feedbackModalOpen} onOpenChange={setFeedbackModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <MessageSquare className="w-5 h-5" />
-              <span>Feedback Management</span>
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedPerformanceData && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Recent Feedback</h3>
-                <Button onClick={handleGiveNewFeedback}>Give Feedback</Button>
-              </div>
-              
-              <div className="space-y-3">
-                {selectedPerformanceData.data.map((feedback: any) => (
-                  <div key={feedback.id} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <h4 className="font-semibold">{feedback.from} → {feedback.to}</h4>
-                        <p className="text-xs text-gray-500">{feedback.date}</p>
-                      </div>
-                      <Badge variant={feedback.type === 'positive' ? 'default' : 'secondary'}>
-                        {feedback.type}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">{feedback.content}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="flex justify-end space-x-3 pt-4 border-t">
-                <Button variant="outline" onClick={closeFeedbackModal}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
       {/* New Feedback Modal */}
       <Dialog open={newFeedbackModalOpen} onOpenChange={setNewFeedbackModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <MessageSquare className="w-5 h-5" />
-              <span>Give Feedback</span>
+              <span>New Feedback Entry</span>
             </DialogTitle>
           </DialogHeader>
           
@@ -1618,9 +1720,9 @@ const HRManagement = () => {
               <label className="text-sm font-medium">From</label>
               <SearchableDropdown
                 options={employeeOptions}
+                placeholder="Select employee"
                 value={newFeedback.from}
                 onValueChange={(value) => setNewFeedback(prev => ({ ...prev, from: value }))}
-                placeholder="Select Employee"
               />
             </div>
 
@@ -1628,14 +1730,14 @@ const HRManagement = () => {
               <label className="text-sm font-medium">To</label>
               <SearchableDropdown
                 options={employeeOptions}
+                placeholder="Select employee"
                 value={newFeedback.to}
                 onValueChange={(value) => setNewFeedback(prev => ({ ...prev, to: value }))}
-                placeholder="Select Employee"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">Feedback Type</label>
+              <label className="text-sm font-medium">Type</label>
               <select 
                 className="w-full mt-1 p-2 border rounded-md"
                 value={newFeedback.type}
@@ -1643,16 +1745,15 @@ const HRManagement = () => {
               >
                 <option value="positive">Positive</option>
                 <option value="constructive">Constructive</option>
-                <option value="neutral">Neutral</option>
               </select>
             </div>
 
             <div>
-              <label className="text-sm font-medium">Feedback Content</label>
+              <label className="text-sm font-medium">Content</label>
               <textarea 
                 className="w-full mt-1 p-2 border rounded-md"
                 rows={4}
-                placeholder="Enter your feedback..."
+                placeholder="Enter feedback content..."
                 value={newFeedback.content}
                 onChange={(e) => setNewFeedback(prev => ({ ...prev, content: e.target.value }))}
               />
@@ -1675,8 +1776,8 @@ const HRManagement = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <Award className="w-5 h-5" />
-              <span>Schedule Performance Review</span>
+              <Calendar className="w-5 h-5" />
+              <span>Schedule New Performance Review</span>
             </DialogTitle>
           </DialogHeader>
           
@@ -1685,9 +1786,9 @@ const HRManagement = () => {
               <label className="text-sm font-medium">Employee</label>
               <SearchableDropdown
                 options={employeeOptions}
+                placeholder="Select employee"
                 value={newReview.employee}
                 onValueChange={(value) => setNewReview(prev => ({ ...prev, employee: value }))}
-                placeholder="Select Employee"
               />
             </div>
 
@@ -1695,17 +1796,16 @@ const HRManagement = () => {
               <label className="text-sm font-medium">Manager</label>
               <SearchableDropdown
                 options={employeeOptions}
+                placeholder="Select manager"
                 value={newReview.manager}
                 onValueChange={(value) => setNewReview(prev => ({ ...prev, manager: value }))}
-                placeholder="Select Manager"
               />
             </div>
 
             <div>
               <label className="text-sm font-medium">Due Date</label>
-              <input 
-                type="date" 
-                className="w-full mt-1 p-2 border rounded-md"
+              <Input 
+                type="date"
                 value={newReview.dueDate}
                 onChange={(e) => setNewReview(prev => ({ ...prev, dueDate: e.target.value }))}
               />
@@ -1729,7 +1829,7 @@ const HRManagement = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <GraduationCap className="w-5 h-5" />
-              <span>Add New Goal</span>
+              <span>Add New Employee Goal</span>
             </DialogTitle>
           </DialogHeader>
           
@@ -1738,18 +1838,16 @@ const HRManagement = () => {
               <label className="text-sm font-medium">Employee</label>
               <SearchableDropdown
                 options={employeeOptions}
+                placeholder="Select employee"
                 value={newGoal.employee}
                 onValueChange={(value) => setNewGoal(prev => ({ ...prev, employee: value }))}
-                placeholder="Select Employee"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">Goal Description</label>
-              <textarea 
-                className="w-full mt-1 p-2 border rounded-md"
-                rows={3}
-                placeholder="Enter goal description..."
+              <label className="text-sm font-medium">Goal</label>
+              <Input 
+                placeholder="e.g., Increase sales by 10% in Q2"
                 value={newGoal.goal}
                 onChange={(e) => setNewGoal(prev => ({ ...prev, goal: e.target.value }))}
               />
@@ -1757,36 +1855,29 @@ const HRManagement = () => {
 
             <div>
               <label className="text-sm font-medium">Due Date</label>
-              <input 
-                type="date" 
-                className="w-full mt-1 p-2 border rounded-md"
+              <Input 
+                type="date"
                 value={newGoal.dueDate}
                 onChange={(e) => setNewGoal(prev => ({ ...prev, dueDate: e.target.value }))}
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">Initial Progress (%)</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="100" 
-                className="w-full mt-1"
+              <label className="text-sm font-medium">Progress</label>
+              <Input 
+                type="number"
+                min="0"
+                max="100"
                 value={newGoal.progress}
-                onChange={(e) => setNewGoal(prev => ({ ...prev, progress: parseInt(e.target.value) }))}
+                onChange={(e) => setNewGoal(prev => ({ ...prev, progress: parseInt(e.target.value, 10) }))}
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0%</span>
-                <span>{newGoal.progress}%</span>
-                <span>100%</span>
-              </div>
             </div>
 
             <div className="flex justify-end space-x-3 pt-4 border-t">
               <Button variant="outline" onClick={closeNewGoalModal}>
                 Cancel
               </Button>
-              <Button onClick={handleSubmitNewGoal} disabled={!newGoal.employee || !newGoal.goal || !newGoal.dueDate}>
+              <Button onClick={handleSubmitNewGoal} disabled={!newGoal.employee || !newGoal.goal || !newGoal.dueDate || newGoal.progress === 0}>
                 Add Goal
               </Button>
             </div>

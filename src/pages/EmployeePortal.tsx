@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
 import { useEvents } from '@/contexts/EventsContext';
+import BenefitsOverview from '@/components/BenefitsOverview';
 
 const EmployeePortal = () => {
   const { toast } = useToast();
@@ -448,74 +448,7 @@ const EmployeePortal = () => {
         </TabsContent>
 
         <TabsContent value="benefits">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5" />
-                  <span>Health Benefits</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Medical Plan:</strong> Premium Health Plus</p>
-                  <p><strong>Dental Plan:</strong> Comprehensive Dental</p>
-                  <p><strong>Vision Plan:</strong> Complete Vision Care</p>
-                  <p><strong>Deductible:</strong> $1,500 (Individual)</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowBenefitsModal(true)}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Retirement & Savings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>401(k) Plan:</strong> Enrolled</p>
-                  <p><strong>Contribution:</strong> 8% of salary</p>
-                  <p><strong>Company Match:</strong> 4% (100% match)</p>
-                  <p><strong>Vesting:</strong> Immediate</p>
-                </div>
-                <Button variant="outline" className="w-full">Manage Contributions</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Life & Disability</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Life Insurance:</strong> $250,000</p>
-                  <p><strong>Short-term Disability:</strong> 60% salary</p>
-                  <p><strong>Long-term Disability:</strong> 60% salary</p>
-                </div>
-                <Button variant="outline" className="w-full">View Coverage</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Benefits</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Flexible Spending Account:</strong> $2,500</p>
-                  <p><strong>Employee Assistance Program:</strong> Available</p>
-                  <p><strong>Wellness Program:</strong> Active</p>
-                </div>
-                <Button variant="outline" className="w-full">Enroll in Benefits</Button>
-              </CardContent>
-            </Card>
-          </div>
+          <BenefitsOverview />
         </TabsContent>
 
         <TabsContent value="pay">

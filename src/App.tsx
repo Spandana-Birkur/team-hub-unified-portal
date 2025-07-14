@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./components/LoginPage";
 import Documents from "./pages/Documents";
 import EmployeeSafetyConduct from "./pages/EmployeeSafetyConduct";
+import Chatbot from "./pages/Chatbot";
 
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const AppContent = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/safety" element={<EmployeeSafetyConduct />} />
+            <Route path="/chatbot" element={<Chatbot />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

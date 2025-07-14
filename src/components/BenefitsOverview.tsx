@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { 
   Heart, 
   Eye, 
@@ -72,6 +73,8 @@ const BenefitsOverview = () => {
       default: return <Badge variant="outline">Available</Badge>;
     }
   };
+
+  const [openDialog, setOpenDialog] = React.useState<{type: 'health'|'additional'|'retirement'|'flexible', index?: number}|null>(null);
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -194,7 +197,7 @@ const BenefitsOverview = () => {
                       </div>
                     </div>
                     <div className="mt-3 flex space-x-2">
-                      <Button size="sm" variant="outline">View Details</Button>
+                      <Button size="sm" variant="outline" onClick={() => setOpenDialog({type: 'health', index})}>View Details</Button>
                       <Button size="sm" variant="outline">Download Card</Button>
                     </div>
                   </Card>
@@ -202,6 +205,24 @@ const BenefitsOverview = () => {
               </div>
             </CardContent>
           </Card>
+          {/* Health Plan Details Dialog */}
+          <Dialog open={openDialog?.type === 'health'} onOpenChange={open => !open && setOpenDialog(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Health Plan Details</DialogTitle>
+              </DialogHeader>
+              {openDialog?.type === 'health' && healthPlans[openDialog.index] && (
+                <div className="space-y-2">
+                  <p><strong>Name:</strong> {healthPlans[openDialog.index].name}</p>
+                  <p><strong>Type:</strong> {healthPlans[openDialog.index].type}</p>
+                  <p><strong>Premium:</strong> {healthPlans[openDialog.index].premium}</p>
+                  <p><strong>Deductible:</strong> {healthPlans[openDialog.index].deductible}</p>
+                  <p><strong>Coverage:</strong> {healthPlans[openDialog.index].coverage}</p>
+                  <p><strong>Status:</strong> {healthPlans[openDialog.index].status}</p>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="retirement">
@@ -248,11 +269,32 @@ const BenefitsOverview = () => {
                       <span className="font-medium">{retirementInfo.yearToDateContribution}</span>
                     </div>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">View Full Statement</Button>
+                  <Button className="w-full mt-4" variant="outline" onClick={() => setOpenDialog({type: 'retirement'})}>View Full Statement</Button>
                 </Card>
               </div>
             </CardContent>
           </Card>
+          {/* Retirement Full Statement Dialog */}
+          <Dialog open={openDialog?.type === 'retirement'} onOpenChange={open => !open && setOpenDialog(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>401(k) Full Statement</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2">
+                <p><strong>Current Balance:</strong> {retirementInfo.currentBalance}</p>
+                <p><strong>Year-to-Date Contribution:</strong> {retirementInfo.yearToDateContribution}</p>
+                <p><strong>Company Match:</strong> {retirementInfo.companyMatch}</p>
+                <p><strong>Vesting Schedule:</strong> {retirementInfo.vestingSchedule}</p>
+                <p><strong>Recent Transactions:</strong></p>
+                <ul className="list-disc ml-6 text-sm">
+                  <li>2024-04-01: Contribution $400</li>
+                  <li>2024-03-01: Contribution $400</li>
+                  <li>2024-02-01: Contribution $400</li>
+                  <li>2024-01-01: Company Match $200</li>
+                </ul>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="flexible">
@@ -283,7 +325,7 @@ const BenefitsOverview = () => {
                       </div>
                     </div>
                     <div className="mt-3 flex space-x-2">
-                      <Button size="sm" variant="outline">View Transactions</Button>
+                      <Button size="sm" variant="outline" onClick={() => setOpenDialog({type: 'flexible', index})}>View Transactions</Button>
                       <Button size="sm" variant="outline">Submit Claim</Button>
                     </div>
                   </Card>
@@ -291,6 +333,27 @@ const BenefitsOverview = () => {
               </div>
             </CardContent>
           </Card>
+          {/* Flexible Benefit Transactions Dialog */}
+          <Dialog open={openDialog?.type === 'flexible'} onOpenChange={open => !open && setOpenDialog(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Benefit Transactions</DialogTitle>
+              </DialogHeader>
+              {openDialog?.type === 'flexible' && typeof openDialog.index === 'number' && flexibleBenefits[openDialog.index] && (
+                <div className="space-y-2">
+                  <p><strong>Name:</strong> {flexibleBenefits[openDialog.index].name}</p>
+                  <p><strong>Contribution:</strong> {flexibleBenefits[openDialog.index].contribution}</p>
+                  <p><strong>Available:</strong> {flexibleBenefits[openDialog.index].available}</p>
+                  <p><strong>Recent Transactions:</strong></p>
+                  <ul className="list-disc ml-6 text-sm">
+                    <li>2024-04-10: Expense -$120 (Medical)</li>
+                    <li>2024-03-15: Contribution +$100</li>
+                    <li>2024-02-20: Expense -$80 (Dental)</li>
+                  </ul>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="additional">
@@ -319,7 +382,7 @@ const BenefitsOverview = () => {
                         <span className="font-medium">{benefit.premium}</span>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" className="mt-3 w-full">
+                    <Button size="sm" variant="outline" className="mt-3 w-full" onClick={() => setOpenDialog({type: 'additional', index})}>
                       View Details
                     </Button>
                   </Card>
@@ -327,6 +390,21 @@ const BenefitsOverview = () => {
               </div>
             </CardContent>
           </Card>
+          {/* Additional Benefit Details Dialog */}
+          <Dialog open={openDialog?.type === 'additional'} onOpenChange={open => !open && setOpenDialog(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Benefit Details</DialogTitle>
+              </DialogHeader>
+              {openDialog?.type === 'additional' && additionalBenefits[openDialog.index] && (
+                <div className="space-y-2">
+                  <p><strong>Name:</strong> {additionalBenefits[openDialog.index].name}</p>
+                  <p><strong>Coverage:</strong> {additionalBenefits[openDialog.index].coverage}</p>
+                  <p><strong>Premium:</strong> {additionalBenefits[openDialog.index].premium}</p>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
     </div>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -37,7 +38,16 @@ const EmployeePortal = () => {
   const { userRole } = useRole();
   const { notifications } = useNotifications();
   const { profile } = useUserProfile();
+  const [searchParams] = useSearchParams();
   const [selectedTab, setSelectedTab] = useState('overview');
+
+  // Handle URL parameters to open specific tabs
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'support') {
+      setSelectedTab('support');
+    }
+  }, [searchParams]);
 
   const stats = [
     { title: 'Hours This Week', value: '38', icon: Clock, color: 'bg-blue-500' },

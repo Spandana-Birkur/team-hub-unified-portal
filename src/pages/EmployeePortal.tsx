@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRole } from '@/contexts/RoleContext';
-import { useNotification } from '@/contexts/NotificationContext';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -35,7 +36,7 @@ import EmployeeITSupport from '@/components/EmployeeITSupport';
 
 const EmployeePortal = () => {
   const { userRole } = useRole();
-  const { notifications } = useNotification();
+  const { notifications } = useNotifications();
   const { profile } = useUserProfile();
   const [selectedTab, setSelectedTab] = useState('overview');
 
@@ -144,7 +145,7 @@ const EmployeePortal = () => {
             <QuickActions />
 
             {/* Recent Activity */}
-            <RecentActivity activities={recentActivities} />
+            <RecentActivity />
           </div>
 
           {/* Company Announcements */}

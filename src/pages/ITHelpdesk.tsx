@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle, CheckCircle2, UserX } from 'lucide-react';
 import TicketEscalation from '@/components/TicketEscalation';
 import TicketAssignment from '@/components/TicketAssignment';
 import AssetLifecycle from '@/components/AssetLifecycle';
@@ -14,9 +14,25 @@ import AssetHistory from '@/components/AssetHistory';
 import { useRole } from '@/contexts/RoleContext';
 
 const ITHelpdesk = () => {
+  const { userRole } = useRole();
+  
+  // Redirect non-IT users
+  if (userRole !== 'it' && userRole !== 'manager') {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <UserX className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Restricted</h3>
+            <p className="text-gray-600">This IT Helpdesk management interface is only accessible to IT staff and managers.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const [selectedAgent, setSelectedAgent] = useState('all');
   const [selectedTeam, setSelectedTeam] = useState('all');
-  const { userRole } = useRole();
   const [tickets, setTickets] = useState([
     {
       id: 'TKT-001',
@@ -31,7 +47,8 @@ const ITHelpdesk = () => {
       team: 'Hardware Support',
       escalated: false,
       description: 'My laptop screen has been flickering intermittently since this morning.',
-      updatedAt: null
+      updatedAt: null,
+      internalNotes: []
     },
     {
       id: 'TKT-002',
@@ -46,7 +63,10 @@ const ITHelpdesk = () => {
       team: 'Network Team',
       escalated: false,
       description: 'Cannot connect to the office WiFi network from conference room B.',
-      updatedAt: null
+      updatedAt: null,
+      internalNotes: [
+        { note: 'Checked network settings, investigating router configuration', author: 'Jane Doe', timestamp: '2024-01-14T10:30:00Z' }
+      ]
     },
     {
       id: 'TKT-003',
@@ -62,7 +82,8 @@ const ITHelpdesk = () => {
       escalated: false,
       description: 'Need Adobe Creative Suite installed on my workstation.',
       resolutionNotes: 'Adobe Creative Suite was successfully installed on the workstation.',
-      updatedAt: '2024-01-21T10:00:00Z'
+      updatedAt: '2024-01-21T10:00:00Z',
+      internalNotes: []
     },
     {
       id: 'TKT-004',
@@ -78,9 +99,13 @@ const ITHelpdesk = () => {
       escalated: true,
       description: 'Outlook is not syncing emails properly since the last update.',
       resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.',
-      updatedAt: null
+      updatedAt: null,
+      internalNotes: [
+        { note: 'Escalated to senior tech due to complexity', author: 'Alice Brown', timestamp: '2024-01-12T15:00:00Z' }
+      ]
     }
   ]);
+
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
@@ -92,6 +117,7 @@ const ITHelpdesk = () => {
     category: '',
     assignedTo: '',
     team: '',
+    user: '',
   });
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewedTicket, setViewedTicket] = useState<any>(null);
@@ -104,7 +130,9 @@ const ITHelpdesk = () => {
     category: '',
     assignedTo: '',
     team: '',
+    status: 'open',
   });
+  const [internalNote, setInternalNote] = useState('');
 
   const assets = [
     { 
@@ -166,11 +194,13 @@ const ITHelpdesk = () => {
   const resolvedTodayCount = tickets.filter(ticket => ticket.status === 'resolved' && ticket.updatedAt && ticket.updatedAt.slice(0, 10) === today).length;
   const openCount = tickets.filter(ticket => ticket.status === 'open').length;
   const escalatedCount = tickets.filter(ticket => ticket.status === 'escalated').length;
+  const avgResolutionTime = '4.2 hours'; // This would be calculated from actual data
+  
   const helpdeskStats = [
     { title: 'Open Tickets', value: openCount.toString(), icon: AlertTriangle, color: 'bg-red-500' },
     { title: 'Escalated', value: escalatedCount.toString(), icon: TrendingUp, color: 'bg-orange-500' },
     { title: 'Resolved Today', value: resolvedTodayCount.toString(), icon: CheckCircle, color: 'bg-green-500' },
-    { title: 'Total Assets', value: '324', icon: Laptop, color: 'bg-blue-500' },
+    { title: 'Avg Resolution', value: avgResolutionTime, icon: Clock, color: 'bg-blue-500' },
   ];
 
   const agents = ['John Smith', 'Jane Doe', 'Bob Wilson', 'Alice Brown'];
@@ -217,6 +247,26 @@ const ITHelpdesk = () => {
     }
   };
 
+  const handleAddInternalNote = (ticketId: string) => {
+    if (!internalNote.trim()) return;
+    
+    setTickets(prevTickets => 
+      prevTickets.map(ticket => 
+        ticket.id === ticketId 
+          ? { 
+              ...ticket, 
+              internalNotes: [...(ticket.internalNotes || []), {
+                note: internalNote,
+                author: 'Current User', // This would be the logged-in user
+                timestamp: new Date().toISOString()
+              }]
+            }
+          : ticket
+      )
+    );
+    setInternalNote('');
+  };
+
   const filteredTickets = tickets.filter(ticket => {
     if (selectedAgent !== 'all' && ticket.assignedTo !== selectedAgent) return false;
     if (selectedTeam !== 'all' && ticket.team !== selectedTeam) return false;
@@ -226,11 +276,11 @@ const ITHelpdesk = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">IT Helpdesk</h1>
-        <p className="text-gray-600">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">IT Helpdesk Management</h1>
+        <p className="text-gray-600">Comprehensive ticket management, SLA tracking, and asset management for IT support staff.</p>
       </div>
 
-      {/* Stats Overview */}
+      {/* Enhanced Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {helpdeskStats.map((stat, index) => (
           <Card key={index} className="hover:shadow-lg transition-shadow">
@@ -264,7 +314,7 @@ const ITHelpdesk = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Headphones className="w-5 h-5" />
-                <span>Support Tickets</span>
+                <span>Support Tickets - IT Staff View</span>
               </CardTitle>
               <div className="flex items-center space-x-4">
                 <Select value={selectedAgent} onValueChange={setSelectedAgent}>
@@ -319,16 +369,20 @@ const ITHelpdesk = () => {
                           <span>Team: {ticket.team}</span>
                           <span>Created: {ticket.created}</span>
                         </div>
+                        {ticket.internalNotes && ticket.internalNotes.length > 0 && (
+                          <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
+                            <span className="font-medium">Latest internal note:</span> {ticket.internalNotes[ticket.internalNotes.length - 1].note}
+                          </div>
+                        )}
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
+                          variant="outline"
                           onClick={() => { setViewedTicket(ticket); setViewDialogOpen(true); }}
                         >
-                          View
+                          View Details
                         </Button>
                         <Button
-                          className="h-9 px-3"
                           onClick={() => {
                             setTicketToUpdate(ticket);
                             setUpdateFields({
@@ -338,16 +392,17 @@ const ITHelpdesk = () => {
                               category: ticket.category,
                               assignedTo: ticket.assignedTo,
                               team: ticket.team,
+                              status: ticket.status,
                             });
                             setUpdateDialogOpen(true);
                           }}
                         >
-                          Update
+                          Manage
                         </Button>
-                        {(userRole === 'it' || userRole === 'manager') && ticket.status !== 'resolved' && (
+                        {ticket.status !== 'resolved' && (
                           <Button 
                             onClick={() => handleResolveTicket(ticket)}
-                            className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-1" />
                             Resolve
@@ -400,8 +455,8 @@ const ITHelpdesk = () => {
                       <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
                         {asset.status}
                       </Badge>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
+                      <Button variant="outline">View History</Button>
+                      <Button variant="outline">Manage</Button>
                     </div>
                   </div>
                 ))}
@@ -429,10 +484,10 @@ const ITHelpdesk = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">IT Knowledge Base</h3>
                 <p className="text-gray-600 mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
+                  <Button variant="outline">Setup Guides</Button>
+                  <Button variant="outline">Troubleshooting</Button>
+                  <Button variant="outline">Security Policies</Button>
+                  <Button variant="outline">Software Manuals</Button>
                 </div>
               </div>
             </CardContent>
@@ -580,11 +635,12 @@ const ITHelpdesk = () => {
                     team: newTicket.team,
                     escalated: false,
                     description: newTicket.description,
-                    updatedAt: null
+                    updatedAt: null,
+                    internalNotes: []
                   },
                   ...tickets,
                 ]);
-                setNewTicket({ title: '', description: '', priority: 'medium', category: '', assignedTo: '', team: '' });
+                setNewTicket({ title: '', description: '', priority: 'medium', category: '', assignedTo: '', team: '', user: '' });
                 setCreateDialogOpen(false);
               }}
               disabled={!newTicket.title.trim() || !newTicket.description.trim()}
@@ -676,6 +732,19 @@ const ITHelpdesk = () => {
                 </select>
               </div>
             </div>
+            <div>
+              <label className="text-sm font-medium">Status</label>
+              <select
+                className="w-full border rounded px-2 py-1 mt-1"
+                value={updateFields.status}
+                onChange={e => setUpdateFields({ ...updateFields, status: e.target.value })}
+              >
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="escalated">Escalated</option>
+              </select>
+            </div>
           </div>
           <DialogFooter>
             <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setUpdateDialogOpen(false)}>
@@ -702,28 +771,71 @@ const ITHelpdesk = () => {
 
       {/* View Ticket Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Ticket Details</DialogTitle>
+            <DialogTitle>Ticket Details - IT Staff View</DialogTitle>
           </DialogHeader>
           {viewedTicket && (
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex items-center space-x-3 mb-2">
                 <h4 className="font-semibold text-gray-900">{viewedTicket.title}</h4>
-                <Badge className="border border-gray-300 bg-transparent text-gray-700">{viewedTicket.id}</Badge>
+                <Badge variant="outline">{viewedTicket.id}</Badge>
                 <Badge className={getPriorityColor(viewedTicket.priority)}>{viewedTicket.priority}</Badge>
                 <Badge className={getStatusColor(viewedTicket.status)}>{viewedTicket.status}</Badge>
               </div>
-              <div className="text-sm text-gray-600 mb-2">{viewedTicket.description}</div>
-              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                <span>User: {viewedTicket.user}</span>
-                <span>Category: {viewedTicket.category}</span>
-                <span>Assigned to: {viewedTicket.assignedTo}</span>
-                <span>Team: {viewedTicket.team}</span>
-                <span>Created: {viewedTicket.created}</span>
+              
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">User Request:</h5>
+                  <div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded">{viewedTicket.description}</div>
+                  
+                  <div className="grid grid-cols-1 gap-2 text-sm">
+                    <div><span className="font-medium">User:</span> {viewedTicket.user}</div>
+                    <div><span className="font-medium">Category:</span> {viewedTicket.category}</div>
+                    <div><span className="font-medium">Assigned to:</span> {viewedTicket.assignedTo}</div>
+                    <div><span className="font-medium">Team:</span> {viewedTicket.team}</div>
+                    <div><span className="font-medium">Created:</span> {viewedTicket.created}</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Internal Notes:</h5>
+                  <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
+                    {viewedTicket.internalNotes && viewedTicket.internalNotes.length > 0 ? (
+                      viewedTicket.internalNotes.map((note: any, index: number) => (
+                        <div key={index} className="p-2 bg-blue-50 rounded text-xs">
+                          <div className="font-medium text-blue-700">{note.author} - {new Date(note.timestamp).toLocaleString()}</div>
+                          <div className="text-gray-700">{note.note}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">No internal notes yet</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Add Internal Note:</label>
+                    <Textarea
+                      placeholder="Add internal note for IT staff..."
+                      value={internalNote}
+                      onChange={(e) => setInternalNote(e.target.value)}
+                      className="mt-1 text-sm"
+                      rows={3}
+                    />
+                    <Button 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => handleAddInternalNote(viewedTicket.id)}
+                      disabled={!internalNote.trim()}
+                    >
+                      Add Note
+                    </Button>
+                  </div>
+                </div>
               </div>
+              
               {viewedTicket.resolutionNotes && (
-                <div className="mt-2 p-3 bg-white border-l-4 border-green-500 rounded">
+                <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500 rounded">
                   <div className="font-medium text-green-700 mb-1">Resolution Notes:</div>
                   <div className="text-gray-800 whitespace-pre-line">{viewedTicket.resolutionNotes}</div>
                 </div>
@@ -731,7 +843,7 @@ const ITHelpdesk = () => {
             </div>
           )}
           <DialogFooter>
-            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setViewDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
               Close
             </Button>
           </DialogFooter>

@@ -9,6 +9,7 @@ interface RoleContextType {
   hasAccess: (requiredRoles: UserRole[]) => boolean;
   isLoggedIn: boolean;
   logout: () => void;
+  canAccessITStaff: boolean;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -57,8 +58,18 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return userRole ? requiredRoles.includes(userRole) : false;
   };
 
+  // Check if user can access IT staff interface
+  const canAccessITStaff = userRole === 'it' || userRole === 'manager';
+
   return (
-    <RoleContext.Provider value={{ userRole, setUserRole, hasAccess, isLoggedIn, logout }}>
+    <RoleContext.Provider value={{ 
+      userRole, 
+      setUserRole, 
+      hasAccess, 
+      isLoggedIn, 
+      logout, 
+      canAccessITStaff 
+    }}>
       {children}
     </RoleContext.Provider>
   );

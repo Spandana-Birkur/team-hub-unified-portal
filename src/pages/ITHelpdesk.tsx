@@ -223,6 +223,9 @@ const ITHelpdesk = () => {
     return true;
   });
 
+  // Determine if user is IT or manager
+  const isIT = userRole === 'it' || userRole === 'manager';
+
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -250,12 +253,12 @@ const ITHelpdesk = () => {
       </div>
 
       <Tabs defaultValue="tickets" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className={`grid w-full ${isIT ? 'grid-cols-6' : 'grid-cols-2'}`}>
           <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
-          <TabsTrigger value="escalation">SLA & Escalation</TabsTrigger>
-          <TabsTrigger value="assignment">Team Assignment</TabsTrigger>
-          <TabsTrigger value="assets">Asset Management</TabsTrigger>
-          <TabsTrigger value="lifecycle">Asset Lifecycle</TabsTrigger>
+          {isIT && <TabsTrigger value="escalation">SLA & Escalation</TabsTrigger>}
+          {isIT && <TabsTrigger value="assignment">Team Assignment</TabsTrigger>}
+          {isIT && <TabsTrigger value="assets">Asset Management</TabsTrigger>}
+          {isIT && <TabsTrigger value="lifecycle">Asset Lifecycle</TabsTrigger>}
           <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
         </TabsList>
 
@@ -267,28 +270,32 @@ const ITHelpdesk = () => {
                 <span>Support Tickets</span>
               </CardTitle>
               <div className="flex items-center space-x-4">
-                <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Filter by Agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Agents</SelectItem>
-                    {agents.map(agent => (
-                      <SelectItem key={agent} value={agent}>{agent}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Filter by Team" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Teams</SelectItem>
-                    {teams.map(team => (
-                      <SelectItem key={team} value={team}>{team}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {isIT && (
+                  <>
+                    <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Filter by Agent" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Agents</SelectItem>
+                        {agents.map(agent => (
+                          <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Filter by Team" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Teams</SelectItem>
+                        {teams.map(team => (
+                          <SelectItem key={team} value={team}>{team}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
                   Create Ticket
                 </Button>
@@ -327,24 +334,26 @@ const ITHelpdesk = () => {
                         >
                           View
                         </Button>
-                        <Button
-                          className="h-9 px-3"
-                          onClick={() => {
-                            setTicketToUpdate(ticket);
-                            setUpdateFields({
-                              title: ticket.title,
-                              description: ticket.description,
-                              priority: ticket.priority,
-                              category: ticket.category,
-                              assignedTo: ticket.assignedTo,
-                              team: ticket.team,
-                            });
-                            setUpdateDialogOpen(true);
-                          }}
-                        >
-                          Update
-                        </Button>
-                        {(userRole === 'it' || userRole === 'manager') && ticket.status !== 'resolved' && (
+                        {isIT && (
+                          <Button
+                            className="h-9 px-3"
+                            onClick={() => {
+                              setTicketToUpdate(ticket);
+                              setUpdateFields({
+                                title: ticket.title,
+                                description: ticket.description,
+                                priority: ticket.priority,
+                                category: ticket.category,
+                                assignedTo: ticket.assignedTo,
+                                team: ticket.team,
+                              });
+                              setUpdateDialogOpen(true);
+                            }}
+                          >
+                            Update
+                          </Button>
+                        )}
+                        {isIT && ticket.status !== 'resolved' && (
                           <Button 
                             onClick={() => handleResolveTicket(ticket)}
                             className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
@@ -361,59 +370,62 @@ const ITHelpdesk = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="escalation">
-          <TicketEscalation tickets={tickets} />
-        </TabsContent>
-
-        <TabsContent value="assignment">
-          <TicketAssignment tickets={tickets} agents={agents} teams={teams} />
-        </TabsContent>
-
-        <TabsContent value="assets">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Laptop className="w-5 h-5" />
-                <span>IT Assets</span>
-              </CardTitle>
-              <Button>Add Asset</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {assets.map((asset) => (
-                  <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Laptop className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{asset.model}</h4>
-                          <p className="text-sm text-gray-600">{asset.type} • {asset.id}</p>
-                          <p className="text-xs text-gray-500">Assigned to: {asset.user} • {asset.location}</p>
-                          <p className="text-xs text-gray-500">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
+        {isIT && (
+          <TabsContent value="escalation">
+            <TicketEscalation tickets={tickets} />
+          </TabsContent>
+        )}
+        {isIT && (
+          <TabsContent value="assignment">
+            <TicketAssignment tickets={tickets} agents={agents} teams={teams} />
+          </TabsContent>
+        )}
+        {isIT && (
+          <TabsContent value="assets">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center space-x-2">
+                  <Laptop className="w-5 h-5" />
+                  <span>IT Assets</span>
+                </CardTitle>
+                <Button>Add Asset</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {assets.map((asset) => (
+                    <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Laptop className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{asset.model}</h4>
+                            <p className="text-sm text-gray-600">{asset.type} • {asset.id}</p>
+                            <p className="text-xs text-gray-500">Assigned to: {asset.user} • {asset.location}</p>
+                            <p className="text-xs text-gray-500">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center space-x-3">
+                        <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
+                          {asset.status}
+                        </Badge>
+                        <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
+                        <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
-                        {asset.status}
-                      </Badge>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="lifecycle">
-          <AssetLifecycle assets={assets} />
-        </TabsContent>
-
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+        {isIT && (
+          <TabsContent value="lifecycle">
+            <AssetLifecycle assets={assets} />
+          </TabsContent>
+        )}
         <TabsContent value="knowledge">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -421,19 +433,17 @@ const ITHelpdesk = () => {
                 <Shield className="w-5 h-5" />
                 <span>Knowledge Base</span>
               </CardTitle>
-              <Button>Add Article</Button>
+              {isIT && <Button>Add Article</Button>}
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">IT Knowledge Base</h3>
                 <p className="text-gray-600 mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
-                </div>
+                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
+                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
+                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
+                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
               </div>
             </CardContent>
           </Card>

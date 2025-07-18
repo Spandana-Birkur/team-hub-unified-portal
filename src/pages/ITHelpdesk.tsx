@@ -401,6 +401,7 @@ const ITHelpdesk = () => {
                                 category: ticket.category,
                                 assignedTo: ticket.assignedTo,
                                 team: ticket.team,
+                                status: ticket.status,
                               });
                               setUpdateDialogOpen(true);
                             }}
@@ -409,31 +410,32 @@ const ITHelpdesk = () => {
                           </Button>
                         )}
                         {isIT && ticket.status !== 'resolved' && (
-                        <Button
-                          onClick={() => {
-                            setTicketToUpdate(ticket);
-                            setUpdateFields({
-                              title: ticket.title,
-                              description: ticket.description,
-                              priority: ticket.priority,
-                              category: ticket.category,
-                              assignedTo: ticket.assignedTo,
-                              team: ticket.team,
-                              status: ticket.status,
-                            });
-                            setUpdateDialogOpen(true);
-                          }}
-                        >
-                          Manage
-                        </Button>
-                        {ticket.status !== 'resolved' && (
-                          <Button 
-                            onClick={() => handleResolveTicket(ticket)}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <CheckCircle2 className="w-4 h-4 mr-1" />
-                            Resolve
-                          </Button>
+                          <>
+                            <Button
+                              onClick={() => {
+                                setTicketToUpdate(ticket);
+                                setUpdateFields({
+                                  title: ticket.title,
+                                  description: ticket.description,
+                                  priority: ticket.priority,
+                                  category: ticket.category,
+                                  assignedTo: ticket.assignedTo,
+                                  team: ticket.team,
+                                  status: ticket.status,
+                                });
+                                setUpdateDialogOpen(true);
+                              }}
+                            >
+                              Manage
+                            </Button>
+                            <Button 
+                              onClick={() => handleResolveTicket(ticket)}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <CheckCircle2 className="w-4 h-4 mr-1" />
+                              Resolve
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>

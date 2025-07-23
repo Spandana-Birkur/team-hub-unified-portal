@@ -56,57 +56,60 @@ const CalendarPage = () => {
   const weekDates = getWeekDates(weekBaseDate);
 
   return (
-    <div className="p-6 w-full">
-      <Card className="w-full">
+    <div className="p-6 w-full flex flex-col items-center justify-center min-h-screen bg-white">
+      <Card className="w-full max-w-6xl mx-auto">
         <CardHeader className="flex items-center space-x-2">
           <CalendarIcon className="w-6 h-6 text-blue-600" />
           <CardTitle>Company Calendar</CardTitle>
         </CardHeader>
         <CardContent className="w-full">
           <div className="flex items-center mb-4 space-x-2">
+            {/* Month/Week Switch stays top left */}
             <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} onClick={() => setViewMode('month')}>Monthly View</Button>
             <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} onClick={() => setViewMode('week')}>Weekly View</Button>
           </div>
-          {viewMode === 'month' ? (
-            <div className="w-full">
-              <CalendarUI
-                mode="single"
-                onSelect={handleDateSelect}
-                className="w-full"
-              />
-            </div>
-          ) : (
-            <div className="border rounded-lg p-4 bg-white w-full">
-              <div className="flex justify-between mb-2 w-full">
-                {weekDates.map(date => (
-                  <div key={date.toISOString()} className="flex-1 text-center">
-                    <div className="font-semibold text-gray-700">{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
-                    <div className="text-xs text-gray-500">{date.toLocaleDateString()}</div>
-                  </div>
-                ))}
+          <div className="flex justify-center w-full">
+            {viewMode === 'month' ? (
+              <div className="w-full flex justify-center">
+                <CalendarUI
+                  mode="single"
+                  onSelect={handleDateSelect}
+                  className="w-full max-w-5xl text-lg"
+                />
               </div>
-              <div className="flex justify-between w-full">
-                {weekDates.map(date => {
-                  const iso = date.toISOString().slice(0, 10);
-                  const dayEvents = getEventsForDate(iso, events);
-                  return (
-                    <div key={iso} className="flex-1 min-h-[60px] border rounded p-1 mx-1 bg-gray-50">
-                      {dayEvents.length === 0 ? (
-                        <div className="text-xs text-gray-400 text-center">No events</div>
-                      ) : (
-                        dayEvents.map(event => (
-                          <div key={event.id} className="mb-1 p-1 rounded bg-blue-100 cursor-pointer" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
-                            <Badge className="mr-1 text-xs">{event.type}</Badge>
-                            <span className="text-xs font-medium">{event.title}</span>
-                          </div>
-                        ))
-                      )}
+            ) : (
+              <div className="border rounded-lg p-6 bg-white w-full max-w-5xl text-base">
+                <div className="flex justify-between mb-2 w-full">
+                  {weekDates.map(date => (
+                    <div key={date.toISOString()} className="flex-1 text-center">
+                      <div className="font-semibold text-gray-700">{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                      <div className="text-xs text-gray-500">{date.toLocaleDateString()}</div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+                <div className="flex justify-between w-full">
+                  {weekDates.map(date => {
+                    const iso = date.toISOString().slice(0, 10);
+                    const dayEvents = getEventsForDate(iso, events);
+                    return (
+                      <div key={iso} className="flex-1 min-h-[80px] border rounded p-2 mx-1 bg-gray-50">
+                        {dayEvents.length === 0 ? (
+                          <div className="text-xs text-gray-400 text-center">No events</div>
+                        ) : (
+                          dayEvents.map(event => (
+                            <div key={event.id} className="mb-2 p-2 rounded bg-blue-100 cursor-pointer" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
+                              <Badge className="mr-1 text-xs">{event.type}</Badge>
+                              <span className="text-xs font-medium">{event.title}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
       <div className="flex justify-end mb-4">
@@ -382,4 +385,4 @@ const CalendarPage = () => {
   );
 };
 
-export default CalendarPage; 
+export default CalendarPage;

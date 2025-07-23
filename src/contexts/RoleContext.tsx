@@ -51,6 +51,8 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoggedIn(false);
     localStorage.removeItem('userRole');
     localStorage.removeItem('isLoggedIn');
+    localStorage.setItem('skipLanding', 'true');
+    window.location.href = '/';
   };
 
   const hasAccess = (requiredRoles: UserRole[]) => {

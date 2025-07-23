@@ -378,7 +378,12 @@ const EmployeePortal = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full mt-4" onClick={() => navigate('/settings')}>Edit Profile</Button>
+                <Button
+                  className="w-full mt-4 rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+                  onClick={() => navigate('/settings')}
+                >
+                  Edit Profile
+                </Button>
               </CardContent>
             </Card>
 
@@ -389,7 +394,13 @@ const EmployeePortal = () => {
                   <Bell className="w-5 h-5" />
                   <span>Company Announcements</span>
                 </CardTitle>
-                <Button variant="outline" size="sm">View All</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
+                >
+                  View All
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -546,7 +557,12 @@ const EmployeePortal = () => {
               <Card className="md:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Time Off Requests</CardTitle>
-                  <Button onClick={() => setShowTimeOffModal(true)}>Request Time Off</Button>
+                  <Button
+                    onClick={() => setShowTimeOffModal(true)}
+                    className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+                  >
+                    Request Time Off
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -586,7 +602,14 @@ const EmployeePortal = () => {
                 <FileText className="w-5 h-5" />
                 <span>My Documents</span>
               </CardTitle>
-              <Button onClick={() => setShowDocumentUploadModal(true)}>Upload Document</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
+                onClick={() => setShowDocumentUploadModal(true)}
+              >
+                Upload Document
+              </Button>
             </CardHeader>
             <CardContent>
               <Table>
@@ -612,10 +635,11 @@ const EmployeePortal = () => {
                             <Eye className="w-4 h-4 mr-1" />
                             View
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleDownloadDocument(doc.name)}
+                            className="rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
                           >
                             <Download className="w-4 h-4 mr-1" />
                             Download
@@ -637,7 +661,12 @@ const EmployeePortal = () => {
                 <PartyPopper className="w-5 h-5" />
                 <span>Upcoming Events</span>
               </CardTitle>
-              <Button onClick={() => setShowCreateEventModal(true)}>Create Event</Button>
+              <Button
+                onClick={() => setShowCreateEventModal(true)}
+                className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+              >
+                Create Event
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -738,10 +767,10 @@ const EmployeePortal = () => {
                   <p><strong>Additional Withholding:</strong> ${taxInfo.additionalWithholding}</p>
                   <p><strong>State:</strong> {taxInfo.state}</p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
+                <Button
+                  variant="outline"
                   onClick={() => setShowTaxUpdateModal(true)}
+                  className="w-full rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
                 >
                   Update Tax Information
                 </Button>
@@ -812,7 +841,12 @@ const EmployeePortal = () => {
                 <Clock className="w-5 h-5" />
                 <span>Timesheets</span>
               </CardTitle>
-              <Button onClick={() => setShowTimesheetModal(true)}>Submit Timesheet</Button>
+              <Button
+                onClick={() => setShowTimesheetModal(true)}
+                className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+              >
+                Submit Timesheet
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -850,7 +884,7 @@ const EmployeePortal = () => {
                           <TableCell>{ts.regularHours}</TableCell>
                           <TableCell>{ts.overtimeHours}</TableCell>
                           <TableCell><Badge variant={ts.status === 'Pending' ? 'secondary' : undefined}>{ts.status}</Badge></TableCell>
-                          <TableCell><Button variant="outline" size="sm">View</Button></TableCell>
+                          <TableCell><Button variant="outline" size="sm" className="rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400">View</Button></TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -1270,7 +1304,10 @@ const EmployeePortal = () => {
             <Button variant="outline" onClick={() => setShowTaxUpdateModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleTaxInfoUpdate}>
+            <Button
+              onClick={handleTaxInfoUpdate}
+              className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+            >
               Update
             </Button>
           </div>
@@ -1331,7 +1368,10 @@ const EmployeePortal = () => {
             <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleTimesheetSubmit}>
+            <Button
+              onClick={handleTimesheetSubmit}
+              className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
+            >
               Submit Timesheet
             </Button>
           </div>
@@ -1353,15 +1393,15 @@ const EmployeePortal = () => {
               </div>
             )}
             <div className="flex space-x-2">
-              <Button 
-                className="flex-1" 
+              <Button
+                className="flex-1 rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
                 onClick={() => selectedEvent && handleEventRSVP(selectedEvent, 'accepted')}
               >
                 Accept
               </Button>
-              <Button 
-                variant="outline" 
-                className="flex-1"
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
                 onClick={() => selectedEvent && handleEventRSVP(selectedEvent, 'declined')}
               >
                 Decline
@@ -1590,12 +1630,17 @@ const EmployeePortal = () => {
             </div>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowCreateEventModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateEventModal(false)}
+              className="rounded-xl border-2 border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-400"
+            >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateEvent}
               disabled={!newEventForm.title || !newEventForm.date}
+              className="rounded-xl shadow-lg border-2 border-blue-500 bg-blue-600 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-blue-400"
             >
               Create Event
             </Button>

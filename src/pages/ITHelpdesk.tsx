@@ -399,7 +399,8 @@ const ITHelpdesk = () => {
                               category: ticket.category,
                               assignedTo: ticket.assignedTo,
                               team: ticket.team,
-                            });
+                              status: ticket.status, // <-- add this line
+                            })
                             setUpdateDialogOpen(true);
                           }}
                         >

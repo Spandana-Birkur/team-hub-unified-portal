@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
-import { Calendar as CalendarIcon } from 'lucide-react';
 import { useEvents } from '@/contexts/EventsContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
+import { Calendar as CalendarIcon, Briefcase, Gift, Clock, Star, User as UserIcon } from 'lucide-react';
 
 // Helper function to get events for a specific date
 function getEventsForDate(dateStr: string, events: any[]) {
@@ -24,6 +25,49 @@ function getWeekDates(date) {
     return dt;
   });
 }
+
+// Helper for event type color/icon
+const eventTypeMeta = {
+  Meeting: { color: 'bg-blue-200 text-blue-800', icon: <Briefcase className="inline w-4 h-4 mr-1" /> },
+  Holiday: { color: 'bg-green-200 text-green-800', icon: <Gift className="inline w-4 h-4 mr-1" /> },
+  Deadline: { color: 'bg-red-200 text-red-800', icon: <Clock className="inline w-4 h-4 mr-1" /> },
+  Event: { color: 'bg-yellow-200 text-yellow-800', icon: <Star className="inline w-4 h-4 mr-1" /> },
+  Personal: { color: 'bg-purple-200 text-purple-800', icon: <UserIcon className="inline w-4 h-4 mr-1" /> },
+};
+
+// 1. Define your custom Day component above your CalendarPage
+const CustomDay = (props) => {
+  const { date, events, handleDayDoubleClick, ...rest } = props;
+  const iso = date.toISOString().slice(0, 10);
+  const dayEvents = getEventsForDate(iso, events);
+  return (
+    <div
+      {...rest}
+      className="relative w-full h-full"
+      onDoubleClick={() => handleDayDoubleClick(date)}
+    >
+      <div>{date.getDate()}</div>
+      {dayEvents.length > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 flex flex-wrap justify-center gap-0.5">
+          {dayEvents.slice(0, 2).map((event, idx) => (
+            <TooltipProvider key={event.id} delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`rounded px-1 text-xs ${eventTypeMeta[event.type]?.color || 'bg-gray-200 text-gray-800'}`}>{eventTypeMeta[event.type]?.icon}{event.title.length > 6 ? event.title.slice(0, 6) + '…' : event.title}</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="font-semibold">{event.title}</div>
+                  <div className="text-xs">{event.description}</div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+          {dayEvents.length > 2 && <span className="text-xs text-gray-400">+{dayEvents.length - 2}</span>}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CalendarPage = () => {
   const { events, addEvent } = useEvents();
@@ -51,9 +95,33 @@ const CalendarPage = () => {
     setShowDialog(true);
   };
 
-  // For weekly view, default to today or selectedDate
-  const weekBaseDate = selectedDate ? new Date(selectedDate) : new Date();
+  // Add double-click handler for CalendarUI
+  const handleDayDoubleClick = (date) => {
+    setNewEvent({ ...newEvent, date: date.toISOString().slice(0, 10) });
+    setCreateDialogOpen(true);
+  };
+
+  // Weekly view navigation state
+  const [weekBaseDate, setWeekBaseDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
   const weekDates = getWeekDates(weekBaseDate);
+
+  // When switching to week view, reset weekBaseDate to today or selectedDate
+  React.useEffect(() => {
+    if (viewMode === 'week') {
+      setWeekBaseDate(selectedDate ? new Date(selectedDate) : new Date());
+    }
+  }, [viewMode, selectedDate]);
+
+  const goToPrevWeek = () => {
+    const prev = new Date(weekBaseDate);
+    prev.setDate(prev.getDate() - 7);
+    setWeekBaseDate(prev);
+  };
+  const goToNextWeek = () => {
+    const next = new Date(weekBaseDate);
+    next.setDate(next.getDate() + 7);
+    setWeekBaseDate(next);
+  };
 
   return (
     <div className="p-6 w-full flex flex-col items-center justify-center min-h-screen bg-white">

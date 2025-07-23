@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,7 +13,6 @@ import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
 import HRManagement from "./pages/HRManagement";
-import ITHelpdesk from "./pages/ITHelpdesk";  
 import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
 import Notifications from "./pages/Notifications";
@@ -42,7 +42,7 @@ const AppContent = () => {
       case 'manager':
         return '/hr';
       case 'it':
-        return '/helpdesk';
+        return '/employee';
       default:
         return '/employee';
     }
@@ -58,7 +58,6 @@ const AppContent = () => {
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
             <Route path="/employee" element={<EmployeePortal />} />
             <Route path="/hr" element={<HRManagement />} />
-            <Route path="/helpdesk" element={<ITHelpdesk />} />
             <Route path="/training" element={<Training />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/notifications" element={<Notifications />} />

@@ -1,368 +1,148 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, Phone, MapPin, Calendar, Users, Bell, User, CreditCard, 
-  DollarSign, Plane, FileText, PartyPopper, Calculator, 
-  GraduationCap, Clock, Download, Upload, Plus, Edit, Eye,
-  TrendingUp, AlertTriangle, Shield, UserCheck, Headphones, BookOpen, ShieldCheck
-} from 'lucide-react';
-import { useUserProfile } from '@/contexts/UserProfileContext';
-import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
-import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
-import { useEvents } from '@/contexts/EventsContext';
-import BenefitsOverview from '@/components/BenefitsOverview';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Calendar, 
+  Clock, 
+  Users, 
+  BookOpen, 
+  FileText, 
+  Settings, 
+  Headphones,
+  Bell,
+  User,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
+  Target,
+  Award,
+  Coffee,
+  MessageSquare,
+  Search,
+  Star,
+  Building2,
+  MapPin,
+  Shield
+} from 'lucide-react';
+import QuickActions from '@/components/QuickActions';
+import RecentActivity from '@/components/RecentActivity';
+import EmployeeITSupport from '@/components/EmployeeITSupport';
 
 const EmployeePortal = () => {
-  const { toast } = useToast();
-  const { submitLeaveRequest, getRequestsByEmployee } = useLeaveRequests();
-  const { addEvent, getCompanyEvents } = useEvents();
-  
-  // Modal states
-  const [showTimeOffModal, setShowTimeOffModal] = useState(false);
-  const [showDocumentUploadModal, setShowDocumentUploadModal] = useState(false);
-  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
-  const [showTaxUpdateModal, setShowTaxUpdateModal] = useState(false);
-  const [showTimesheetModal, setShowTimesheetModal] = useState(false);
-  const [showEventRSVPModal, setShowEventRSVPModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
-  const [newEventForm, setNewEventForm] = useState({
-    type: 'Event' as 'Meeting' | 'Holiday' | 'Deadline' | 'Event' | 'Personal',
-    title: '',
-    date: '',
-    time: '',
-    endTime: '',
-    isAllDay: false,
-    location: '',
-    description: '',
-    isPersonal: false
-  });
-  
-  // Form states
-  const [timeOffForm, setTimeOffForm] = useState({
-    type: '',
-    startDate: '',
-    endDate: '',
-    reason: ''
-  });
-  
-  const [documentUpload, setDocumentUpload] = useState({
-    name: '',
-    type: '',
-    file: null
-  });
-  
-  // State for dynamic data
-  const [payStubs, setPayStubs] = useState([
-    { period: 'Dec 15 - Dec 31, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Dec 1 - Dec 14, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Nov 15 - Nov 30, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-  ]);
-  const [documents, setDocuments] = useState([
-    { name: 'Employee Handbook 2024', type: 'PDF', uploadDate: '2024-01-01' },
-    { name: 'W-2 Form 2023', type: 'PDF', uploadDate: '2024-01-15' },
-    { name: 'Benefits Enrollment', type: 'PDF', uploadDate: '2023-12-01' },
-  ]);
-  // Get user's leave requests from context
-  const userEmployeeId = 'emp001'; // This would come from user profile in a real app
-  const timeOffRequests = getRequestsByEmployee(userEmployeeId).map(request => ({
-    type: request.type,
-    dates: `${request.startDate} - ${request.endDate}`,
-    days: request.days,
-    status: request.status === 'pending' ? 'Pending' : request.status === 'approved' ? 'Approved' : 'Rejected'
-  }));
-  const [taxInfo, setTaxInfo] = useState({
-    filingStatus: 'Single',
-    allowances: 2,
-    additionalWithholding: 0,
-    state: 'California'
-  });
-  
-  const [timesheetData, setTimesheetData] = useState({
-    weekEnding: '',
-    hours: Array(7).fill(8),
-    notes: ''
-  });
+  const { userRole } = useRole();
+  const { notifications } = useNotifications();
+  const { profile } = useUserProfile();
+  const [searchParams] = useSearchParams();
+  const [selectedTab, setSelectedTab] = useState('overview');
 
-  const [timesheets, setTimesheets] = useState([
-    { weekEnding: 'Jan 12, 2024', regularHours: 40.0, overtimeHours: 2.5, status: 'Approved' },
-    { weekEnding: 'Jan 5, 2024', regularHours: 38.5, overtimeHours: 0.0, status: 'Approved' },
-    { weekEnding: 'Dec 29, 2023', regularHours: 32.0, overtimeHours: 0.0, status: 'Pending' },
-  ]);
+  // Handle URL parameters to open specific tabs
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'support') {
+      setSelectedTab('support');
+    }
+  }, [searchParams]);
+
+  const stats = [
+    { title: 'Hours This Week', value: '38', icon: Clock, color: 'bg-blue-500' },
+    { title: 'Leave Balance', value: '12 days', icon: Calendar, color: 'bg-green-500' },
+    { title: 'Training Progress', value: '85%', icon: BookOpen, color: 'bg-purple-500' },
+    { title: 'Team Members', value: '8', icon: Users, color: 'bg-orange-500' },
+  ];
 
   const announcements = [
     {
-      id: 1,
-      title: 'Annual Company Retreat 2024',
-      content: 'Join us for our annual company retreat in Lake Tahoe. Registration opens next week.',
+      title: 'Holiday Schedule Updated',
+      content: 'Please review the updated holiday schedule for Q2 2024.',
       date: '2024-01-15',
-      priority: 'high'
+      priority: 'info',
+      category: 'Company News'
     },
     {
-      id: 2,
-      title: 'New Health Benefits Package',
-      content: 'We are excited to announce enhanced health benefits starting February 1st.',
-      date: '2024-01-10',
-      priority: 'medium'
+      title: 'New Security Training Required',
+      content: 'All employees must complete the new cybersecurity training by March 1st.',
+      date: '2024-01-14',
+      priority: 'urgent',
+      category: 'Training'
     },
     {
-      id: 3,
-      title: 'Office Holiday Schedule',
-      content: 'Please note the updated holiday schedule for the upcoming months.',
-      date: '2024-01-08',
-      priority: 'low'
+      title: 'Office WiFi Maintenance',
+      content: 'Network maintenance scheduled for this weekend. Minimal disruption expected.',
+      date: '2024-01-13',
+      priority: 'info',
+      category: 'IT Updates'
     }
   ];
 
-  const teamMembers = [
-    { name: 'Alice Smith', role: 'Team Lead', avatar: 'AS', department: 'Engineering' },
-    { name: 'Bob Johnson', role: 'Designer', avatar: 'BJ', department: 'Design' },
-    { name: 'Carol White', role: 'Developer', avatar: 'CW', department: 'Engineering' },
-    { name: 'David Brown', role: 'Product Manager', avatar: 'DB', department: 'Product' },
+  const recentActivities = [
+    {
+      action: 'Leave request approved',
+      time: '2 hours ago',
+      icon: CheckCircle,
+      color: 'text-green-600'
+    },
+    {
+      action: 'Training module completed',
+      time: '1 day ago',
+      icon: BookOpen,
+      color: 'text-blue-600'
+    },
+    {
+      action: 'Performance review submitted',
+      time: '3 days ago',
+      icon: Star,
+      color: 'text-purple-600'
+    }
   ];
 
-  // Get upcoming events from context
-  const upcomingEvents = getCompanyEvents()
-    .filter(event => new Date(event.date) >= new Date())
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 5); // Show next 5 events
-
-  const { profile } = useUserProfile();
-  const { userRole } = useRole();
-  const userProfile = {
-    name: profile.firstName + ' ' + profile.lastName,
-    email: profile.email,
-    phone: profile.phone,
-    position: profile.position,
-    department: profile.department,
-    initials: (profile.firstName[0] || '') + (profile.lastName[0] || ''),
-  };
-  const roleLabels = {
-    employee: 'Employee',
-    hr: 'HR Manager',
-    manager: 'Manager',
-    it: 'IT Support',
-  };
-  const navigate = useNavigate();
-  
-  // Helper functions
-  const handleDownloadPayStub = (period: string) => {
-    toast({
-      title: "Download Started",
-      description: `Pay stub for ${period} is being downloaded.`,
-    });
-  };
-  
-  const handleDownloadDocument = (docName: string) => {
-    toast({
-      title: "Download Started",
-      description: `${docName} is being downloaded.`,
-    });
-  };
-  
-  const handleDownloadTaxDocument = (docName: string) => {
-    toast({
-      title: "Download Started",
-      description: `${docName} is being downloaded.`,
-    });
-  };
-  
-  // Update handlers
-  const handleTimeOffSubmit = () => {
-    const days = timeOffForm.startDate && timeOffForm.endDate ? 
-      Math.ceil((new Date(timeOffForm.endDate).getTime() - new Date(timeOffForm.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1;
-    
-    submitLeaveRequest({
-      employeeId: userEmployeeId,
-      employeeName: profile.firstName + ' ' + profile.lastName,
-      type: timeOffForm.type as 'Vacation' | 'Sick Leave' | 'Personal' | 'Other',
-      startDate: timeOffForm.startDate,
-      endDate: timeOffForm.endDate,
-      reason: timeOffForm.reason,
-      days: days
-    });
-    
-    toast({
-      title: "Time Off Request Submitted",
-      description: "Your time off request has been submitted for approval.",
-    });
-    setShowTimeOffModal(false);
-    setTimeOffForm({ type: '', startDate: '', endDate: '', reason: '' });
-  };
-  const handleDocumentUpload = () => {
-    setDocuments(prev => [
-      {
-        name: documentUpload.name || (documentUpload.file ? documentUpload.file.name : 'Untitled'),
-        type: documentUpload.type || 'PDF',
-        uploadDate: new Date().toISOString().slice(0, 10),
-      },
-      ...prev,
-    ]);
-    toast({
-      title: "Document Uploaded",
-      description: "Your document has been uploaded successfully.",
-    });
-    setShowDocumentUploadModal(false);
-    setDocumentUpload({ name: '', type: '', file: null });
-  };
-  const handleBenefitsUpdate = () => {
-    toast({
-      title: "Benefits Updated",
-      description: "Your benefits information has been updated.",
-    });
-    setShowBenefitsModal(false);
-  };
-  const handleTaxInfoUpdate = () => {
-    setTaxInfo({ ...taxInfo }); // Already updated via form binding
-    toast({
-      title: "Tax Information Updated",
-      description: "Your tax information has been updated successfully.",
-    });
-    setShowTaxUpdateModal(false);
-  };
-  const handleTimesheetSubmit = () => {
-    setTimesheets(prev => [
-      {
-        weekEnding: timesheetData.weekEnding,
-        regularHours: timesheetData.hours.reduce((a, b) => a + b, 0),
-        overtimeHours: timesheetData.hours.filter(h => h > 8).reduce((a, b) => a + (b - 8), 0),
-        status: 'Pending',
-      },
-      ...prev,
-    ]);
-    toast({
-      title: "Timesheet Submitted",
-      description: "Your timesheet has been submitted for approval.",
-    });
-    setShowTimesheetModal(false);
-    setTimesheetData({ weekEnding: '', hours: Array(7).fill(8), notes: '' });
-  };
-  
-  const handleEventRSVP = (event: any, response: string) => {
-    toast({
-      title: "RSVP Submitted",
-      description: `You have ${response} for ${event.title}.`,
-    });
-    setShowEventRSVPModal(false);
-    setSelectedEvent(null);
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'bg-red-100 text-red-800';
+      case 'important': return 'bg-orange-100 text-orange-800';
+      case 'info': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const handleCreateEvent = () => {
-    addEvent({
-      type: newEventForm.type,
-      title: newEventForm.title,
-      date: newEventForm.date,
-      time: newEventForm.isAllDay ? undefined : newEventForm.time || undefined,
-      endTime: newEventForm.isAllDay ? undefined : newEventForm.endTime || undefined,
-      isAllDay: newEventForm.isAllDay,
-      location: newEventForm.location || undefined,
-      description: newEventForm.description || undefined,
-      createdBy: userEmployeeId,
-      isPersonal: newEventForm.isPersonal
-    });
-    
-    toast({
-      title: "Event Created",
-      description: `${newEventForm.title} has been added to the calendar.`,
-    });
-    
-    setShowCreateEventModal(false);
-    setNewEventForm({
-      type: 'Event',
-      title: '',
-      date: '',
-      time: '',
-      endTime: '',
-      isAllDay: false,
-      location: '',
-      description: '',
-      isPersonal: false
-    });
-  };
-
-  const handleAddToCalendar = (event: any) => {
-    // This would typically add to the user's personal calendar
-    // For now, we'll just show a toast
-    toast({
-      title: "Added to Calendar",
-      description: `${event.title} has been added to your personal calendar.`,
-    });
-  };
-  
-  const handleAnnouncementClick = (announcement: any) => {
-    toast({
-      title: announcement.title,
-      description: announcement.content,
-    });
-  };
-  
-  const handleEmployeeContact = (employee: any) => {
-    toast({
-      title: "Contact Information",
-      description: `Contact ${employee.name} at ${employee.email || 'email@company.com'}`,
-    });
-  };
-  
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Employee Portal</h1>
-        <p className="text-gray-600">Manage your profile and access all employee resources.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Welcome back, {profile?.firstName || 'Employee'}!
+        </h1>
+        <p className="text-gray-600">Here's what's happening in your workplace today.</p>
       </div>
 
-      <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9">
-          <TabsTrigger value="personal">Personal</TabsTrigger>
-          <TabsTrigger value="benefits">Benefits</TabsTrigger>
-          <TabsTrigger value="pay">Pay</TabsTrigger>
-          <TabsTrigger value="timeoff">Time Off</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="taxes">Taxes</TabsTrigger>
-          <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
-          <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
-          {userRole === 'manager' && <TabsTrigger value="management">Management</TabsTrigger>}
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="profile">My Profile</TabsTrigger>
+          <TabsTrigger value="leave">Time Off</TabsTrigger>
+          <TabsTrigger value="training">Training</TabsTrigger>
+          <TabsTrigger value="support">IT Support</TabsTrigger>
+          <TabsTrigger value="safety">Safety</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="personal" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Profile Card */}
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="w-5 h-5" />
-                  <span>My Profile</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-bold">{userProfile.initials}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-lg font-semibold">{userProfile.name}</h3>
-                    <p className="text-gray-600">{userProfile.position}</p>
-                    <Badge className="mt-1" variant="secondary">{roleLabels[userRole] || 'Employee'}</Badge>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 text-sm">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span>{userProfile.email}</span>
+        <TabsContent value="overview">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    </div>
+                    <div className={`p-3 rounded-lg ${stat.color}`}>
+                      <stat.icon className="w-6 h-6 text-white" />
+                    </div>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
                     <Phone className="w-4 h-4 text-gray-400" />
@@ -458,72 +238,23 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="benefits">
-          <BenefitsOverview />
-        </TabsContent>
-
-        <TabsContent value="pay">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5" />
-                  <span>Pay Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">$124,800</p>
-                    <p className="text-sm text-gray-600">Annual Salary</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">$10,400</p>
-                    <p className="text-sm text-gray-600">Monthly Gross</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">$7,780</p>
-                    <p className="text-sm text-gray-600">Monthly Net</p>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-semibold mb-4">Recent Pay Stubs</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Pay Period</TableHead>
-                      <TableHead>Gross Pay</TableHead>
-                      <TableHead>Net Pay</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payStubs.map((stub, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{stub.period}</TableCell>
-                        <TableCell>{stub.grossPay}</TableCell>
-                        <TableCell>{stub.netPay}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{stub.status}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleDownloadPayStub(stub.period)}
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            Download
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="w-5 h-5" />
+                <span>My Profile</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Employee Profile</h3>
+                <p className="text-gray-600 mb-4">View and update your personal information, contact details, and preferences.</p>
+                <Button>Edit Profile</Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="timeoff">
@@ -788,46 +519,13 @@ const EmployeePortal = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">Complete Profile Information</h4>
-                      <p className="text-sm text-gray-600">Update your personal and contact details</p>
-                    </div>
-                    <Badge>Completed</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">IT Setup & Security Training</h4>
-                      <p className="text-sm text-gray-600">Complete mandatory security awareness training</p>
-                    </div>
-                    <Badge>Completed</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">Benefits Enrollment</h4>
-                      <p className="text-sm text-gray-600">Select your health and retirement benefits</p>
-                    </div>
-                    <Badge variant="secondary">In Progress</Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">Department Orientation</h4>
-                      <p className="text-sm text-gray-600">Meet your team and learn about department processes</p>
-                    </div>
-                    <Badge variant="outline">Pending</Badge>
-                  </div>
-                </div>
-                
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900">Onboarding Progress: 75%</h4>
-                  <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-                  </div>
+              <div className="text-center py-12">
+                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Learning Modules</h3>
+                <p className="text-gray-600 mb-4">Access training materials, track your progress, and earn certifications.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                  <Button>Browse Courses</Button>
+                  <Button variant="outline">My Progress</Button>
                 </div>
               </div>
             </CardContent>
@@ -895,204 +593,27 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
 
-        {userRole === 'manager' && (
-          <TabsContent value="management">
-            <div className="space-y-6">
-              {/* Manager Dashboard Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-2">
-                      <Users className="w-8 h-8 text-blue-600" />
-                      <div>
-                        <p className="text-2xl font-bold">12</p>
-                        <p className="text-sm text-gray-600">Team Members</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-8 h-8 text-yellow-600" />
-                      <div>
-                        <p className="text-2xl font-bold">3</p>
-                        <p className="text-sm text-gray-600">Pending Approvals</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-2">
-                      <TrendingUp className="w-8 h-8 text-green-600" />
-                      <div>
-                        <p className="text-2xl font-bold">85%</p>
-                        <p className="text-sm text-gray-600">Team Performance</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-2">
-                      <AlertTriangle className="w-8 h-8 text-red-600" />
-                      <div>
-                        <p className="text-2xl font-bold">2</p>
-                        <p className="text-sm text-gray-600">Active Issues</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+        <TabsContent value="safety">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Shield className="w-5 h-5" />
+                <span>Safety & Compliance</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Safety Resources</h3>
+                <p className="text-gray-600 mb-4">Access safety guidelines, report incidents, and stay compliant with company policies.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                  <Button>Safety Guidelines</Button>
+                  <Button variant="outline">Report Incident</Button>
+                </div>
               </div>
-
-              {/* Team Management */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="w-5 h-5" />
-                    <span>Team Management</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Direct Reports</h3>
-                      <Button variant="outline" size="sm">View All Team</Button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {teamMembers.slice(0, 6).map((member, index) => (
-                        <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src="" />
-                              <AvatarFallback className="bg-purple-100 text-purple-600">{member.avatar}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">{member.name}</p>
-                              <p className="text-xs text-gray-600">{member.role}</p>
-                              <Badge variant="outline" className="text-xs mt-1">{member.department}</Badge>
-                            </div>
-                            <Button variant="outline" size="sm">Manage</Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions for Managers */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Shield className="w-5 h-5" />
-                    <span>Manager Actions</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/hr')}
-                    >
-                      <UserCheck className="w-6 h-6" />
-                      <span>HR Management</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/helpdesk')}
-                    >
-                      <Headphones className="w-6 h-6" />
-                      <span>IT Helpdesk</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/training')}
-                    >
-                      <BookOpen className="w-6 h-6" />
-                      <span>Training Management</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/calendar')}
-                    >
-                      <Calendar className="w-6 h-6" />
-                      <span>Calendar Management</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/documents')}
-                    >
-                      <FileText className="w-6 h-6" />
-                      <span>Document Center</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-20 flex flex-col items-center justify-center space-y-2"
-                      onClick={() => navigate('/safety')}
-                    >
-                      <ShieldCheck className="w-6 h-6" />
-                      <span>Safety & Compliance</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Performance Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="w-5 h-5" />
-                    <span>Team Performance</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 border rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">92%</p>
-                        <p className="text-sm text-gray-600">On-time Delivery</p>
-                      </div>
-                      <div className="text-center p-4 border rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">4.2/5</p>
-                        <p className="text-sm text-gray-600">Team Satisfaction</p>
-                      </div>
-                      <div className="text-center p-4 border rounded-lg">
-                        <p className="text-2xl font-bold text-purple-600">85%</p>
-                        <p className="text-sm text-gray-600">Goal Achievement</p>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <h4 className="font-semibold mb-2">Recent Performance Reviews</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-3 border rounded">
-                          <div>
-                            <p className="font-medium">Alice Smith</p>
-                            <p className="text-sm text-gray-600">Software Engineer</p>
-                          </div>
-                          <Badge variant="default">Exceeds Expectations</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-3 border rounded">
-                          <div>
-                            <p className="font-medium">Bob Johnson</p>
-                            <p className="text-sm text-gray-600">UI Designer</p>
-                          </div>
-                          <Badge variant="secondary">Meets Expectations</Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Time Off Request Modal */}

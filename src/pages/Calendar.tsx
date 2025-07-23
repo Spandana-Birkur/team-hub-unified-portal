@@ -124,41 +124,32 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="p-6 w-full">
-      <Card className="w-full max-w-5xl mx-auto p-12">
+    <div className="p-6 w-full flex flex-col items-center justify-center min-h-screen bg-white">
+      <Card className="w-full max-w-6xl mx-auto">
         <CardHeader className="flex items-center space-x-2">
           <CalendarIcon className="w-6 h-6 text-blue-600" />
           <CardTitle>Company Calendar</CardTitle>
         </CardHeader>
         <CardContent className="w-full">
           <div className="flex items-center mb-4 space-x-2">
+            {/* Month/Week Switch stays top left */}
             <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} onClick={() => setViewMode('month')}>Monthly View</Button>
             <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} onClick={() => setViewMode('week')}>Weekly View</Button>
           </div>
-          {viewMode === 'month' ? (
-            <div className="flex justify-center">
-              <div className="scale-125">
+          <div className="flex justify-center w-full">
+            {viewMode === 'month' ? (
+              <div className="w-full flex justify-center">
                 <CalendarUI
                   mode="single"
                   onSelect={handleDateSelect}
-                  className="w-full"
-                  modifiers={{ today: new Date() }}
-                  modifiersClassNames={{ today: 'ring-2 ring-blue-500' }}
-                  components={{ Day: (props) => <CustomDay {...props} events={events} handleDayDoubleClick={handleDayDoubleClick} /> }}
+                  className="w-full max-w-5xl text-lg"
                 />
               </div>
-            </div>
-          ) : (
-            <div className="flex justify-center mt-8">
-              <div className="border rounded-lg p-8 bg-white w-full max-w-2xl scale-125">
-                <div className="flex justify-between items-center mb-4 w-full">
-                  <Button variant="outline" size="sm" onClick={goToPrevWeek}>&lt; Previous Week</Button>
-                  <div className="font-semibold text-lg">Week of {weekDates[0].toLocaleDateString()}</div>
-                  <Button variant="outline" size="sm" onClick={goToNextWeek}>Next Week &gt;</Button>
-                </div>
+            ) : (
+              <div className="border rounded-lg p-6 bg-white w-full max-w-5xl text-base">
                 <div className="flex justify-between mb-2 w-full">
                   {weekDates.map(date => (
-                    <div key={date.toISOString()} className={`flex-1 text-center ${date.toDateString() === new Date().toDateString() ? 'ring-2 ring-blue-500 rounded' : ''}`}>
+                    <div key={date.toISOString()} className="flex-1 text-center">
                       <div className="font-semibold text-gray-700">{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
                       <div className="text-xs text-gray-500">{date.toLocaleDateString()}</div>
                     </div>
@@ -169,30 +160,15 @@ const CalendarPage = () => {
                     const iso = date.toISOString().slice(0, 10);
                     const dayEvents = getEventsForDate(iso, events);
                     return (
-                      <div key={iso} className={`flex-1 min-h-[60px] border rounded p-1 mx-1 bg-gray-50 ${date.toDateString() === new Date().toDateString() ? 'ring-2 ring-blue-500' : ''}`}
-                        onDoubleClick={() => handleDayDoubleClick(date)}>
+                      <div key={iso} className="flex-1 min-h-[80px] border rounded p-2 mx-1 bg-gray-50">
                         {dayEvents.length === 0 ? (
-                          <div className="text-xs text-gray-400 text-center flex flex-col items-center justify-center h-full">
-                            <span>No events</span>
-                            <span className="text-[10px]">Double-click to add</span>
-                          </div>
+                          <div className="text-xs text-gray-400 text-center">No events</div>
                         ) : (
                           dayEvents.map(event => (
-                            <TooltipProvider key={event.id} delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className={`mb-1 p-1 rounded cursor-pointer flex items-center gap-1 ${eventTypeMeta[event.type]?.color || 'bg-gray-200 text-gray-800'}`}
-                                    onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
-                                    {eventTypeMeta[event.type]?.icon}
-                                    <span className="text-xs font-medium">{event.title}</span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <div className="font-semibold">{event.title}</div>
-                                  <div className="text-xs">{event.description}</div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div key={event.id} className="mb-2 p-2 rounded bg-blue-100 cursor-pointer" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
+                              <Badge className="mr-1 text-xs">{event.type}</Badge>
+                              <span className="text-xs font-medium">{event.title}</span>
+                            </div>
                           ))
                         )}
                       </div>
@@ -200,15 +176,15 @@ const CalendarPage = () => {
                   })}
                 </div>
               </div>
-            </div>
-          )}
-          <div className="flex justify-end mt-8">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
-              Create Event
-            </Button>
+            )}
           </div>
         </CardContent>
       </Card>
+      <div className="flex justify-end mb-4">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
+          Create Event
+        </Button>
+      </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
@@ -477,4 +453,4 @@ const CalendarPage = () => {
   );
 };
 
-export default CalendarPage; 
+export default CalendarPage;

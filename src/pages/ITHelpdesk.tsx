@@ -277,24 +277,26 @@ const ITHelpdesk = () => {
   const isIT = userRole === 'it' || userRole === 'manager';
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white min-h-screen sf-pro-font">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">IT Helpdesk Management</h1>
-        <p className="text-gray-600">Comprehensive ticket management, SLA tracking, and asset management for IT support staff.</p>
+        <h1 className="text-4xl font-extrabold text-black mb-2 tracking-tight drop-shadow-lg">
+          Ticketing
+        </h1>
+        <p className="text-gray-700 text-lg">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
       </div>
 
       {/* Enhanced Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {helpdeskStats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
+          <Card key={index} className="bg-white border border-blue-200 shadow-xl hover:scale-105 transition-transform">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-semibold text-gray-700">{stat.title}</p>
+                  <p className="text-3xl font-extrabold text-gray-900">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+                <div className={`p-3 rounded-xl shadow-lg ${stat.color}`}>
+                  <stat.icon className="w-7 h-7 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -303,72 +305,69 @@ const ITHelpdesk = () => {
       </div>
 
       <Tabs defaultValue="tickets" className="space-y-6">
-        <TabsList className={`grid w-full ${isIT ? 'grid-cols-6' : 'grid-cols-2'}`}>
-          <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
-          {isIT && <TabsTrigger value="escalation">SLA & Escalation</TabsTrigger>}
-          {isIT && <TabsTrigger value="assignment">Team Assignment</TabsTrigger>}
-          {isIT && <TabsTrigger value="assets">Asset Management</TabsTrigger>}
-          {isIT && <TabsTrigger value="lifecycle">Asset Lifecycle</TabsTrigger>}
-          <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
+        <TabsList className="flex w-full gap-2 bg-gray-100 rounded-xl p-2 shadow-lg border border-gray-200">
+          <TabsTrigger value="tickets" className="futuristic-tab">Support Tickets</TabsTrigger>
+          <TabsTrigger value="escalation" className="futuristic-tab">SLA & Escalation</TabsTrigger>
+          <TabsTrigger value="assignment" className="futuristic-tab">Team Assignment</TabsTrigger>
+          <TabsTrigger value="assets" className="futuristic-tab">Asset Management</TabsTrigger>
+          <TabsTrigger value="lifecycle" className="futuristic-tab">Asset Lifecycle</TabsTrigger>
+          <TabsTrigger value="knowledge" className="futuristic-tab">Knowledge Base</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets">
-          <Card>
+          <Card className="bg-white border-none shadow-2xl">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-gray-900">
                 <Headphones className="w-5 h-5" />
                 <span>Support Tickets - IT Staff View</span>
               </CardTitle>
               <div className="flex items-center space-x-4">
-                {isIT && (
-                  <>
-                    <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Filter by Agent" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Agents</SelectItem>
-                        {agents.map(agent => (
-                          <SelectItem key={agent} value={agent}>{agent}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Filter by Team" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Teams</SelectItem>
-                        {teams.map(team => (
-                          <SelectItem key={team} value={team}>{team}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
-                )}
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
-                  Create Ticket
+                <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                  <SelectTrigger className="w-40 bg-gray-900 text-white border-none">
+                    <SelectValue placeholder="Filter by Agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Agents</SelectItem>
+                    {agents.map(agent => (
+                      <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                  <SelectTrigger className="w-40 bg-gray-900 text-white border-none">
+                    <SelectValue placeholder="Filter by Team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Teams</SelectItem>
+                    {teams.map(team => (
+                      <SelectItem key={team} value={team}>{team}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button className="bg-blue-600 text-white font-bold shadow-lg hover:scale-105" onClick={() => setCreateDialogOpen(true)}>
+                  + Create Ticket
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {filteredTickets.map((ticket) => (
-                  <div key={ticket.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div
+                    key={ticket.id}
+                    className="border border-blue-200 rounded-xl p-4 bg-white shadow-lg hover:ring-2 hover:ring-blue-500 transition-all"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h4 className="font-semibold text-gray-900">{ticket.title}</h4>
-                          <Badge className="border border-gray-300 bg-transparent text-gray-700">{ticket.id}</Badge>
-                          <Badge className={getPriorityColor(ticket.priority)}>
-                            {ticket.priority}
-                          </Badge>
-                          <Badge className={getStatusColor(ticket.status)}>
+                          <Badge className="border border-gray-300 bg-white text-blue-400">{ticket.id}</Badge>
+                          <Badge className={getPriorityColor(ticket.priority) + " font-bold"}>{ticket.priority}</Badge>
+                          <Badge className={getStatusColor(ticket.status) + " font-bold"}>
                             {ticket.escalated && <AlertCircle className="w-3 h-3 mr-1" />}
                             {ticket.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{ticket.description}</p>
+                        <p className="text-sm text-gray-700 mb-2">{ticket.description}</p>
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
                           <span>User: {ticket.user}</span>
                           <span>Category: {ticket.category}</span>
@@ -384,58 +383,36 @@ const ITHelpdesk = () => {
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          variant="outline"
+                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                           onClick={() => { setViewedTicket(ticket); setViewDialogOpen(true); }}
                         >
                           View Details
                         </Button>
-                        {isIT && (
-                          <Button
-                            className="h-9 px-3"
-                            onClick={() => {
-                              setTicketToUpdate(ticket);
-                              setUpdateFields({
-                                title: ticket.title,
-                                description: ticket.description,
-                                priority: ticket.priority,
-                                category: ticket.category,
-                                assignedTo: ticket.assignedTo,
-                                team: ticket.team,
-                                status: ticket.status,
-                              });
-                              setUpdateDialogOpen(true);
-                            }}
+                        <Button
+                          className="h-9 px-3 bg-blue-600 text-white font-bold shadow-lg"
+                          onClick={() => {
+                            setTicketToUpdate(ticket);
+                            setUpdateFields({
+                              title: ticket.title,
+                              description: ticket.description,
+                              priority: ticket.priority,
+                              category: ticket.category,
+                              assignedTo: ticket.assignedTo,
+                              team: ticket.team,
+                            });
+                            setUpdateDialogOpen(true);
+                          }}
+                        >
+                          Update
+                        </Button>
+                        {(userRole === 'it' || userRole === 'manager') && ticket.status !== 'resolved' && (
+                          <Button 
+                            onClick={() => handleResolveTicket(ticket)}
+                            className="h-9 px-3 bg-green-600 text-white font-bold shadow-lg"
                           >
-                            Update
+                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                            Resolve
                           </Button>
-                        )}
-                        {isIT && ticket.status !== 'resolved' && (
-                          <>
-                            <Button
-                              onClick={() => {
-                                setTicketToUpdate(ticket);
-                                setUpdateFields({
-                                  title: ticket.title,
-                                  description: ticket.description,
-                                  priority: ticket.priority,
-                                  category: ticket.category,
-                                  assignedTo: ticket.assignedTo,
-                                  team: ticket.team,
-                                  status: ticket.status,
-                                });
-                                setUpdateDialogOpen(true);
-                              }}
-                            >
-                              Manage
-                            </Button>
-                            <Button 
-                              onClick={() => handleResolveTicket(ticket)}
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <CheckCircle2 className="w-4 h-4 mr-1" />
-                              Resolve
-                            </Button>
-                          </>
                         )}
                       </div>
                     </div>
@@ -938,6 +915,26 @@ const ITHelpdesk = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <style>{`
+        .futuristic-tab {
+          background: #f3f4f6;
+          color: #1e293b;
+          font-weight: 700;
+          border-radius: 0.75rem;
+          box-shadow: 0 2px 8px #e0e7ef;
+          transition: background 0.3s, transform 0.2s;
+          padding: 0.75rem 1.5rem;
+          margin-right: 0.5rem;
+          border: 1px solid #e5e7eb;
+        }
+        .futuristic-tab[data-state="active"] {
+          background: #f9fafb;
+          color: #1e293b;
+          transform: scale(1.08);
+          box-shadow: 0 4px 16px #d1d5db;
+        }
+      `}</style>
     </div>
   );
 };

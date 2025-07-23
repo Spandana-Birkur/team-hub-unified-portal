@@ -22,6 +22,7 @@ import LoginPage from "./components/LoginPage";
 import Documents from "./pages/Documents";
 import EmployeeSafetyConduct from "./pages/EmployeeSafetyConduct";
 import Chatbot from "./pages/Chatbot";
+import ITHelpdesk from './pages/ITHelpdesk';
 
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const AppContent = () => {
             <Route path="/hr" element={<HRManagement />} />
             <Route path="/training" element={<Training />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/ithelpdesk" element={<ITHelpdesk />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/documents" element={<Documents />} />

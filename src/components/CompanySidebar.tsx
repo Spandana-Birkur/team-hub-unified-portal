@@ -25,7 +25,7 @@ const CompanySidebar = () => {
   const navItems = [
     { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
-    { to: '/employee?tab=support', icon: Headphones, label: 'IT Support', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/ithelpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },

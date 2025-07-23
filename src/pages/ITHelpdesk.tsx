@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle, CheckCircle2, UserX } from 'lucide-react';
+import { Headphones, Laptop, Wifi, Shield, AlertTriangle, CheckCircle, Clock, Users, Calendar, History, TrendingUp, User, AlertCircle, CheckCircle2 } from 'lucide-react';
 import TicketEscalation from '@/components/TicketEscalation';
 import TicketAssignment from '@/components/TicketAssignment';
 import AssetLifecycle from '@/components/AssetLifecycle';
@@ -14,25 +14,9 @@ import AssetHistory from '@/components/AssetHistory';
 import { useRole } from '@/contexts/RoleContext';
 
 const ITHelpdesk = () => {
-  const { userRole } = useRole();
-  
-  // Redirect non-IT users
-  if (userRole !== 'it' && userRole !== 'manager') {
-    return (
-      <div className="p-6">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <UserX className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Restricted</h3>
-            <p className="text-gray-600">This IT Helpdesk management interface is only accessible to IT staff and managers.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const [selectedAgent, setSelectedAgent] = useState('all');
   const [selectedTeam, setSelectedTeam] = useState('all');
+  const { userRole } = useRole();
   const [tickets, setTickets] = useState([
     {
       id: 'TKT-001',
@@ -47,8 +31,7 @@ const ITHelpdesk = () => {
       team: 'Hardware Support',
       escalated: false,
       description: 'My laptop screen has been flickering intermittently since this morning.',
-      updatedAt: null,
-      internalNotes: []
+      updatedAt: null
     },
     {
       id: 'TKT-002',
@@ -63,10 +46,7 @@ const ITHelpdesk = () => {
       team: 'Network Team',
       escalated: false,
       description: 'Cannot connect to the office WiFi network from conference room B.',
-      updatedAt: null,
-      internalNotes: [
-        { note: 'Checked network settings, investigating router configuration', author: 'Jane Doe', timestamp: '2024-01-14T10:30:00Z' }
-      ]
+      updatedAt: null
     },
     {
       id: 'TKT-003',
@@ -82,8 +62,7 @@ const ITHelpdesk = () => {
       escalated: false,
       description: 'Need Adobe Creative Suite installed on my workstation.',
       resolutionNotes: 'Adobe Creative Suite was successfully installed on the workstation.',
-      updatedAt: '2024-01-21T10:00:00Z',
-      internalNotes: []
+      updatedAt: '2024-01-21T10:00:00Z'
     },
     {
       id: 'TKT-004',
@@ -99,13 +78,9 @@ const ITHelpdesk = () => {
       escalated: true,
       description: 'Outlook is not syncing emails properly since the last update.',
       resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.',
-      updatedAt: null,
-      internalNotes: [
-        { note: 'Escalated to senior tech due to complexity', author: 'Alice Brown', timestamp: '2024-01-12T15:00:00Z' }
-      ]
+      updatedAt: null
     }
   ]);
-
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
@@ -117,7 +92,6 @@ const ITHelpdesk = () => {
     category: '',
     assignedTo: '',
     team: '',
-    user: '',
   });
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewedTicket, setViewedTicket] = useState<any>(null);
@@ -130,9 +104,7 @@ const ITHelpdesk = () => {
     category: '',
     assignedTo: '',
     team: '',
-    status: 'open',
   });
-  const [internalNote, setInternalNote] = useState('');
 
   const assets = [
     { 
@@ -194,13 +166,11 @@ const ITHelpdesk = () => {
   const resolvedTodayCount = tickets.filter(ticket => ticket.status === 'resolved' && ticket.updatedAt && ticket.updatedAt.slice(0, 10) === today).length;
   const openCount = tickets.filter(ticket => ticket.status === 'open').length;
   const escalatedCount = tickets.filter(ticket => ticket.status === 'escalated').length;
-  const avgResolutionTime = '4.2 hours'; // This would be calculated from actual data
-  
   const helpdeskStats = [
     { title: 'Open Tickets', value: openCount.toString(), icon: AlertTriangle, color: 'bg-red-500' },
     { title: 'Escalated', value: escalatedCount.toString(), icon: TrendingUp, color: 'bg-orange-500' },
     { title: 'Resolved Today', value: resolvedTodayCount.toString(), icon: CheckCircle, color: 'bg-green-500' },
-    { title: 'Avg Resolution', value: avgResolutionTime, icon: Clock, color: 'bg-blue-500' },
+    { title: 'Total Assets', value: '324', icon: Laptop, color: 'bg-blue-500' },
   ];
 
   const agents = ['John Smith', 'Jane Doe', 'Bob Wilson', 'Alice Brown'];
@@ -247,56 +217,31 @@ const ITHelpdesk = () => {
     }
   };
 
-  const handleAddInternalNote = (ticketId: string) => {
-    if (!internalNote.trim()) return;
-    
-    setTickets(prevTickets => 
-      prevTickets.map(ticket => 
-        ticket.id === ticketId 
-          ? { 
-              ...ticket, 
-              internalNotes: [...(ticket.internalNotes || []), {
-                note: internalNote,
-                author: 'Current User', // This would be the logged-in user
-                timestamp: new Date().toISOString()
-              }]
-            }
-          : ticket
-      )
-    );
-    setInternalNote('');
-  };
-
   const filteredTickets = tickets.filter(ticket => {
     if (selectedAgent !== 'all' && ticket.assignedTo !== selectedAgent) return false;
     if (selectedTeam !== 'all' && ticket.team !== selectedTeam) return false;
     return true;
   });
 
-  // Determine if user is IT or manager
-  const isIT = userRole === 'it' || userRole === 'manager';
-
   return (
-    <div className="p-6 bg-white min-h-screen sf-pro-font">
+    <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-4xl font-extrabold text-black mb-2 tracking-tight drop-shadow-lg">
-          Ticketing
-        </h1>
-        <p className="text-gray-700 text-lg">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">IT Helpdesk</h1>
+        <p className="text-gray-600">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
       </div>
 
-      {/* Enhanced Stats Overview */}
+      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {helpdeskStats.map((stat, index) => (
-          <Card key={index} className="bg-white border border-blue-200 shadow-xl hover:scale-105 transition-transform">
+          <Card key={index} className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-gray-700">{stat.title}</p>
-                  <p className="text-3xl font-extrabold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-xl shadow-lg ${stat.color}`}>
-                  <stat.icon className="w-7 h-7 text-white" />
+                <div className={`p-3 rounded-lg ${stat.color}`}>
+                  <stat.icon className="w-6 h-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -305,25 +250,25 @@ const ITHelpdesk = () => {
       </div>
 
       <Tabs defaultValue="tickets" className="space-y-6">
-        <TabsList className="flex w-full gap-2 bg-gray-100 rounded-xl p-2 shadow-lg border border-gray-200">
-          <TabsTrigger value="tickets" className="futuristic-tab">Support Tickets</TabsTrigger>
-          <TabsTrigger value="escalation" className="futuristic-tab">SLA & Escalation</TabsTrigger>
-          <TabsTrigger value="assignment" className="futuristic-tab">Team Assignment</TabsTrigger>
-          <TabsTrigger value="assets" className="futuristic-tab">Asset Management</TabsTrigger>
-          <TabsTrigger value="lifecycle" className="futuristic-tab">Asset Lifecycle</TabsTrigger>
-          <TabsTrigger value="knowledge" className="futuristic-tab">Knowledge Base</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
+          <TabsTrigger value="escalation">SLA & Escalation</TabsTrigger>
+          <TabsTrigger value="assignment">Team Assignment</TabsTrigger>
+          <TabsTrigger value="assets">Asset Management</TabsTrigger>
+          <TabsTrigger value="lifecycle">Asset Lifecycle</TabsTrigger>
+          <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets">
-          <Card className="bg-white border-none shadow-2xl">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2 text-gray-900">
+              <CardTitle className="flex items-center space-x-2">
                 <Headphones className="w-5 h-5" />
-                <span>Support Tickets - IT Staff View</span>
+                <span>Support Tickets</span>
               </CardTitle>
               <div className="flex items-center space-x-4">
                 <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-                  <SelectTrigger className="w-40 bg-gray-900 text-white border-none">
+                  <SelectTrigger className="w-40">
                     <SelectValue placeholder="Filter by Agent" />
                   </SelectTrigger>
                   <SelectContent>
@@ -334,7 +279,7 @@ const ITHelpdesk = () => {
                   </SelectContent>
                 </Select>
                 <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                  <SelectTrigger className="w-40 bg-gray-900 text-white border-none">
+                  <SelectTrigger className="w-40">
                     <SelectValue placeholder="Filter by Team" />
                   </SelectTrigger>
                   <SelectContent>
@@ -344,30 +289,29 @@ const ITHelpdesk = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button className="bg-blue-600 text-white font-bold shadow-lg hover:scale-105" onClick={() => setCreateDialogOpen(true)}>
-                  + Create Ticket
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setCreateDialogOpen(true)}>
+                  Create Ticket
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {filteredTickets.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    className="border border-blue-200 rounded-xl p-4 bg-white shadow-lg hover:ring-2 hover:ring-blue-500 transition-all"
-                  >
+                  <div key={ticket.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h4 className="font-semibold text-gray-900">{ticket.title}</h4>
-                          <Badge className="border border-gray-300 bg-white text-blue-400">{ticket.id}</Badge>
-                          <Badge className={getPriorityColor(ticket.priority) + " font-bold"}>{ticket.priority}</Badge>
-                          <Badge className={getStatusColor(ticket.status) + " font-bold"}>
+                          <Badge className="border border-gray-300 bg-transparent text-gray-700">{ticket.id}</Badge>
+                          <Badge className={getPriorityColor(ticket.priority)}>
+                            {ticket.priority}
+                          </Badge>
+                          <Badge className={getStatusColor(ticket.status)}>
                             {ticket.escalated && <AlertCircle className="w-3 h-3 mr-1" />}
                             {ticket.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-700 mb-2">{ticket.description}</p>
+                        <p className="text-sm text-gray-600 mb-2">{ticket.description}</p>
                         <div className="flex items-center space-x-4 text-xs text-gray-500">
                           <span>User: {ticket.user}</span>
                           <span>Category: {ticket.category}</span>
@@ -375,21 +319,16 @@ const ITHelpdesk = () => {
                           <span>Team: {ticket.team}</span>
                           <span>Created: {ticket.created}</span>
                         </div>
-                        {ticket.internalNotes && ticket.internalNotes.length > 0 && (
-                          <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
-                            <span className="font-medium">Latest internal note:</span> {ticket.internalNotes[ticket.internalNotes.length - 1].note}
-                          </div>
-                        )}
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-800"
+                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
                           onClick={() => { setViewedTicket(ticket); setViewDialogOpen(true); }}
                         >
-                          View Details
+                          View
                         </Button>
                         <Button
-                          className="h-9 px-3 bg-blue-600 text-white font-bold shadow-lg"
+                          className="h-9 px-3"
                           onClick={() => {
                             setTicketToUpdate(ticket);
                             setUpdateFields({
@@ -399,17 +338,16 @@ const ITHelpdesk = () => {
                               category: ticket.category,
                               assignedTo: ticket.assignedTo,
                               team: ticket.team,
-                              status: ticket.status, // <-- add this line
-                            })
+                            });
                             setUpdateDialogOpen(true);
                           }}
                         >
                           Update
                         </Button>
-                        {(userRole === 'it' || userRole === 'manager') && ticket.status !== 'resolved' && (
+                        {userRole === 'it' && ticket.status !== 'resolved' && (
                           <Button 
                             onClick={() => handleResolveTicket(ticket)}
-                            className="h-9 px-3 bg-green-600 text-white font-bold shadow-lg"
+                            className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-1" />
                             Resolve
@@ -423,62 +361,6 @@ const ITHelpdesk = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        {isIT && (
-          <TabsContent value="escalation">
-            <TicketEscalation tickets={tickets} />
-          </TabsContent>
-        )}
-        {isIT && (
-          <TabsContent value="assignment">
-            <TicketAssignment tickets={tickets} agents={agents} teams={teams} />
-          </TabsContent>
-        )}
-        {isIT && (
-          <TabsContent value="assets">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <Laptop className="w-5 h-5" />
-                  <span>IT Assets</span>
-                </CardTitle>
-                <Button>Add Asset</Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {assets.map((asset) => (
-                    <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <Laptop className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{asset.model}</h4>
-                            <p className="text-sm text-gray-600">{asset.type} • {asset.id}</p>
-                            <p className="text-xs text-gray-500">Assigned to: {asset.user} • {asset.location}</p>
-                            <p className="text-xs text-gray-500">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
-                          {asset.status}
-                        </Badge>
-                        <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
-                        <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-        {isIT && (
-          <TabsContent value="lifecycle">
-            <AssetLifecycle assets={assets} />
-          </TabsContent>
-        )}
 
         <TabsContent value="escalation">
           <TicketEscalation tickets={tickets} />
@@ -518,8 +400,8 @@ const ITHelpdesk = () => {
                       <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
                         {asset.status}
                       </Badge>
-                      <Button variant="outline">View History</Button>
-                      <Button variant="outline">Manage</Button>
+                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
+                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
                     </div>
                   </div>
                 ))}
@@ -539,22 +421,18 @@ const ITHelpdesk = () => {
                 <Shield className="w-5 h-5" />
                 <span>Knowledge Base</span>
               </CardTitle>
-              {isIT && <Button>Add Article</Button>}
+              <Button>Add Article</Button>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">IT Knowledge Base</h3>
                 <p className="text-gray-600 mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
-                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
-                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
-                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
-                <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                  <Button variant="outline">Setup Guides</Button>
-                  <Button variant="outline">Troubleshooting</Button>
-                  <Button variant="outline">Security Policies</Button>
-                  <Button variant="outline">Software Manuals</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
+                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
                 </div>
               </div>
             </CardContent>
@@ -702,12 +580,11 @@ const ITHelpdesk = () => {
                     team: newTicket.team,
                     escalated: false,
                     description: newTicket.description,
-                    updatedAt: null,
-                    internalNotes: []
+                    updatedAt: null
                   },
                   ...tickets,
                 ]);
-                setNewTicket({ title: '', description: '', priority: 'medium', category: '', assignedTo: '', team: '', user: '' });
+                setNewTicket({ title: '', description: '', priority: 'medium', category: '', assignedTo: '', team: '' });
                 setCreateDialogOpen(false);
               }}
               disabled={!newTicket.title.trim() || !newTicket.description.trim()}
@@ -799,19 +676,6 @@ const ITHelpdesk = () => {
                 </select>
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium">Status</label>
-              <select
-                className="w-full border rounded px-2 py-1 mt-1"
-                value={updateFields.status}
-                onChange={e => setUpdateFields({ ...updateFields, status: e.target.value })}
-              >
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="escalated">Escalated</option>
-              </select>
-            </div>
           </div>
           <DialogFooter>
             <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setUpdateDialogOpen(false)}>
@@ -838,71 +702,28 @@ const ITHelpdesk = () => {
 
       {/* View Ticket Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Ticket Details - IT Staff View</DialogTitle>
+            <DialogTitle>Ticket Details</DialogTitle>
           </DialogHeader>
           {viewedTicket && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="flex items-center space-x-3 mb-2">
                 <h4 className="font-semibold text-gray-900">{viewedTicket.title}</h4>
-                <Badge variant="outline">{viewedTicket.id}</Badge>
+                <Badge className="border border-gray-300 bg-transparent text-gray-700">{viewedTicket.id}</Badge>
                 <Badge className={getPriorityColor(viewedTicket.priority)}>{viewedTicket.priority}</Badge>
                 <Badge className={getStatusColor(viewedTicket.status)}>{viewedTicket.status}</Badge>
               </div>
-              
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h5 className="font-medium text-gray-900 mb-2">User Request:</h5>
-                  <div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded">{viewedTicket.description}</div>
-                  
-                  <div className="grid grid-cols-1 gap-2 text-sm">
-                    <div><span className="font-medium">User:</span> {viewedTicket.user}</div>
-                    <div><span className="font-medium">Category:</span> {viewedTicket.category}</div>
-                    <div><span className="font-medium">Assigned to:</span> {viewedTicket.assignedTo}</div>
-                    <div><span className="font-medium">Team:</span> {viewedTicket.team}</div>
-                    <div><span className="font-medium">Created:</span> {viewedTicket.created}</div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h5 className="font-medium text-gray-900 mb-2">Internal Notes:</h5>
-                  <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
-                    {viewedTicket.internalNotes && viewedTicket.internalNotes.length > 0 ? (
-                      viewedTicket.internalNotes.map((note: any, index: number) => (
-                        <div key={index} className="p-2 bg-blue-50 rounded text-xs">
-                          <div className="font-medium text-blue-700">{note.author} - {new Date(note.timestamp).toLocaleString()}</div>
-                          <div className="text-gray-700">{note.note}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 italic">No internal notes yet</p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium">Add Internal Note:</label>
-                    <Textarea
-                      placeholder="Add internal note for IT staff..."
-                      value={internalNote}
-                      onChange={(e) => setInternalNote(e.target.value)}
-                      className="mt-1 text-sm"
-                      rows={3}
-                    />
-                    <Button 
-                      size="sm" 
-                      className="mt-2"
-                      onClick={() => handleAddInternalNote(viewedTicket.id)}
-                      disabled={!internalNote.trim()}
-                    >
-                      Add Note
-                    </Button>
-                  </div>
-                </div>
+              <div className="text-sm text-gray-600 mb-2">{viewedTicket.description}</div>
+              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                <span>User: {viewedTicket.user}</span>
+                <span>Category: {viewedTicket.category}</span>
+                <span>Assigned to: {viewedTicket.assignedTo}</span>
+                <span>Team: {viewedTicket.team}</span>
+                <span>Created: {viewedTicket.created}</span>
               </div>
-              
               {viewedTicket.resolutionNotes && (
-                <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                <div className="mt-2 p-3 bg-white border-l-4 border-green-500 rounded">
                   <div className="font-medium text-green-700 mb-1">Resolution Notes:</div>
                   <div className="text-gray-800 whitespace-pre-line">{viewedTicket.resolutionNotes}</div>
                 </div>
@@ -910,32 +731,12 @@ const ITHelpdesk = () => {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setViewDialogOpen(false)}>
               Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <style>{`
-        .futuristic-tab {
-          background: #f3f4f6;
-          color: #1e293b;
-          font-weight: 700;
-          border-radius: 0.75rem;
-          box-shadow: 0 2px 8px #e0e7ef;
-          transition: background 0.3s, transform 0.2s;
-          padding: 0.75rem 1.5rem;
-          margin-right: 0.5rem;
-          border: 1px solid #e5e7eb;
-        }
-        .futuristic-tab[data-state="active"] {
-          background: #f9fafb;
-          color: #1e293b;
-          transform: scale(1.08);
-          box-shadow: 0 4px 16px #d1d5db;
-        }
-      `}</style>
     </div>
   );
 };

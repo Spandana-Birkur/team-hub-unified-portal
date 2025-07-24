@@ -106,7 +106,7 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Warranties</p>
+                <p className="text-sm font-medium text-muted-foreground">Active Warranties</p>
                 <p className="text-2xl font-bold text-green-600">{warrantyStats.active}</p>
               </div>
               <Shield className="w-8 h-8 text-green-500" />
@@ -118,7 +118,7 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
+                <p className="text-sm font-medium text-muted-foreground">Expiring Soon</p>
                 <p className="text-2xl font-bold text-yellow-600">{warrantyStats.expiring}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-yellow-500" />
@@ -130,7 +130,7 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Expired Warranties</p>
+                <p className="text-sm font-medium text-muted-foreground">Expired Warranties</p>
                 <p className="text-2xl font-bold text-red-600">{warrantyStats.expired}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
@@ -142,7 +142,7 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Value</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Value</p>
                 <p className="text-2xl font-bold text-blue-600">$45.2K</p>
               </div>
               <DollarSign className="w-8 h-8 text-blue-500" />
@@ -182,9 +182,9 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
                 <div key={asset.id} className="border rounded-lg p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-semibold text-gray-900">{asset.model}</h4>
-                      <p className="text-sm text-gray-600">{asset.type} • {asset.id}</p>
-                      <p className="text-xs text-gray-500">Assigned to: {asset.user} • {asset.location}</p>
+                      <h4 className="font-semibold text-foreground">{asset.model}</h4>
+                      <p className="text-sm text-muted-foreground">{asset.type} • {asset.id}</p>
+                      <p className="text-xs text-muted-foreground opacity-70">Assigned to: {asset.user} • {asset.location}</p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge className={getConditionColor(asset.condition)}>
@@ -198,12 +198,12 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
                     {/* Warranty Information */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Warranty Status</span>
+                        <span className="text-sm font-medium text-muted-foreground">Warranty Status</span>
                         <Badge className={warranty.color}>
                           {warranty.status}
                         </Badge>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground opacity-70">
                         <p>Expires: {asset.warrantyExpiry}</p>
                         {warranty.days > 0 && <p>{warranty.days} days remaining</p>}
                       </div>
@@ -212,12 +212,12 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
                     {/* Maintenance Information */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Maintenance</span>
+                        <span className="text-sm font-medium text-muted-foreground">Maintenance</span>
                         <Badge className={maintenance.color}>
                           {maintenance.status}
                         </Badge>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground opacity-70">
                         <p>Last: {asset.lastMaintenance}</p>
                       </div>
                     </div>
@@ -225,11 +225,11 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
                     {/* Depreciation Information */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Current Value</span>
+                        <span className="text-sm font-medium text-muted-foreground">Current Value</span>
                         <span className="font-semibold">{asset.depreciationValue}</span>
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground opacity-70">
                           <span>Depreciation</span>
                           <span>{Math.round(depreciationProgress)}%</span>
                         </div>
@@ -239,7 +239,7 @@ const AssetLifecycle: React.FC<AssetLifecycleProps> = ({ assets }) => {
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t">
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 text-xs text-muted-foreground opacity-70">
                       <span>Purchase Date: {asset.purchaseDate}</span>
                     </div>
                     <div className="flex space-x-2">

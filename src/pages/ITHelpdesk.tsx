@@ -226,8 +226,8 @@ const ITHelpdesk = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">IT Helpdesk</h1>
-        <p className="text-gray-600">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">IT Helpdesk</h1>
+        <p className="text-muted-foreground">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
       </div>
 
       {/* Stats Overview */}
@@ -237,8 +237,8 @@ const ITHelpdesk = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${stat.color}`}>
                   <stat.icon className="w-6 h-6 text-white" />
@@ -301,8 +301,8 @@ const ITHelpdesk = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h4 className="font-semibold text-gray-900">{ticket.title}</h4>
-                          <Badge className="border border-gray-300 bg-transparent text-gray-700">{ticket.id}</Badge>
+                          <h4 className="font-semibold text-foreground">{ticket.title}</h4>
+                          <Badge className="border border-border bg-muted text-muted-foreground">{ticket.id}</Badge>
                           <Badge className={getPriorityColor(ticket.priority)}>
                             {ticket.priority}
                           </Badge>
@@ -311,8 +311,8 @@ const ITHelpdesk = () => {
                             {ticket.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{ticket.description}</p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                        <p className="text-sm text-muted-foreground mb-2">{ticket.description}</p>
+                        <div className="flex items-center space-x-4 text-xs text-muted-foreground opacity-70">
                           <span>User: {ticket.user}</span>
                           <span>Category: {ticket.category}</span>
                           <span>Assigned to: {ticket.assignedTo}</span>
@@ -322,7 +322,7 @@ const ITHelpdesk = () => {
                       </div>
                       <div className="flex space-x-2">
                         <Button
-                          className="w-auto h-9 px-3 border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
+                          className="w-auto h-9 px-3 border border-border bg-background text-foreground hover:bg-accent/50"
                           onClick={() => { setViewedTicket(ticket); setViewDialogOpen(true); }}
                         >
                           View
@@ -389,19 +389,19 @@ const ITHelpdesk = () => {
                           <Laptop className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">{asset.model}</h4>
-                          <p className="text-sm text-gray-600">{asset.type} • {asset.id}</p>
-                          <p className="text-xs text-gray-500">Assigned to: {asset.user} • {asset.location}</p>
-                          <p className="text-xs text-gray-500">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
+                          <h4 className="font-semibold text-foreground">{asset.model}</h4>
+                          <p className="text-sm text-muted-foreground">{asset.type} • {asset.id}</p>
+                          <p className="text-xs text-muted-foreground opacity-70">Assigned to: {asset.user} • {asset.location}</p>
+                          <p className="text-xs text-muted-foreground opacity-70">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}>
+                      <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-muted text-muted-foreground'}>
                         {asset.status}
                       </Badge>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">View History</Button>
-                      <Button className="h-9 px-3 border border-gray-300 bg-transparent hover:bg-gray-50">Manage</Button>
+                      <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">View History</Button>
+                      <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">Manage</Button>
                     </div>
                   </div>
                 ))}
@@ -425,14 +425,14 @@ const ITHelpdesk = () => {
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">IT Knowledge Base</h3>
-                <p className="text-gray-600 mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
+                <Shield className="w-16 h-16 text-muted-foreground opacity-50 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">IT Knowledge Base</h3>
+                <p className="text-muted-foreground mb-4">Common solutions, troubleshooting guides, and IT policies.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Setup Guides</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Troubleshooting</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Security Policies</Button>
-                  <Button className="border border-gray-300 bg-transparent hover:bg-gray-50">Software Manuals</Button>
+                  <Button className="border border-border bg-background hover:bg-accent/50 text-foreground">Setup Guides</Button>
+                  <Button className="border border-border bg-background hover:bg-accent/50 text-foreground">Troubleshooting</Button>
+                  <Button className="border border-border bg-background hover:bg-accent/50 text-foreground">Security Policies</Button>
+                  <Button className="border border-border bg-background hover:bg-accent/50 text-foreground">Software Manuals</Button>
                 </div>
               </div>
             </CardContent>
@@ -463,7 +463,7 @@ const ITHelpdesk = () => {
           </div>
           <DialogFooter>
             <Button
-              className="w-auto border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800"
+              className="w-auto border border-border bg-background hover:bg-accent/50 text-foreground"
               onClick={() => setResolveDialogOpen(false)}
             >
               Cancel
@@ -559,7 +559,7 @@ const ITHelpdesk = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setCreateDialogOpen(false)}>
+            <Button className="border border-border bg-background hover:bg-accent/50 text-foreground" onClick={() => setCreateDialogOpen(false)}>
               Cancel
             </Button>
             <Button
@@ -678,7 +678,7 @@ const ITHelpdesk = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setUpdateDialogOpen(false)}>
+            <Button className="border border-border bg-background hover:bg-accent/50 text-foreground" onClick={() => setUpdateDialogOpen(false)}>
               Cancel
             </Button>
             <Button
@@ -709,13 +709,13 @@ const ITHelpdesk = () => {
           {viewedTicket && (
             <div className="space-y-2">
               <div className="flex items-center space-x-3 mb-2">
-                <h4 className="font-semibold text-gray-900">{viewedTicket.title}</h4>
-                <Badge className="border border-gray-300 bg-transparent text-gray-700">{viewedTicket.id}</Badge>
+                <h4 className="font-semibold text-foreground">{viewedTicket.title}</h4>
+                <Badge className="border border-border bg-muted text-muted-foreground">{viewedTicket.id}</Badge>
                 <Badge className={getPriorityColor(viewedTicket.priority)}>{viewedTicket.priority}</Badge>
                 <Badge className={getStatusColor(viewedTicket.status)}>{viewedTicket.status}</Badge>
               </div>
-              <div className="text-sm text-gray-600 mb-2">{viewedTicket.description}</div>
-              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+              <div className="text-sm text-muted-foreground mb-2">{viewedTicket.description}</div>
+              <div className="flex items-center space-x-4 text-xs text-muted-foreground opacity-70 mb-2">
                 <span>User: {viewedTicket.user}</span>
                 <span>Category: {viewedTicket.category}</span>
                 <span>Assigned to: {viewedTicket.assignedTo}</span>
@@ -723,15 +723,15 @@ const ITHelpdesk = () => {
                 <span>Created: {viewedTicket.created}</span>
               </div>
               {viewedTicket.resolutionNotes && (
-                <div className="mt-2 p-3 bg-white border-l-4 border-green-500 rounded">
+                <div className="mt-2 p-3 bg-background border-l-4 border-green-500 rounded">
                   <div className="font-medium text-green-700 mb-1">Resolution Notes:</div>
-                  <div className="text-gray-800 whitespace-pre-line">{viewedTicket.resolutionNotes}</div>
+                  <div className="text-foreground whitespace-pre-line">{viewedTicket.resolutionNotes}</div>
                 </div>
               )}
             </div>
           )}
           <DialogFooter>
-            <Button className="border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-800" onClick={() => setViewDialogOpen(false)}>
+            <Button className="border border-border bg-background hover:bg-accent/50 text-foreground" onClick={() => setViewDialogOpen(false)}>
               Close
             </Button>
           </DialogFooter>

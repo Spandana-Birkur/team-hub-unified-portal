@@ -75,8 +75,8 @@ const Documents = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Company Documents Directory</h1>
-        <p className="text-gray-600">Browse and manage all company documents by category.</p>
+        <h1 className="text-3xl font-bold text-white dark:text-white mb-2">Company Documents Directory</h1>
+        <p className="text-white dark:text-white">Browse and manage all company documents by category.</p>
       </div>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -110,14 +110,14 @@ const Documents = () => {
                 <h3 className="text-lg font-semibold mb-2 text-blue-700">{category}</h3>
                 <div className="space-y-4">
                   {(documentsByCategory[category] || []).length === 0 && (
-                    <div className="text-gray-400 italic">No documents in this category.</div>
+                    <div className="text-white dark:text-white italic">No documents in this category.</div>
                   )}
                   {(documentsByCategory[category] || []).map((doc) => (
                     <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">{doc.title}</h4>
-                        <p className="text-sm text-gray-600">Type: {doc.type} • Version: {doc.version} • Owner: {doc.owner}</p>
-                        <p className="text-xs text-gray-500">Last updated: {doc.lastUpdated}</p>
+                        <h4 className="font-semibold text-white dark:text-white">{doc.title}</h4>
+                        <p className="text-sm text-white dark:text-white">Type: {doc.type} • Version: {doc.version} • Owner: {doc.owner}</p>
+                        <p className="text-xs text-white dark:text-white">Last updated: {doc.lastUpdated}</p>
                       </div>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline">
@@ -142,31 +142,31 @@ const Documents = () => {
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Document Name</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">Document Name</label>
                 <input type="text" className="border rounded px-2 py-1 w-full" value={uploadData.name} onChange={e => setUploadData({ ...uploadData, name: e.target.value })} required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Owner</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">Owner</label>
                 <input type="text" className="border rounded px-2 py-1 w-full" value={uploadData.owner} onChange={e => setUploadData({ ...uploadData, owner: e.target.value })} required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Type</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">Type</label>
                 <select className="border rounded px-2 py-1 w-full" value={uploadData.type} onChange={e => setUploadData({ ...uploadData, type: e.target.value })} required>
                   {typeOptions.map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Version</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">Version</label>
                 <input type="text" className="border rounded px-2 py-1 w-full" value={uploadData.version} onChange={e => setUploadData({ ...uploadData, version: e.target.value })} required />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Category</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">Category</label>
                 <select className="border rounded px-2 py-1 w-full" value={uploadData.category} onChange={e => setUploadData({ ...uploadData, category: e.target.value })} required>
                   {categories.map(category => <option key={category} value={category}>{category}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">File Upload</label>
+                <label className="block text-sm font-medium mb-1 text-white dark:text-white">File Upload</label>
                 <input type="file" className="border rounded px-2 py-1 w-full" onChange={handleUploadChange} required />
               </div>
             </div>

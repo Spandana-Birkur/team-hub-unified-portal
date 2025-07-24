@@ -97,8 +97,8 @@ const Training = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Training & Learning</h1>
-        <p className="text-gray-600">Enhance your skills with our comprehensive training programs.</p>
+        <h1 className="text-3xl font-bold text-white dark:text-white mb-2">Training & Learning</h1>
+        <p className="text-white dark:text-white">Enhance your skills with our comprehensive training programs.</p>
       </div>
 
       {/* Stats Overview */}
@@ -108,8 +108,8 @@ const Training = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-white dark:text-white">{stat.title}</p>
+                  <p className="text-2xl font-bold text-white dark:text-white">{stat.value}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${stat.color}`}>
                   <stat.icon className="w-6 h-6 text-white" />
@@ -135,9 +135,9 @@ const Training = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
-                      <p className="text-sm text-gray-600 mb-3">{course.description}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <CardTitle className="text-lg mb-2 text-white dark:text-white">{course.title}</CardTitle>
+                      <p className="text-sm text-white dark:text-white mb-3">{course.description}</p>
+                      <div className="flex items-center space-x-4 text-xs text-white dark:text-white">
                         <span className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
                           <span>{course.duration}</span>
@@ -159,14 +159,14 @@ const Training = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm text-white dark:text-white">
                       <span>Instructor: {course.instructor}</span>
                       <Badge variant="outline">{course.category}</Badge>
                     </div>
                     
                     {course.progress > 0 && (
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center justify-between text-sm text-white dark:text-white">
                           <span>Progress</span>
                           <span>{course.progress}%</span>
                         </div>
@@ -208,22 +208,22 @@ const Training = () => {
                   <div key={course.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="font-semibold text-gray-900">{course.title}</h4>
-                        <p className="text-sm text-gray-600">Category: {course.category}</p>
+                        <h4 className="font-semibold text-white dark:text-white">{course.title}</h4>
+                        <p className="text-sm text-white dark:text-white">Category: {course.category}</p>
                       </div>
                       <Badge className={getStatusColor(course.status)}>
                         {course.status === 'completed' ? 'Completed' : 'In Progress'}
                       </Badge>
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-sm text-white dark:text-white">
                         <span>Progress</span>
                         <span>{course.progress}%</span>
                       </div>
                       <Progress value={course.progress} className="h-2" />
                     </div>
                     <div className="flex justify-between items-center mt-3">
-                      <span className="text-sm text-gray-500">Duration: {course.duration}</span>
+                      <span className="text-sm text-white dark:text-white">Duration: {course.duration}</span>
                       <Button size="sm" variant="outline">
                         {course.status === 'completed' ? 'View Certificate' : 'Continue'}
                       </Button>
@@ -250,8 +250,8 @@ const Training = () => {
                     <div className={`w-16 h-16 mx-auto mb-3 rounded-full ${achievement.color} flex items-center justify-center`}>
                       <achievement.icon className="w-8 h-8 text-white" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
-                    <p className="text-sm text-gray-500">Earned on {achievement.date}</p>
+                    <h4 className="font-semibold text-white dark:text-white mb-1">{achievement.title}</h4>
+                    <p className="text-sm text-white dark:text-white">Earned on {achievement.date}</p>
                   </div>
                 ))}
               </div>
@@ -269,7 +269,7 @@ const Training = () => {
                     <Users className="w-8 h-8 text-blue-600" />
                     <div>
                       <p className="text-2xl font-bold">45</p>
-                      <p className="text-sm text-gray-600">Team Members</p>
+                      <p className="text-sm text-white dark:text-white">Team Members</p>
                     </div>
                   </div>
                 </CardContent>
@@ -280,7 +280,7 @@ const Training = () => {
                     <BookOpen className="w-8 h-8 text-green-600" />
                     <div>
                       <p className="text-2xl font-bold">12</p>
-                      <p className="text-sm text-gray-600">Required Courses</p>
+                      <p className="text-sm text-white dark:text-white">Required Courses</p>
                     </div>
                   </div>
                 </CardContent>
@@ -291,7 +291,7 @@ const Training = () => {
                     <Award className="w-8 h-8 text-yellow-600" />
                     <div>
                       <p className="text-2xl font-bold">78%</p>
-                      <p className="text-sm text-gray-600">Completion Rate</p>
+                      <p className="text-sm text-white dark:text-white">Completion Rate</p>
                     </div>
                   </div>
                 </CardContent>
@@ -302,7 +302,7 @@ const Training = () => {
                     <Clock className="w-8 h-8 text-red-600" />
                     <div>
                       <p className="text-2xl font-bold">8</p>
-                      <p className="text-sm text-gray-600">Overdue Training</p>
+                      <p className="text-sm text-white dark:text-white">Overdue Training</p>
                     </div>
                   </div>
                 </CardContent>
@@ -330,18 +330,18 @@ const Training = () => {
                     ].map((member, index) => (
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold text-sm">{member.name}</h4>
+                          <h4 className="font-semibold text-sm text-white dark:text-white">{member.name}</h4>
                           <Badge variant={member.progress === 100 ? 'default' : 'secondary'}>
                             {member.progress}%
                           </Badge>
                         </div>
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center justify-between text-xs text-white dark:text-white">
                             <span>Progress</span>
                             <span>{member.progress}%</span>
                           </div>
                           <Progress value={member.progress} className="h-2" />
-                          <div className="flex justify-between text-xs text-gray-500">
+                          <div className="flex justify-between text-xs text-white dark:text-white">
                             <span>{member.completed}/{member.courses} completed</span>
                             <span>{member.courses - member.completed} remaining</span>
                           </div>
@@ -426,9 +426,9 @@ const Training = () => {
                   ].map((alert, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <p className="font-medium text-sm">{alert.name}</p>
-                        <p className="text-xs text-gray-600">{alert.course}</p>
-                        <p className="text-xs text-gray-500">Due: {alert.dueDate}</p>
+                        <p className="font-medium text-sm text-white dark:text-white">{alert.name}</p>
+                        <p className="text-xs text-white dark:text-white">{alert.course}</p>
+                        <p className="text-xs text-white dark:text-white">Due: {alert.dueDate}</p>
                       </div>
                       <Badge variant={alert.status === 'overdue' ? 'destructive' : 'secondary'}>
                         {alert.status === 'overdue' ? 'Overdue' : 'Due Soon'}

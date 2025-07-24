@@ -131,8 +131,8 @@ const TicketAssignment: React.FC<TicketAssignmentProps> = ({ tickets, agents, te
                     <div key={agent} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <User className="w-4 h-4 text-gray-500" />
-                          <h4 className="font-semibold text-gray-900">{agent}</h4>
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <h4 className="font-semibold text-foreground">{agent}</h4>
                         </div>
                         <Badge variant="outline">
                           {stats.total} tickets
@@ -169,12 +169,12 @@ const TicketAssignment: React.FC<TicketAssignmentProps> = ({ tickets, agents, te
                 {tickets.filter(t => t.status !== 'resolved').map(ticket => (
                   <div key={ticket.id} className="p-3 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-medium text-gray-900">{ticket.title}</h5>
+                      <h5 className="font-medium text-foreground">{ticket.title}</h5>
                       <Badge className={getPriorityColor(ticket.priority)}>
                         {ticket.priority}
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>Assigned to: {ticket.assignedTo}</span>
                       <Badge className={getStatusColor(ticket.status)}>
                         {ticket.status}
@@ -219,8 +219,8 @@ const TicketAssignment: React.FC<TicketAssignmentProps> = ({ tickets, agents, te
                     <div key={team} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4 text-gray-500" />
-                          <h4 className="font-semibold text-gray-900">{team}</h4>
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                          <h4 className="font-semibold text-foreground">{team}</h4>
                         </div>
                         <Badge variant="outline">
                           {stats.total} tickets
@@ -257,12 +257,12 @@ const TicketAssignment: React.FC<TicketAssignmentProps> = ({ tickets, agents, te
                 {tickets.filter(t => t.status !== 'resolved').map(ticket => (
                   <div key={ticket.id} className="p-3 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-medium text-gray-900">{ticket.title}</h5>
+                      <h5 className="font-medium text-foreground">{ticket.title}</h5>
                       <Badge className={getPriorityColor(ticket.priority)}>
                         {ticket.priority}
                       </Badge>
                     </div>
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>Team: {ticket.team}</span>
                       <Badge className={getStatusColor(ticket.status)}>
                         {ticket.status}

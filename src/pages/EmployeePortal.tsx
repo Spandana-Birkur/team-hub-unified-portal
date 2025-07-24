@@ -319,8 +319,8 @@ const EmployeePortal = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Employee Portal</h1>
-        <p className="text-gray-600">Manage your profile and access all employee resources.</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Employee Portal</h1>
+        <p className="text-muted-foreground">Manage your profile and access all employee resources.</p>
       </div>
 
       <Tabs defaultValue="personal" className="space-y-6">
@@ -355,25 +355,25 @@ const EmployeePortal = () => {
                   </Avatar>
                   <div>
                     <h3 className="text-lg font-semibold">{userProfile.name}</h3>
-                    <p className="text-gray-600">{userProfile.position}</p>
+                    <p className="text-muted-foreground">{userProfile.position}</p>
                     <Badge className="mt-1" variant="secondary">{roleLabels[userRole] || 'Employee'}</Badge>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-sm">
-                    <Mail className="w-4 h-4 text-gray-400" />
+                    <Mail className="w-4 h-4 text-muted-foreground" />
                     <span>{userProfile.email}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
-                    <Phone className="w-4 h-4 text-gray-400" />
+                    <Phone className="w-4 h-4 text-muted-foreground" />
                     <span>{userProfile.phone}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
                     <span>San Francisco, CA</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm">
-                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span>Joined: Jan 15, 2022</span>
                   </div>
                 </div>
@@ -396,17 +396,17 @@ const EmployeePortal = () => {
                   {announcements.map((announcement) => (
                     <div 
                       key={announcement.id} 
-                      className="border-l-4 border-blue-500 pl-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="border-l-4 border-blue-500 pl-4 py-2 cursor-pointer hover:bg-accent/50 transition-colors"
                       onClick={() => handleAnnouncementClick(announcement)}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                        <h4 className="font-semibold text-foreground">{announcement.title}</h4>
                         <Badge variant={announcement.priority === 'high' ? 'destructive' : announcement.priority === 'medium' ? 'default' : 'secondary'}>
                           {announcement.priority}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{announcement.content}</p>
-                      <p className="text-xs text-gray-400">{announcement.date}</p>
+                      <p className="text-muted-foreground text-sm mb-2">{announcement.content}</p>
+                      <p className="text-xs text-muted-foreground opacity-70">{announcement.date}</p>
                     </div>
                   ))}
                 </div>
@@ -531,15 +531,15 @@ const EmployeePortal = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="text-center p-4 border rounded-lg">
                     <p className="text-2xl font-bold text-green-600">$124,800</p>
-                    <p className="text-sm text-gray-600">Annual Salary</p>
+                    <p className="text-sm text-muted-foreground">Annual Salary</p>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
                     <p className="text-2xl font-bold text-blue-600">$10,400</p>
-                    <p className="text-sm text-gray-600">Monthly Gross</p>
+                    <p className="text-sm text-muted-foreground">Monthly Gross</p>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
                     <p className="text-2xl font-bold text-purple-600">$7,780</p>
-                    <p className="text-sm text-gray-600">Monthly Net</p>
+                    <p className="text-sm text-muted-foreground">Monthly Net</p>
                   </div>
                 </div>
 

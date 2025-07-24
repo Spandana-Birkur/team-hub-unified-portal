@@ -9,6 +9,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
 import { LeaveRequestProvider } from "@/contexts/LeaveRequestContext";
 import { EventsProvider } from "@/contexts/EventsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
@@ -50,11 +51,15 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))' }}>
       <CompanyHeader />
       <div className="flex">
         <CompanySidebar />
-        <main className="flex-1 overflow-x-hidden">
+        <main className="flex-1 transition-all duration-300 ease-in-out" style={{ 
+          marginLeft: 'var(--sidebar-width, 256px)',
+          backgroundColor: 'hsl(var(--background))',
+          color: 'hsl(var(--foreground))'
+        }}>
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
             <Route path="/employee" element={<EmployeePortal />} />
@@ -81,17 +86,19 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <RoleProvider>
-          <UserProfileProvider>
-            <NotificationProvider>
-              <LeaveRequestProvider>
-                <EventsProvider>
-                  <AppContent />
-                </EventsProvider>
-              </LeaveRequestProvider>
-            </NotificationProvider>
-          </UserProfileProvider>
-        </RoleProvider>
+        <ThemeProvider>
+          <RoleProvider>
+            <UserProfileProvider>
+              <NotificationProvider>
+                <LeaveRequestProvider>
+                  <EventsProvider>
+                    <AppContent />
+                  </EventsProvider>
+                </LeaveRequestProvider>
+              </NotificationProvider>
+            </UserProfileProvider>
+          </RoleProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

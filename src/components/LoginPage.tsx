@@ -20,11 +20,14 @@ const LoginPage = () => {
   const { setProfile } = useUserProfile();
   const [selectedRole, setSelectedRole] = useState<'employee' | 'hr' | 'manager' | 'it'>('employee');
   
-  // Show landing page first, unless logout sets skipLanding
+  // Show landing page first, unless logout sets skipLanding (localStorage or URL)
   const [showLoginForm, setShowLoginForm] = useState(() => {
     if (typeof window !== 'undefined') {
-      const skipLanding = localStorage.getItem('skipLanding') === 'true';
-      if (skipLanding) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const skipFromUrl = urlParams.get('skipLanding') === 'true';
+      const skipFromStorage = localStorage.getItem('skipLanding') === 'true';
+      if (skipFromUrl || skipFromStorage) {
+        window.history.replaceState({}, document.title, window.location.pathname);
         localStorage.removeItem('skipLanding');
         return true;
       }
@@ -199,6 +202,14 @@ const LoginPage = () => {
                   }}
                 />
                 Sign In
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full py-3 text-lg font-semibold border-2 border-sky-600 text-sky-600 rounded-xl mt-2 hover:bg-sky-50 transition-all"
+                onClick={() => alert('Reset password functionality coming soon!')}
+              >
+                Reset Password
               </Button>
             </form>
           </Form>

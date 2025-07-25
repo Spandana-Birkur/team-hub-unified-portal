@@ -6,7 +6,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   department: string;
-  position: string;
+  role: string;
   bio: string;
   gender: string; // 'male', 'female', 'non-binary', etc.
 }
@@ -23,7 +23,7 @@ const defaultProfile: UserProfile = {
   email: 'john.doe@company.com',
   phone: '+1 (555) 123-4567',
   department: 'IT',
-  position: 'Software Engineer',
+  role: 'Employee',
   bio: 'Experienced software engineer with expertise in React and TypeScript.',
   gender: 'male',
 };

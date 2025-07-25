@@ -7,26 +7,20 @@ from aiconnect import *
 from hashtest import *
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
 
-@app.route('/api/companies', methods = ['GET'])
-def get_companies():
-    return jsonify({
-        'companies': [
-            'microsoft',
-            'quadrant',
-            'nintendo'
-        ]
-    })
+@app.route('/api/AIRequest', methods = ['GET', 'POST'])
+def ai_request():
+    if request.method == 'POST':
+        data = request.json
+        prompt = data.get('prompt')
+        return jsonify({'response': AIRequest(prompt)})
+    elif request.method == 'GET':
+        return jsonify({'message': 'Send a POST request with a prompt.'})
 
-@app.route('/api/age', methods = ['GET'])
-def get_age():
-    return jsonify({
-        'output' : AIRequest("What to do in Dallas, TX?"),
-                   })
-
-@app.route('/api/insert', methods = ['GET', 'POST'])
-def insert():
+@app.route('/api/login', methods = ['GET', 'POST'])
+def login():
+    print("ASKJDNASLKJDLAKSJNLKASJNDLKSAJNDASD")
     if request.method == 'POST':
         email = request.json.get('email')
         pw = request.json.get('password')
@@ -41,6 +35,13 @@ def insert():
             return "Error"
     print("SMTH WRONG")
     return "Error"
+
+
+@app.route('/api/test', methods=['GET'])
+def test_cors():
+    print("CORS test endpoint was reached successfully!")
+    return jsonify({"message": "Success! CORS is configured correctly."})
+
 
 @app.route('/api/employees', methods = ['GET'])
 def employees():

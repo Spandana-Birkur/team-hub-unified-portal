@@ -60,7 +60,16 @@ const Settings: React.FC = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       if (section === 'profile') {
-        updateProfile(localProfile);
+        const response = await fetch('http://localhost:8080/api/update-bio', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: localProfile.email,
+            bio: localProfile.bio,
+          })
+        });
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

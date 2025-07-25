@@ -60,10 +60,18 @@ def get_employee_count():
     count = len(employees) if employees else 0
     return jsonify({'count': count})
 
-@app.route('/api/city', methods=['GET'])
-def get_city():
-    return AIRequest("What to do in Dallas, TX?")
-
+@app.route('/api/update-bio', methods=['POST'])
+def update_bio():
+    data = request.json
+    email = data.get('email')
+    new_bio = data.get('bio')
+    # Call a function to update the bio in the database
+    if updateBio(email, new_bio):
+        print(f"Bio for {email} updated successfully.")
+    else:
+        print(f"Failed to update bio for {email}.")
+        return jsonify({'message': 'Failed to update bio.'}), 500
+    return jsonify({'message': 'Bio updated successfully.'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

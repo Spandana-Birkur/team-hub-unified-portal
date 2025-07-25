@@ -22,7 +22,6 @@ const Settings: React.FC = () => {
   const { profile, updateProfile } = useUserProfile();
   const { theme, setTheme } = useTheme();
   const [localProfile, setLocalProfile] = useState(profile);
-
   // Notification settings
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
@@ -147,6 +146,7 @@ const Settings: React.FC = () => {
                     id="firstName"
                     value={localProfile.firstName}
                     onChange={(e) => handleProfileChange('firstName', e.target.value)}
+                    disabled={localProfile.role !== "IT Support"}
                   />
                 </div>
                 <div className="space-y-2">
@@ -155,6 +155,7 @@ const Settings: React.FC = () => {
                     id="lastName"
                     value={localProfile.lastName}
                     onChange={(e) => handleProfileChange('lastName', e.target.value)}
+                    disabled={localProfile.role !== "IT Support"}
                   />
                 </div>
               </div>
@@ -164,6 +165,7 @@ const Settings: React.FC = () => {
                   id="email"
                   type="email"
                   value={localProfile.email}
+                  disabled={localProfile.role !== "IT Support"}
                   onChange={(e) => handleProfileChange('email', e.target.value)}
                 />
               </div>
@@ -173,12 +175,13 @@ const Settings: React.FC = () => {
                   id="phone"
                   value={localProfile.phone}
                   onChange={(e) => handleProfileChange('phone', e.target.value)}
+                  disabled={localProfile.role !== "IT Support"}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
-                  <Select value={localProfile.department} onValueChange={(value) => handleProfileChange('department', value)}>
+                  <Select value={localProfile.department} onValueChange={(value) => handleProfileChange('department', value)} disabled={localProfile.role !== "IT Support"}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -192,12 +195,19 @@ const Settings: React.FC = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="position">Position</Label>
-                  <Input
-                    id="position"
-                    value={localProfile.position}
-                    onChange={(e) => handleProfileChange('position', e.target.value)}
-                  />
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={localProfile.role} onValueChange={(value) => handleProfileChange('role', value)} disabled={localProfile.role !== "IT Support"}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Employee">Employee</SelectItem>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                      <SelectItem value="HRManager">HR Manager</SelectItem>
+                      <SelectItem value="ITSupport">IT Support</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
                 </div>
               </div>
               <div className="space-y-2">

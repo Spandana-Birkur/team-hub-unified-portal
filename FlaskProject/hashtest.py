@@ -1,5 +1,15 @@
-import hashlib
+from dotenv import load_dotenv
+import os
 import pyodbc
+
+load_dotenv()
+
+# Connection Details
+server = os.getenv('DB_SERVER')
+database = os.getenv('DB_DATABASE')
+username = os.getenv('DB_USERNAME')
+password = os.getenv('DB_PASSWORD')
+driver = os.getenv('DB_DRIVER')
 
 from dbconnect import Employee
 
@@ -13,15 +23,6 @@ def CreateUser(firstName, lastName, department, position, gender, password):
     print(result.hexdigest())
 
     pword = result.hexdigest()
-
-
-
-    # Connection Details
-    server = 'access-portal-server.database.windows.net'
-    database = 'access-portal-db'
-    username = 'ashwin'
-    password = 'AccessPortal123!'
-    driver = '{ODBC Driver 17 for SQL Server}'
 
     try:
         connection = pyodbc.connect(f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
@@ -58,12 +59,6 @@ def CheckPw(email):
         print(str(pwordEnc))
 
         pword = ''
-
-        server = 'access-portal-server.database.windows.net'
-        database = 'access-portal-db'
-        username = 'ashwin'
-        password = 'AccessPortal123!'
-        driver = '{ODBC Driver 17 for SQL Server}'
 
         try:
             connection = pyodbc.connect(
@@ -111,13 +106,6 @@ def AddPw(password, email):
 
     pword = result.hexdigest()
 
-    # Connection Details
-    server = 'access-portal-server.database.windows.net'
-    database = 'access-portal-db'
-    username = 'ashwin'
-    password = 'AccessPortal123!'
-    driver = '{ODBC Driver 17 for SQL Server}'
-
     try:
         connection = pyodbc.connect(f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
         print('Connection successful!')
@@ -143,12 +131,6 @@ def AddPw(password, email):
 
     connection.close()
 
-def Login():
-    em = input("Enter Email: ")
-    CheckPw(em)
-
-# str = "AshwinPW"
-# print(hashlib.sha256(str.encode()).hexdigest())
 
 def Authenticate(email, password):
 
@@ -160,11 +142,7 @@ def Authenticate(email, password):
 
     pword = ''
 
-    server = 'access-portal-server.database.windows.net'
-    database = 'access-portal-db'
-    username = 'ashwin'
-    password = 'AccessPortal123!'
-    driver = '{ODBC Driver 17 for SQL Server}'
+
 
     try:
         connection = pyodbc.connect(
@@ -196,7 +174,7 @@ def Authenticate(email, password):
         row = cursor.fetchone()
 
         if row:
-            employee.ID, employee.firstName, employee.lastName, employee.department, employee.position, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio = row
+            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio = row
             print(row)
 
         # close cursor

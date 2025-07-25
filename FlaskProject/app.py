@@ -9,21 +9,14 @@ from hashtest import *
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/companies', methods = ['GET'])
-def get_companies():
-    return jsonify({
-        'companies': [
-            'microsoft',
-            'quadrant',
-            'nintendo'
-        ]
-    })
-
-@app.route('/api/age', methods = ['GET'])
-def get_age():
-    return jsonify({
-        'output' : AIRequest("What to do in Dallas, TX?"),
-                   })
+@app.route('/api/AIRequest', methods = ['GET', 'POST'])
+def ai_request():
+    if request.method == 'POST':
+        data = request.json
+        prompt = data.get('prompt')
+        return jsonify({'response': AIRequest(prompt)})
+    elif request.method == 'GET':
+        return jsonify({'message': 'Send a POST request with a prompt.'})
 
 @app.route('/api/login', methods = ['GET', 'POST'])
 def login():

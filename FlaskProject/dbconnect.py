@@ -1,11 +1,16 @@
+from dotenv import load_dotenv
+import os
 import pyodbc
 
+load_dotenv()
+
 # Connection Details
-server = 'access-portal-server.database.windows.net'
-database = 'access-portal-db'
-username = 'ashwin'
-password = 'AccessPortal123!'
-driver = '{ODBC Driver 17 for SQL Server}'
+server = os.getenv('DB_SERVER')
+database = os.getenv('DB_DATABASE')
+username = os.getenv('DB_USERNAME')
+password = os.getenv('DB_PASSWORD')
+driver = os.getenv('DB_DRIVER')
+
 
 class Employee:
     def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio=""):

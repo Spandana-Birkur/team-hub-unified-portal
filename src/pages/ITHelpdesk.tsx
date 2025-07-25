@@ -12,11 +12,13 @@ import TicketAssignment from '@/components/TicketAssignment';
 import AssetLifecycle from '@/components/AssetLifecycle';
 import AssetHistory from '@/components/AssetHistory';
 import { useRole } from '@/contexts/RoleContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 
 const ITHelpdesk = () => {
   const [selectedAgent, setSelectedAgent] = useState('all');
   const [selectedTeam, setSelectedTeam] = useState('all');
   const { userRole } = useRole();
+  const { profile } = useUserProfile();
   const [tickets, setTickets] = useState([
     {
       id: 'TKT-001',
@@ -217,7 +219,12 @@ const ITHelpdesk = () => {
     }
   };
 
+  // Filter tickets for employees to only their own
   const filteredTickets = tickets.filter(ticket => {
+    if (userRole === 'employee') {
+      const fullName = `${profile.firstName} ${profile.lastName}`;
+      return ticket.user === fullName;
+    }
     if (selectedAgent !== 'all' && ticket.assignedTo !== selectedAgent) return false;
     if (selectedTeam !== 'all' && ticket.team !== selectedTeam) return false;
     return true;
@@ -250,13 +257,13 @@ const ITHelpdesk = () => {
       </div>
 
       <Tabs defaultValue="tickets" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="tickets">Support Tickets</TabsTrigger>
-          <TabsTrigger value="escalation">SLA & Escalation</TabsTrigger>
-          <TabsTrigger value="assignment">Team Assignment</TabsTrigger>
-          <TabsTrigger value="assets">Asset Management</TabsTrigger>
-          <TabsTrigger value="lifecycle">Asset Lifecycle</TabsTrigger>
-          <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
+        <TabsList className="flex w-full">
+          <TabsTrigger className="flex-1" value="tickets">Support Tickets</TabsTrigger>
+          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="escalation">SLA & Escalation</TabsTrigger>}
+          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="assignment">Team Assignment</TabsTrigger>}
+          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="assets">Asset Management</TabsTrigger>}
+          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="lifecycle">Asset Lifecycle</TabsTrigger>}
+          <TabsTrigger className="flex-1" value="knowledge">Knowledge Base</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tickets">
@@ -327,31 +334,35 @@ const ITHelpdesk = () => {
                         >
                           View
                         </Button>
-                        <Button
-                          className="h-9 px-3"
-                          onClick={() => {
-                            setTicketToUpdate(ticket);
-                            setUpdateFields({
-                              title: ticket.title,
-                              description: ticket.description,
-                              priority: ticket.priority,
-                              category: ticket.category,
-                              assignedTo: ticket.assignedTo,
-                              team: ticket.team,
-                            });
-                            setUpdateDialogOpen(true);
-                          }}
-                        >
-                          Update
-                        </Button>
-                        {userRole === 'it' && ticket.status !== 'resolved' && (
-                          <Button 
-                            onClick={() => handleResolveTicket(ticket)}
-                            className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <CheckCircle2 className="w-4 h-4 mr-1" />
-                            Resolve
-                          </Button>
+                        {userRole !== 'employee' && (
+                          <>
+                            <Button
+                              className="h-9 px-3"
+                              onClick={() => {
+                                setTicketToUpdate(ticket);
+                                setUpdateFields({
+                                  title: ticket.title,
+                                  description: ticket.description,
+                                  priority: ticket.priority,
+                                  category: ticket.category,
+                                  assignedTo: ticket.assignedTo,
+                                  team: ticket.team,
+                                });
+                                setUpdateDialogOpen(true);
+                              }}
+                            >
+                              Update
+                            </Button>
+                            {ticket.status !== 'resolved' && (
+                              <Button 
+                                onClick={() => handleResolveTicket(ticket)}
+                                className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"
+                              >
+                                <CheckCircle2 className="w-4 h-4 mr-1" />
+                                Resolve
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -363,55 +374,57 @@ const ITHelpdesk = () => {
         </TabsContent>
 
         <TabsContent value="escalation">
-          <TicketEscalation tickets={tickets} />
+          {userRole !== 'employee' && <TicketEscalation tickets={tickets} />}
         </TabsContent>
 
         <TabsContent value="assignment">
-          <TicketAssignment tickets={tickets} agents={agents} teams={teams} />
+          {userRole !== 'employee' && <TicketAssignment tickets={tickets} agents={agents} teams={teams} />}
         </TabsContent>
 
         <TabsContent value="assets">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Laptop className="w-5 h-5" />
-                <span>IT Assets</span>
-              </CardTitle>
-              <Button>Add Asset</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {assets.map((asset) => (
-                  <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Laptop className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">{asset.model}</h4>
-                          <p className="text-sm text-muted-foreground">{asset.type} • {asset.id}</p>
-                          <p className="text-xs text-muted-foreground opacity-70">Assigned to: {asset.user} • {asset.location}</p>
-                          <p className="text-xs text-muted-foreground opacity-70">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
+          {userRole !== 'employee' && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center space-x-2">
+                  <Laptop className="w-5 h-5" />
+                  <span>IT Assets</span>
+                </CardTitle>
+                <Button>Add Asset</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {assets.map((asset) => (
+                    <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Laptop className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground">{asset.model}</h4>
+                            <p className="text-sm text-muted-foreground">{asset.type} • {asset.id}</p>
+                            <p className="text-xs text-muted-foreground opacity-70">Assigned to: {asset.user} • {asset.location}</p>
+                            <p className="text-xs text-muted-foreground opacity-70">Condition: {asset.condition} • Value: {asset.depreciationValue}</p>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center space-x-3">
+                        <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-muted text-muted-foreground'}>
+                          {asset.status}
+                        </Badge>
+                        <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">View History</Button>
+                        <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">Manage</Button>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge className={asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' : 'bg-muted text-muted-foreground'}>
-                        {asset.status}
-                      </Badge>
-                      <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">View History</Button>
-                      <Button className="h-9 px-3 border border-border bg-background hover:bg-accent/50 text-foreground">Manage</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="lifecycle">
-          <AssetLifecycle assets={assets} />
+          {userRole !== 'employee' && <AssetLifecycle assets={assets} />}
         </TabsContent>
 
         <TabsContent value="knowledge">
@@ -421,7 +434,7 @@ const ITHelpdesk = () => {
                 <Shield className="w-5 h-5" />
                 <span>Knowledge Base</span>
               </CardTitle>
-              <Button>Add Article</Button>
+              {userRole !== 'employee' && <Button>Add Article</Button>}
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
@@ -570,7 +583,7 @@ const ITHelpdesk = () => {
                   {
                     id: `TKT-${(tickets.length + 1).toString().padStart(3, '0')}`,
                     title: newTicket.title,
-                    user: 'Current User',
+                    user: `${profile.firstName} ${profile.lastName}`,
                     priority: newTicket.priority,
                     status: 'open',
                     category: newTicket.category,

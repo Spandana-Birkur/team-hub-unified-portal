@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import hashlib
 import os
 import pyodbc
 
@@ -97,8 +98,8 @@ def CheckPw(email):
         else:
             print("Password does not match.")
 
-def AddPw(password, email):
-    str = password
+def AddPw(pw, email):
+    str = pw
     result = hashlib.sha256(str.encode())
 
     print("The hexadecimal equivalent of SHA256 is : ")
@@ -132,9 +133,9 @@ def AddPw(password, email):
     connection.close()
 
 
-def Authenticate(email, password):
+def Authenticate(email, pw):
 
-    pwordEnc = hashlib.sha256(password.encode()).hexdigest()
+    pwordEnc = hashlib.sha256(pw.encode()).hexdigest()
 
     employee = Employee()
 

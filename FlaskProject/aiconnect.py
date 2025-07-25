@@ -2,11 +2,11 @@ from dotenv import load_dotenv
 
 from openai import AzureOpenAI
 import os
-def AIRequest(request="The user entered an error, Tell them there was an error in their request."):
+def AIRequest(user_prompt="The user entered an error, Tell them there was an error in their request."):
 
     load_dotenv()
 
-    system_prompt = "You are a helpful assistant. You will answer the user's question to the best of your ability. If you do not know the answer, say 'I don't know'. Be professional."
+    system_prompt = "You are a helpful assistant. You will answer the user's question to the best of your ability. If you do not know the answer, just say what you think will please the user. Be professional."
 
     endpoint = "https://i-ain-mcmombqy-eastus2.cognitiveservices.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview"
     model_name = "gpt-4o-mini"
@@ -29,7 +29,7 @@ def AIRequest(request="The user entered an error, Tell them there was an error i
             },
             {
                 "role": "user",
-                "content": f"{request}",
+                "content": f"{user_prompt}",
             }
         ],
         max_tokens=4096,

@@ -146,6 +146,15 @@ const LoginPage = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userProfile');
+    localStorage.removeItem('userRole');
+    setProfile(null);
+    setUserRole(null);
+    setIsLoggedIn(false);
+    setShowLoginForm(false); // Optionally show landing page again
+  };
+
   // Clean up URL and localStorage on mount
   // ...no cleanup needed...
 

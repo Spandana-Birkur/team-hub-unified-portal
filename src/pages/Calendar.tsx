@@ -143,30 +143,54 @@ const CalendarPage = () => {
     setWeekBaseDate(next);
   };
 
+  // Custom Day component for CalendarUI (now has access to events)
+  const CalendarDay = (props) => {
+    const { date, selected, ...rest } = props;
+    const iso = date.toISOString().slice(0, 10);
+    const dayEvents = getEventsForDate(iso, events);
+    const isToday = date.toDateString() === new Date().toDateString();
+    return (
+      <button
+        {...rest}
+        className={`h-9 w-9 p-0 font-normal rounded-lg relative flex flex-col items-center justify-center transition-colors
+          ${isToday ? 'bg-blue-100 border-2 border-blue-400 dark:bg-purple-800 dark:border-purple-400' : ''}
+          ${dayEvents.length > 0 ? 'bg-yellow-50 dark:bg-purple-900/40' : ''}
+          ${selected ? 'bg-primary text-primary-foreground' : 'text-foreground dark:text-white'}
+        `}
+        tabIndex={0}
+      >
+        <span className="text-sm dark:text-white">{date.getDate()}</span>
+        {dayEvents.length > 0 && (
+          <span className="ml-1 bg-blue-200 text-blue-800 rounded-full px-1 text-xs font-medium dark:bg-purple-700 dark:text-white absolute bottom-1 right-1">{dayEvents.length}</span>
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="p-4 w-full flex flex-row items-start justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="p-4 w-full flex flex-row items-start justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:bg-gradient-to-br dark:from-[#181824] dark:via-[#23243a] dark:to-[#1a1a2e]">
       {/* Main calendar area */}
       <div className="flex-1 flex flex-col items-center">
-        <Card className="w-full max-w-4xl mx-auto shadow-lg border border-gray-100">
+        <Card className="w-full max-w-4xl mx-auto shadow-lg border border-gray-100 dark:bg-[#181824] dark:border-[#23243a] dark:text-white">
           <div className="flex items-center justify-between pb-2 px-6 pt-6">
             <div className="flex items-center">
-              <CardTitle>My Calendar</CardTitle>
+              <CardTitle className="dark:text-white">My Calendar</CardTitle>
               {viewingEmployee && (
-                <span className="ml-4 flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                <span className="ml-4 flex items-center gap-2 text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded dark:bg-[#23243a] dark:text-gray-200">
                   <UserIcon className="w-4 h-4 text-blue-500" />
                   Viewing: {viewingEmployee.name}
-                  <button className="ml-2 text-xs text-blue-600 underline" onClick={() => setViewingEmployee(null)}>Back to My Calendar</button>
+                  <button className="ml-2 text-xs text-blue-600 underline dark:text-purple-400" onClick={() => setViewingEmployee(null)}>Back to My Calendar</button>
                 </span>
               )}
             </div>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-1.5 text-base font-semibold rounded-lg" onClick={() => setCreateDialogOpen(true)}>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-4 py-1.5 text-base font-semibold rounded-lg dark:bg-purple-600 dark:hover:bg-purple-700" onClick={() => setCreateDialogOpen(true)}>
               + Create Event
             </Button>
           </div>
           <CardContent className="w-full pt-0">
             <div className="flex items-center mb-2 space-x-2">
-              <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} onClick={() => setViewMode('month')}>Monthly View</Button>
-              <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} onClick={() => setViewMode('week')}>Weekly View</Button>
+              <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} className="dark:bg-purple-700 dark:text-white dark:border-none" onClick={() => setViewMode('month')}>Monthly View</Button>
+              <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} className="dark:bg-purple-700 dark:text-white dark:border-none" onClick={() => setViewMode('week')}>Weekly View</Button>
             </div>
             <div className="flex justify-center w-full">
               {viewMode === 'month' ? (
@@ -174,49 +198,17 @@ const CalendarPage = () => {
                   <CalendarUI
                     mode="single"
                     onSelect={handleDateSelect}
-                    className="w-full max-w-3xl text-base"
-                    renderDay={date => {
-                      const isToday = date.toDateString() === new Date().toDateString();
-                      const iso = date.toISOString().slice(0, 10);
-                      const dayEvents = getEventsForDate(iso, events);
-                      return (
-                        <div
-                          className={`relative w-full h-full rounded-lg p-0.5 ${isToday ? 'bg-blue-100 border-2 border-blue-400' : ''} ${dayEvents.length > 0 ? 'bg-yellow-50' : ''}`}
-                          onDoubleClick={() => handleDayDoubleClick(date)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{date.getDate()}</span>
-                            {dayEvents.length > 0 && (
-                              <span className="ml-1 bg-blue-200 text-blue-800 rounded-full px-1 text-xs font-medium">{dayEvents.length}</span>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap gap-0.5 mt-0.5">
-                            {dayEvents.slice(0, 2).map(event => (
-                              <TooltipProvider key={event.id} delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className={`rounded px-1 text-xs ${eventTypeMeta[event.type]?.color || 'bg-gray-200 text-gray-800'}`}>{eventTypeMeta[event.type]?.icon}{event.title.length > 6 ? event.title.slice(0, 6) + '…' : event.title}</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="font-semibold">{event.title}</div>
-                                    <div className="text-xs">{event.description}</div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }}
+                    className="w-full max-w-3xl text-base dark:bg-[#23243a] dark:text-white dark:rounded-lg"
+                    components={{ Day: CalendarDay }}
                   />
                 </div>
               ) : (
-                <div className="border rounded-lg p-4 bg-white w-full max-w-3xl text-base">
+                <div className="border rounded-lg p-4 bg-white w-full max-w-3xl text-base dark:bg-[#23243a] dark:text-white dark:border-[#23243a]">
                   <div className="flex justify-between mb-1 w-full">
                     {weekDates.map(date => (
                       <div key={date.toISOString()} className="flex-1 text-center">
-                        <div className={`font-semibold text-gray-700 ${date.toDateString() === today.toDateString() ? 'text-blue-600 underline' : ''}`}>{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
-                        <div className="text-xs text-gray-500">{date.toLocaleDateString()}</div>
+                        <div className={`font-semibold text-gray-700 ${date.toDateString() === today.toDateString() ? 'text-blue-600 underline dark:text-purple-400' : 'dark:text-white'}`}>{date.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-300">{date.toLocaleDateString()}</div>
                       </div>
                     ))}
                   </div>
@@ -225,14 +217,14 @@ const CalendarPage = () => {
                       const iso = date.toISOString().slice(0, 10);
                       const dayEvents = getEventsForDate(iso, events);
                       return (
-                        <div key={iso} className={`flex-1 min-h-[60px] border rounded p-1 mx-0.5 ${date.toDateString() === today.toDateString() ? 'bg-blue-50 border-blue-300' : 'bg-gray-50'}`}>
+                        <div key={iso} className={`flex-1 min-h-[60px] border rounded p-1 mx-0.5 ${date.toDateString() === today.toDateString() ? 'bg-blue-50 border-blue-300 dark:bg-purple-800 dark:border-purple-400' : 'bg-gray-50 dark:bg-purple-900/40 dark:border-[#23243a]'}`}>
                           {dayEvents.length === 0 ? (
-                            <div className="text-xs text-gray-400 text-center">No events</div>
+                            <div className="text-xs text-gray-400 text-center dark:text-gray-400">No events</div>
                           ) : (
                             dayEvents.map(event => (
-                              <div key={event.id} className="mb-1 p-1 rounded bg-blue-100 cursor-pointer flex items-center" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
-                                <Badge className="mr-1 text-xs">{event.type}</Badge>
-                                <span className="text-xs font-medium">{event.title}</span>
+                              <div key={event.id} className="mb-1 p-1 rounded bg-blue-100 cursor-pointer flex items-center dark:bg-purple-700" onClick={() => { setEventsForDay([event]); setSelectedDate(iso); setShowDialog(true); }}>
+                                <Badge className="mr-1 text-xs dark:bg-purple-800 dark:text-white">{event.type}</Badge>
+                                <span className="text-xs font-medium dark:text-white">{event.title}</span>
                               </div>
                             ))
                           )}
@@ -247,19 +239,19 @@ const CalendarPage = () => {
         </Card>
       </div>
       {/* Sidebar */}
-      <aside className="w-72 ml-6 bg-white rounded-xl shadow-lg p-4 flex flex-col gap-4 sticky top-8 h-fit min-h-[400px] border border-gray-100">
+      <aside className="w-72 ml-6 bg-white rounded-xl shadow-lg p-4 flex flex-col gap-4 sticky top-8 h-fit min-h-[400px] border border-gray-100 dark:bg-[#181824] dark:text-white dark:border-[#23243a]">
         <div>
-          <div className="text-base font-semibold mb-1 flex items-center gap-2"><CalendarIcon className="w-5 h-5 text-blue-500" /> Upcoming Events</div>
+          <div className="text-base font-semibold mb-1 flex items-center gap-2 text-gray-900 dark:text-white"><CalendarIcon className="w-5 h-5 text-blue-500 dark:text-purple-400" /> Upcoming Events</div>
           {upcomingEvents.length === 0 ? (
-            <div className="text-gray-400 text-xs">No events in the next 7 days.</div>
+            <div className="text-gray-400 text-xs dark:text-gray-300">No events in the next 7 days.</div>
           ) : (
             <ul className="space-y-1">
               {upcomingEvents.map(ev => (
-                <li key={ev.id} className="flex items-start gap-2 p-1 rounded hover:bg-blue-50 cursor-pointer" onClick={() => { setEventsForDay([ev]); setSelectedDate(ev.date); setShowDialog(true); }}>
-                  <span className={`mt-1 ${eventTypeMeta[ev.type]?.color || 'bg-gray-200 text-gray-800'} rounded-full p-1`}>{eventTypeMeta[ev.type]?.icon}</span>
+                <li key={ev.id} className="flex items-start gap-2 p-1 rounded hover:bg-blue-50 cursor-pointer dark:hover:bg-purple-900/40" onClick={() => { setEventsForDay([ev]); setSelectedDate(ev.date); setShowDialog(true); }}>
+                  <span className={`mt-1 ${eventTypeMeta[ev.type]?.color || 'bg-gray-200 text-gray-800'} rounded-full p-1 dark:bg-purple-700 dark:text-white`}>{eventTypeMeta[ev.type]?.icon}</span>
                   <div>
-                    <div className="font-medium text-gray-900 text-xs">{ev.title}</div>
-                    <div className="text-xs text-gray-500">{ev.date} {ev.time && `at ${ev.time}`}</div>
+                    <div className="font-medium text-gray-900 text-xs dark:text-white">{ev.title}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-300">{ev.date} {ev.time && `at ${ev.time}`}</div>
                   </div>
                 </li>
               ))}
@@ -267,29 +259,29 @@ const CalendarPage = () => {
           )}
         </div>
         <div>
-          <div className="text-base font-semibold mb-1 flex items-center gap-2"><Briefcase className="w-5 h-5 text-purple-500" /> Event Stats</div>
+          <div className="text-base font-semibold mb-1 flex items-center gap-2 text-gray-900 dark:text-white"><Briefcase className="w-5 h-5 text-purple-500 dark:text-purple-400" /> Event Stats</div>
           <ul className="grid grid-cols-2 gap-1 text-xs">
-            <li className="bg-blue-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.total}</span><span>Total</span></li>
-            <li className="bg-green-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.holiday}</span><span>Holidays</span></li>
-            <li className="bg-yellow-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.meeting}</span><span>Meetings</span></li>
-            <li className="bg-red-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.deadline}</span><span>Deadlines</span></li>
-            <li className="bg-purple-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.event}</span><span>Events</span></li>
-            <li className="bg-gray-100 rounded p-2 flex flex-col items-center"><span className="font-bold text-base">{eventStats.personal}</span><span>Personal</span></li>
+            <li className="bg-blue-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.total}</span><span>Total</span></li>
+            <li className="bg-green-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.holiday}</span><span>Holidays</span></li>
+            <li className="bg-yellow-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.meeting}</span><span>Meetings</span></li>
+            <li className="bg-red-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.deadline}</span><span>Deadlines</span></li>
+            <li className="bg-purple-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.event}</span><span>Events</span></li>
+            <li className="bg-gray-100 rounded p-2 flex flex-col items-center dark:bg-purple-900/40 dark:text-white"><span className="font-bold text-base">{eventStats.personal}</span><span>Personal</span></li>
           </ul>
         </div>
       </aside>
       {/* People List Sidebar */}
-      <aside className="w-64 ml-6 bg-white rounded-xl shadow-lg p-4 flex flex-col gap-2 sticky top-8 h-fit min-h-[400px] border border-gray-100">
-        <div className="text-base font-semibold mb-2 flex items-center gap-2"><UserIcon className="w-5 h-5 text-blue-500" /> People</div>
-        <ul className="overflow-y-auto max-h-[500px] divide-y divide-gray-100">
+      <aside className="w-64 ml-6 bg-white rounded-xl shadow-lg p-4 flex flex-col gap-2 sticky top-8 h-fit min-h-[400px] border border-gray-100 dark:bg-[#181824] dark:text-white dark:border-[#23243a]">
+        <div className="text-base font-semibold mb-2 flex items-center gap-2 text-gray-900 dark:text-white"><UserIcon className="w-5 h-5 text-blue-500 dark:text-purple-400" /> People</div>
+        <ul className="overflow-y-auto max-h-[500px] divide-y divide-gray-100 dark:divide-[#23243a]">
           {employees.map(emp => (
-            <li key={emp.id} className="flex items-center gap-2 py-2 cursor-pointer hover:bg-blue-50 rounded px-2" onClick={() => setViewingEmployee(emp)}>
-              <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-base font-semibold text-blue-700">
+            <li key={emp.id} className="flex items-center gap-2 py-2 cursor-pointer hover:bg-blue-50 rounded px-2 dark:hover:bg-purple-900/40" onClick={() => setViewingEmployee(emp)}>
+              <span className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-base font-semibold text-blue-700 dark:bg-purple-700 dark:text-white">
                 {emp.name.split(' ').map(n => n[0]).join('').slice(0,2)}
               </span>
               <div className="flex flex-col">
-                <span className="font-medium text-sm text-gray-900">{emp.name}</span>
-                <span className="text-xs text-gray-500">{emp.role}</span>
+                <span className="font-medium text-sm text-gray-900 dark:text-white">{emp.name}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-300">{emp.role}</span>
               </div>
             </li>
           ))}

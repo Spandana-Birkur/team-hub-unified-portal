@@ -1,0 +1,6 @@
+subscription_key = 40kccx1Rt0UMEWaCZpslxQCnJ0UnX46C6g2TD8oe9mVpwDHwJ5tBJQQJ99BGACHYHv6XJ3w3AAAAACOGEL7a
+DB_SERVER = access-portal-server.database.windows.net
+DB_DATABASE = access-portal-db
+DB_USERNAME = ashwin
+DB_PASSWORD = AccessPortal123!
+DB_DRIVER = {ODBC Driver 17 for SQL Server}

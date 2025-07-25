@@ -8,12 +8,12 @@ password = 'AccessPortal123!'
 driver = '{ODBC Driver 17 for SQL Server}'
 
 class Employee:
-    def __init__(self, firstName="", lastName="", ID=-1, department="", position="", gender='', pword = "", email = "", phoneNumber="", bio=""):
+    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio=""):
         self.firstName = firstName
         self.lastName = lastName
         self.ID = ID
         self.department = department
-        self.position = position
+        self.role = role
         self.gender = gender
         self.pword = pword
         self.email = email
@@ -26,7 +26,7 @@ class Employee:
             "lastName": self.lastName,
             "ID": self.ID,
             "department": self.department,
-            "position": self.position,
+            "role": self.role,
             "gender": self.gender,
             "pword": self.pword,
             "email": self.email,
@@ -35,7 +35,7 @@ class Employee:
         }
 
     def toString(self):
-        return f" {self.ID}, {self.firstName}, {self.lastName}, {self.department}, {self.position}"
+        return f" {self.ID}, {self.firstName}, {self.lastName}, {self.department}, {self.role}"
 
 def parseDB():
 
@@ -60,7 +60,7 @@ def parseDB():
         # print results
         for row in rows:
             newEmployee = Employee()
-            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.position, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio = row
+            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio = row
             print(row)
             employees.append(newEmployee)
 

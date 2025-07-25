@@ -217,5 +217,3 @@ def Authenticate(email, password):
         print("Password does not match.")
         return False
 
-AddPw('pw', 'ivy.wang@access.com')
-

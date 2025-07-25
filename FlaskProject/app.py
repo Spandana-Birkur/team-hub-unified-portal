@@ -7,7 +7,7 @@ from aiconnect import *
 from hashtest import *
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
 
 @app.route('/api/companies', methods = ['GET'])
 def get_companies():
@@ -25,8 +25,9 @@ def get_age():
         'output' : AIRequest("What to do in Dallas, TX?"),
                    })
 
-@app.route('/api/insert', methods = ['GET', 'POST'])
-def insert():
+@app.route('/api/login', methods = ['GET', 'POST'])
+def login():
+    print("ASKJDNASLKJDLAKSJNLKASJNDLKSAJNDASD")
     if request.method == 'POST':
         email = request.json.get('email')
         pw = request.json.get('password')
@@ -41,6 +42,13 @@ def insert():
             return "Error"
     print("SMTH WRONG")
     return "Error"
+
+
+@app.route('/api/test', methods=['GET'])
+def test_cors():
+    print("CORS test endpoint was reached successfully!")
+    return jsonify({"message": "Success! CORS is configured correctly."})
+
 
 @app.route('/api/employees', methods = ['GET'])
 def employees():

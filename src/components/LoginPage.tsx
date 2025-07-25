@@ -19,7 +19,19 @@ const LoginPage = () => {
   const { setUserRole } = useRole();
   const { setProfile } = useUserProfile();
   const [selectedRole, setSelectedRole] = useState<'employee' | 'hr' | 'manager' | 'it'>('employee');
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Restore user data from localStorage on mount
+  React.useEffect(() => {
+    const storedProfile = localStorage.getItem('userProfile');
+    const storedRole = localStorage.getItem('userRole');
+    if (storedProfile && storedRole) {
+      setProfile(JSON.parse(storedProfile));
+      setUserRole(storedRole as any);
+      setIsLoggedIn(true);
+    }
+  }, [setProfile, setUserRole]);
+
   // Show landing page first, unless logout sets skipLanding (localStorage or URL)
   const [showLoginForm, setShowLoginForm] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -69,22 +81,68 @@ const LoginPage = () => {
     }
   ];
 
-  const onSubmit = (data: LoginFormData) => {
-    // Simple validation - in a real app, this would authenticate with a backend
-    if (data.email && data.password) {
-      setUserRole(selectedRole);
-      if (data.email.toLowerCase() === 'jane.doe@company.com') {
-        setProfile({
-          firstName: 'Jane',
-          lastName: 'Doe',
-          email: 'jane.doe@company.com',
-          phone: '+1 (555) 987-6543',
-          department: 'HR',
-          position: 'HR Specialist',
-          bio: 'Passionate about employee well-being and workplace safety.',
-          gender: 'female',
-        });
+  const handleSubmit = async (data: LoginFormData) => {
+    console.log("CLICK");
+    var result;
+    try {
+      console.log("TRYING");
+      const response = await fetch('http://localhost:8080/api/login', {
+
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      console.log("AKLSJHDLKJASFBLJHAKSFBKLJSABDLKASBDKLASJBD");
+  
+      if (!response.ok) {
+        throw new Error('Failed to insert data');
       }
+  
+      result = await response.json();
+
+      if (result.message != "Error") {
+        // alert('Success:' + result.message);
+
+        setUserRole(selectedRole);
+        const profileData = {
+          firstName: result.firstName,
+          lastName: result.lastName,
+          email: result.email,
+          phone: result.phoneNumber,
+          department: result.department,
+          role: result.role,
+          bio: result.bio,
+          gender: result.gender,
+        };
+        setProfile(profileData);
+
+        // Save to localStorage
+        localStorage.setItem('userProfile', JSON.stringify(profileData));
+        localStorage.setItem('userRole', selectedRole);
+        setIsLoggedIn(true);
+      }
+
+    } catch (error) {
+      console.log('Error: ' + error);
+      alert('Invalid email or password');
+    }
+    
+  };
+
+  const testApi = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/test');
+      const data = await response.json();
+      alert(data.message);
+    } catch (e) {
+      console.error("Test failed:", e);
+      alert("Test failed! Check browser and server console.");
     }
   };
 
@@ -98,8 +156,39 @@ const LoginPage = () => {
     return <AccessLanding onProceedToLogin={() => setShowLoginForm(true)} />;
   }
 
+  // If logged in, show a simple dashboard and logout button
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-100 via-white to-gray-200">
+        <Card className="w-full max-w-md shadow-2xl border-none bg-white rounded-2xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome, {localStorage.getItem('userRole')}
+            </CardTitle>
+            <CardDescription className="text-base text-gray-500">
+              You are logged in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              type="button"
+              className="w-full py-3 text-lg font-bold bg-red-600 text-white rounded-xl shadow-xl hover:bg-red-700 transition-transform"
+              onClick={handleLogout}
+            >
+              Log Out
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 via-white to-gray-200">
+      {/* Add this button temporarily for testing */}
+    <button onClick={testApi} className="absolute top-4 left-4 bg-red-500 text-white p-2 rounded">
+      Test CORS
+    </button>
       <Card className="w-full max-w-md shadow-2xl border-none bg-white rounded-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-extrabold text-gray-900 mb-2">
@@ -109,7 +198,7 @@ const LoginPage = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="email"

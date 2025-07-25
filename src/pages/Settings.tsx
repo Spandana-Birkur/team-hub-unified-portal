@@ -11,6 +11,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
 import { Separator } from '../components/ui/separator';
 import { useUserProfile } from '../contexts/UserProfileContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -19,6 +20,7 @@ const Settings: React.FC = () => {
   const [error, setError] = useState('');
 
   const { profile, updateProfile } = useUserProfile();
+  const { theme, setTheme } = useTheme();
   const [localProfile, setLocalProfile] = useState(profile);
 
   // Notification settings
@@ -43,7 +45,7 @@ const Settings: React.FC = () => {
 
   // Appearance settings
   const [appearance, setAppearance] = useState({
-    theme: 'system',
+    theme: theme,
     fontSize: 'medium',
     compactMode: false,
     showAnimations: true,
@@ -84,6 +86,11 @@ const Settings: React.FC = () => {
 
   const handleAppearanceChange = (field: string, value: string | boolean) => {
     setAppearance(prev => ({ ...prev, [field]: value }));
+    
+    // Apply theme change immediately
+    if (field === 'theme') {
+      setTheme(value as 'light' | 'dark' | 'system');
+    }
   };
 
   return (

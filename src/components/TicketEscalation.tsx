@@ -84,7 +84,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Escalated Tickets</p>
+                <p className="text-sm font-medium text-muted-foreground">Escalated Tickets</p>
                 <p className="text-2xl font-bold text-orange-600">{escalatedTickets.length}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-orange-500" />
@@ -96,7 +96,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Overdue Tickets</p>
+                <p className="text-sm font-medium text-muted-foreground">Overdue Tickets</p>
                 <p className="text-2xl font-bold text-red-600">{overdueTickets.length}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
@@ -108,7 +108,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">SLA Compliance</p>
+                <p className="text-sm font-medium text-muted-foreground">SLA Compliance</p>
                 <p className="text-2xl font-bold text-green-600">
                   {Math.round(((activeTickets.length - overdueTickets.length) / activeTickets.length) * 100)}%
                 </p>
@@ -138,7 +138,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
                 <div key={ticket.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <h4 className="font-semibold text-gray-900">{ticket.title}</h4>
+                      <h4 className="font-semibold text-foreground">{ticket.title}</h4>
                       <Badge variant="outline">{ticket.id}</Badge>
                       {ticket.escalated && (
                         <Badge className="bg-orange-100 text-orange-800">
@@ -151,14 +151,14 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
                       <Badge className={`${slaStatus.bg} ${slaStatus.color}`}>
                         {slaStatus.label}
                       </Badge>
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-sm font-medium text-muted-foreground">
                         {timeRemaining}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>SLA Progress</span>
                       <span>{Math.round(progress)}%</span>
                     </div>
@@ -171,7 +171,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground opacity-70">
                     <div className="flex items-center space-x-4">
                       <span>Priority: {ticket.priority}</span>
                       <span>Assigned: {ticket.assignedTo}</span>

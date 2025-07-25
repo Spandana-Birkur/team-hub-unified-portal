@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { 
   Shield, Globe, Monitor, HelpCircle, Users, Key, FileText, AlertCircle,
   CreditCard, MousePointer, MessageCircle, Check, Clock, History, 
-  Building, Play, Lock, ChevronLeft, ChevronRight, Star, Award, Sparkles
+  Building, Play, Lock, ChevronLeft, ChevronRight, Star, Award, Sparkles, Bot
 } from "lucide-react"
 
 interface AccessLandingProps {
@@ -246,6 +246,61 @@ const AccessLanding = ({ onProceedToLogin }: AccessLandingProps) => {
               <p className="text-gray-600">Connect with colleagues and access internal company resources.</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* AI-Powered Project Chatbot Section */}
+        <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-8 border border-cyan-200 shadow-sm mb-16">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Bot className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              💡 Access AI – Your Project Assistant
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Our intelligent chatbot helps project teams and members quickly access project-related content, 
+              documents, deadlines, and updates.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div className="flex items-start gap-3 bg-white rounded-lg p-4 border border-cyan-100">
+              <div className="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <Check className="w-4 h-4 text-cyan-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Search project-specific information instantly</h4>
+                <p className="text-sm text-gray-600">Get immediate access to project details, timelines, and resources</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 bg-white rounded-lg p-4 border border-cyan-100">
+              <div className="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <Check className="w-4 h-4 text-cyan-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Reduce time spent checking in with teammates</h4>
+                <p className="text-sm text-gray-600">Get quick updates without interrupting your team's workflow</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 bg-white rounded-lg p-4 border border-cyan-100">
+              <div className="w-6 h-6 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <Check className="w-4 h-4 text-cyan-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">Improve collaboration and workflow efficiency</h4>
+                <p className="text-sm text-gray-600">Streamline communication and boost team productivity</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-2 border border-cyan-200 text-sm text-gray-600">
+              <MessageCircle className="w-4 h-4 text-cyan-500" />
+              Available after login - Ask me anything about your projects!
+            </div>
+          </div>
         </div>
 
         {/* New User Onboarding Guide */}

@@ -82,3 +82,19 @@ def parseDB():
         print(employee.toString())
 
     return employees
+
+def updateBio(email, new_bio):
+    try:
+        connection = pyodbc.connect(
+            f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+        cursor = connection.cursor()
+        query = f"UPDATE EMPLOYEES SET Bio = ? WHERE Email = ?"
+        cursor.execute(query, (new_bio, email))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Bio updated successfully.")
+        return True
+    except pyodbc.Error as e:
+        print("Error updating bio: ", e)
+        return False

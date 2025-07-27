@@ -1,10 +1,15 @@
 from urllib import request
+import os
+from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dbconnect import *
 from aiconnect import *
 from hashtest import *
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)

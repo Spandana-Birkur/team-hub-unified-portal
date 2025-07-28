@@ -5,9 +5,16 @@ from flask_cors import CORS
 from dbconnect import *
 from aiconnect import *
 from hashtest import *
+from openai_api import openai_bp
+
+
 
 app = Flask(__name__)
 CORS(app)
+
+
+
+app.register_blueprint(openai_bp)
 
 @app.route('/api/AIRequest', methods = ['GET', 'POST'])
 def ai_request():
@@ -32,9 +39,9 @@ def login():
             return jsonify(result.toDict())
         else:
             print("Womp womp")
-            return "Error"
+            return jsonify({'error': 'Invalid email or password.'}), 401
     print("SMTH WRONG")
-    return "Error"
+    return jsonify({'message': 'Send a POST request with email and password.'}), 400
 
 
 @app.route('/api/test', methods=['GET'])
@@ -72,6 +79,10 @@ def update_bio():
         print(f"Failed to update bio for {email}.")
         return jsonify({'message': 'Failed to update bio.'}), 500
     return jsonify({'message': 'Bio updated successfully.'}), 200
+
+@app.route("/")
+def home():
+    return "Flask API is running!"
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

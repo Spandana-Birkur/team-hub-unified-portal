@@ -1,3 +1,5 @@
 from hashtest import *
 
-AddPw('pw', 'parthiv.saravana@access.com')
+from dbconnect import *
+
+print(parseDB())

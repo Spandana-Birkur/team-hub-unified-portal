@@ -175,7 +175,7 @@ def Authenticate(email, pw):
         row = cursor.fetchone()
 
         if row:
-            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio = row
+            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
             print(row)
 
         # close cursor

@@ -13,7 +13,7 @@ driver = os.getenv('DB_DRIVER')
 
 
 class Employee:
-    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio=""):
+    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None):
         self.firstName = firstName
         self.lastName = lastName
         self.ID = ID
@@ -24,6 +24,7 @@ class Employee:
         self.email = email
         self.phoneNumber = phoneNumber
         self.bio = bio
+        self.ManagerID = ManagerID
 
     def toDict(self):
         return {
@@ -36,11 +37,12 @@ class Employee:
             "pword": self.pword,
             "email": self.email,
             "phoneNumber": self.phoneNumber,
-            "bio": self.bio
+            "bio": self.bio,
+            "ManagerID": self.ManagerID
         }
 
     def toString(self):
-        return f" {self.ID}, {self.firstName}, {self.lastName}, {self.department}, {self.role}"
+        return f" {self.ID}, {self.firstName}, {self.lastName}, {self.department}, {self.role}, {self.ManagerID}"
 
 def parseDB():
 
@@ -65,7 +67,7 @@ def parseDB():
         # print results
         for row in rows:
             newEmployee = Employee()
-            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio = row
+            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID = row
             print(row)
             employees.append(newEmployee)
 
@@ -98,3 +100,77 @@ def updateBio(email, new_bio):
     except pyodbc.Error as e:
         print("Error updating bio: ", e)
         return False
+    
+def getSubordinates(id):
+    subordinates = []
+    try:
+        connection = pyodbc.connect(
+            f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+        cursor = connection.cursor()
+        query = "SELECT * FROM EMPLOYEES WHERE ManagerID = ?"
+        cursor.execute(query, (id,))
+        rows = cursor.fetchall()
+
+        for row in rows:
+            newEmployee = Employee() # getEmployeeByID(row[0])
+            (
+                newEmployee.ID,
+                newEmployee.firstName,
+                newEmployee.lastName,
+                newEmployee.department,
+                newEmployee.role,
+                newEmployee.gender,
+                newEmployee.pword,
+                newEmployee.email,
+                newEmployee.phoneNumber,
+                newEmployee.bio,
+                newEmployee.ManagerID
+            ) = row
+            print(f"New subordinate added: {newEmployee.toString()}")
+            subordinates.append(newEmployee)
+        cursor.close()
+        connection.close()
+    except pyodbc.Error as e:
+        print("Error fetching subordinates: ", e)
+    return subordinates
+
+def getManager(id):
+    if getEmployeeByID(id) == None:
+        return None
+    manager = getEmployeeByID(getEmployeeByID(id).ManagerID)
+    return manager
+
+def getManagers(id):
+    managers = []
+    if getManager(id) == None:
+        return None
+    
+    managers = getManagersHelper(getManager(id), managers)
+    return managers
+
+def getManagersHelper(manager, managers):
+    if manager == None:
+        return
+    managers.append(getManagersHelper(getManager(manager), managers))
+    managers.append(manager)
+    return managers
+
+
+def getEmployeeByID(id):
+    employee = Employee()
+    try:
+        connection = pyodbc.connect(
+            f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+        cursor = connection.cursor()
+        query = "SELECT * FROM EMPLOYEES WHERE EmployeeID = ?"
+        cursor.execute(query, (id,))
+        row = cursor.fetchone()
+
+        if row:
+            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+        cursor.close()
+        connection.close()
+    except pyodbc.Error as e:
+        print("Error fetching employee: ", e)
+        return None
+    return employee

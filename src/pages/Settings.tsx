@@ -57,8 +57,6 @@ const Settings: React.FC = () => {
     setSaved(false);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
       if (section === 'profile') {
         const response = await fetch('http://localhost:8080/api/update-bio', {
           method: 'POST',
@@ -70,6 +68,12 @@ const Settings: React.FC = () => {
             bio: localProfile.bio,
           })
         });
+
+        if (!response.ok) throw new Error('Failed to update bio');
+
+        // Update profile in context and localStorage
+        updateProfile({ ...localProfile, bio: localProfile.bio });
+        localStorage.setItem('userProfile', JSON.stringify({ ...localProfile, bio: localProfile.bio }));
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -504,4 +508,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings; 
+export default Settings;

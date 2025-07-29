@@ -63,13 +63,13 @@ const Notifications: React.FC = () => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500/20 text-red-300 dark:bg-red-500/30 dark:text-red-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500/20 text-yellow-300 dark:bg-yellow-500/30 dark:text-yellow-200';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/20 text-green-300 dark:bg-green-500/30 dark:text-green-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500/20 text-gray-300 dark:bg-gray-500/30 dark:text-gray-200';
     }
   };
 
@@ -243,7 +243,7 @@ const Notifications: React.FC = () => {
               {filteredNotifications.map((notification, index) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-muted/50 transition-colors ${!notification.read ? 'border-l-4 border-blue-500 bg-blue-50' : ''}`}
+                  className={`p-4 hover:bg-muted/50 transition-colors ${!notification.read ? 'border-l-4 border-blue-500 bg-blue-500/10 dark:bg-blue-500/20' : ''}`}
                 >
                   <div className="flex items-start gap-3">
                     <Checkbox
@@ -258,7 +258,7 @@ const Notifications: React.FC = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <p className={`text-sm font-medium flex items-center ${!notification.read ? 'font-semibold' : ''}`}>
-                              {!notification.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />}
+                              {!notification.read && <span className="inline-block w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 mr-2" />}
                               {notification.title}
                             </p>
                             <Badge 

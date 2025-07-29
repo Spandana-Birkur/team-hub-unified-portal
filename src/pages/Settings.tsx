@@ -101,7 +101,7 @@ const Settings: React.FC = () => {
     
     // Apply theme change immediately
     if (field === 'theme') {
-      setTheme(value as 'light' | 'dark' | 'system');
+      setTheme(value as 'light' | 'dark');
     }
   };
 
@@ -113,16 +113,16 @@ const Settings: React.FC = () => {
       </div>
 
       {saved && (
-        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <Check className="h-4 w-4 text-green-600" />
-          <span className="text-green-800">Settings saved successfully!</span>
+        <div className="flex items-center gap-2 p-4 bg-green-500/20 border border-green-500/30 rounded-lg dark:bg-green-500/30 dark:border-green-500/40">
+          <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+          <span className="text-green-800 dark:text-green-200">Settings saved successfully!</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <span className="text-red-800">{error}</span>
+        <div className="flex items-center gap-2 p-4 bg-red-500/20 border border-red-500/30 rounded-lg dark:bg-red-500/30 dark:border-red-500/40">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <span className="text-red-800 dark:text-red-200">{error}</span>
         </div>
       )}
 
@@ -430,17 +430,16 @@ const Settings: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Theme</Label>
-                  <Select value={appearance.theme} onValueChange={(value) => handleAppearanceChange('theme', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Theme</Label>
+                      <p className="text-sm text-muted-foreground">Toggle between light and dark mode</p>
+                    </div>
+                    <Switch
+                      checked={appearance.theme === 'dark'}
+                      onCheckedChange={(checked) => handleAppearanceChange('theme', checked ? 'dark' : 'light')}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Font Size</Label>

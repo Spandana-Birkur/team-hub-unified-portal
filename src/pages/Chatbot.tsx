@@ -1,19 +1,66 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 
-const Chatbot = () => {
-  const [messages, setMessages] = useState<{ text: string; sender: 'user' }[]>([]);
-  const [input, setInput] = useState('');
+interface Message {
+  text: string;
+  sender: 'user' | 'ai';
+}
 
-  const handleSend = (e: React.FormEvent) => {
+interface HistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const Chatbot = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [history, setHistory] = useState<HistoryMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() === '') return;
-    setMessages([...messages, { text: input, sender: 'user' }]);
+
+    const userInput = input;
+    setMessages(prev => [...prev, { text: userInput, sender: 'user' }]);
     setInput('');
-    // No AI response yet
+    setLoading(true);
+
+    try {
+      // Send prompt and history to backend
+      const response = await fetch('http://localhost:8080/api/AIRequestHistory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: userInput,
+          history: history,
+        }),
+      });
+      const data = await response.json();
+      const aiText = data.response || 'No response from AI.';
+
+      setMessages(prev => [
+        ...prev,
+        { text: aiText, sender: 'ai' },
+      ]);
+      // Update history for next turn
+      setHistory(prev => [
+        ...prev,
+        { role: 'user', content: userInput },
+        { role: 'assistant', content: aiText },
+      ]);
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        { text: 'Error: Could not get AI response.', sender: 'ai' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,12 +79,32 @@ const Chatbot = () => {
               </div>
             )}
             {messages.map((msg, idx) => (
-              <div key={idx} className="flex justify-end">
-                <div className="bg-blue-100 text-blue-800 rounded-lg px-4 py-2 w-fit ml-auto mb-1">
-                  {msg.text}
+              <div
+                key={idx}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`rounded-lg px-4 py-2 w-fit mb-1 max-w-xl break-words ${
+                    msg.sender === 'user'
+                      ? 'bg-blue-100 text-blue-800 ml-auto'
+                      : 'bg-gray-100 text-gray-800 mr-auto'
+                  }`}
+                >
+                  {msg.sender === 'ai' ? (
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               </div>
             ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 text-gray-400 rounded-lg px-4 py-2 w-fit mb-1 mr-auto">
+                  AI is typing...
+                </div>
+              </div>
+            )}
           </div>
           <form className="flex items-center border-t p-4 bg-gray-50" onSubmit={handleSend}>
             <Input
@@ -46,8 +113,9 @@ const Chatbot = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               autoFocus
+              disabled={loading}
             />
-            <Button type="submit" disabled={input.trim() === ''}>
+            <Button type="submit" disabled={input.trim() === '' || loading}>
               Send
             </Button>
           </form>
@@ -57,4 +125,4 @@ const Chatbot = () => {
   );
 };
 
-export default Chatbot; 
+export default Chatbot;

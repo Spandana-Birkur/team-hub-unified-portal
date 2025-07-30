@@ -127,6 +127,8 @@ const EmployeePortal = () => {
     }
   ];
 
+  
+
   const teamMembers = [
     { name: 'Alice Smith', role: 'Team Lead', avatar: 'AS', department: 'Engineering' },
     { name: 'Bob Johnson', role: 'Designer', avatar: 'BJ', department: 'Design' },

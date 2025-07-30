@@ -5,3 +5,5 @@ flask-cors
 pyjwt
 werkzeug
 pyodbc
+azure-search-documents
+azure-identity

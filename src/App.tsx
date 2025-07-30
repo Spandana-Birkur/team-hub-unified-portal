@@ -12,7 +12,9 @@ import { EventsProvider } from "@/contexts/EventsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import EmployeePortal from "./pages/EmployeePortal";
+import Pay from "./pages/Pay";
 import HRManagement from "./pages/HRManagement";
 import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
@@ -44,9 +46,25 @@ const AppContent = () => {
       case 'manager':
         return '/hr';
       case 'it':
-        return '/employee';
+        return '/ithelpdesk';
       default:
         return '/employee';
+    }
+  };
+
+  // Role-based route restrictions
+  const getAccessibleRoutes = () => {
+    switch (userRole) {
+      case 'hr':
+        return ['/hr'];
+      case 'it':
+        return ['/ithelpdesk'];
+      case 'employee':
+        return ['/employee', '/pay', '/training', '/calendar', '/documents', '/safety', '/chatbot', '/ithelpdesk'];
+      case 'manager':
+        return ['/employee', '/pay', '/hr', '/training', '/calendar', '/documents', '/safety', '/chatbot', '/ithelpdesk'];
+      default:
+        return ['/employee'];
     }
   };
 
@@ -62,16 +80,61 @@ const AppContent = () => {
         }}>
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
-            <Route path="/employee" element={<EmployeePortal />} />
-            <Route path="/hr" element={<HRManagement />} />
-            <Route path="/training" element={<Training />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/ithelpdesk" element={<ITHelpdesk />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/documents" element={<Documents />} />
-            <Route path="/safety" element={<EmployeeSafetyConduct />} />
-            <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/employee" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <EmployeePortal />
+              </ProtectedRoute>
+            } />
+            <Route path="/pay" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <Pay />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <HRManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/training" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <Training />
+              </ProtectedRoute>
+            } />
+            <Route path="/calendar" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <Calendar />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk" element={
+              <ProtectedRoute requiredRoles={['employee', 'it', 'manager']}>
+                <ITHelpdesk />
+              </ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute requiredRoles={['employee', 'hr', 'manager', 'it']}>
+                <Notifications />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute requiredRoles={['employee', 'hr', 'manager', 'it']}>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/documents" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <Documents />
+              </ProtectedRoute>
+            } />
+            <Route path="/safety" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <EmployeeSafetyConduct />
+              </ProtectedRoute>
+            } />
+            <Route path="/chatbot" element={
+              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+                <Chatbot />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

@@ -219,9 +219,9 @@ const ITHelpdesk = () => {
     }
   };
 
-  // Filter tickets for employees to only their own
+  // Filter tickets for employees and HR to only their own
   const filteredTickets = tickets.filter(ticket => {
-    if (userRole === 'employee') {
+    if (userRole === 'employee' || userRole === 'hr') {
       const fullName = `${profile.firstName} ${profile.lastName}`;
       return ticket.user === fullName;
     }
@@ -233,36 +233,38 @@ const ITHelpdesk = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">IT Helpdesk</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Ticketing</h1>
         <p className="text-muted-foreground">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {helpdeskStats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+      {/* Stats Overview - Hidden for employees and HR */}
+      {userRole !== 'employee' && userRole !== 'hr' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {helpdeskStats.map((stat, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  </div>
+                  <div className={`p-3 rounded-lg ${stat.color}`}>
+                    <stat.icon className="w-6 h-6 text-white" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Tabs defaultValue="tickets" className="space-y-6">
         <TabsList className="flex w-full">
           <TabsTrigger className="flex-1" value="tickets">Support Tickets</TabsTrigger>
-          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="escalation">SLA & Escalation</TabsTrigger>}
-          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="assignment">Team Assignment</TabsTrigger>}
-          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="assets">Asset Management</TabsTrigger>}
-          {userRole !== 'employee' && <TabsTrigger className="flex-1" value="lifecycle">Asset Lifecycle</TabsTrigger>}
+          {userRole !== 'employee' && userRole !== 'hr' && <TabsTrigger className="flex-1" value="escalation">SLA & Escalation</TabsTrigger>}
+          {userRole !== 'employee' && userRole !== 'hr' && <TabsTrigger className="flex-1" value="assignment">Team Assignment</TabsTrigger>}
+          {userRole !== 'employee' && userRole !== 'hr' && <TabsTrigger className="flex-1" value="assets">Asset Management</TabsTrigger>}
+          {userRole !== 'employee' && userRole !== 'hr' && <TabsTrigger className="flex-1" value="lifecycle">Asset Lifecycle</TabsTrigger>}
           <TabsTrigger className="flex-1" value="knowledge">Knowledge Base</TabsTrigger>
         </TabsList>
 
@@ -334,7 +336,7 @@ const ITHelpdesk = () => {
                         >
                           View
                         </Button>
-                        {userRole !== 'employee' && (
+                        {userRole !== 'employee' && userRole !== 'hr' && (
                           <>
                             <Button
                               className="h-9 px-3"
@@ -374,15 +376,15 @@ const ITHelpdesk = () => {
         </TabsContent>
 
         <TabsContent value="escalation">
-          {userRole !== 'employee' && <TicketEscalation tickets={tickets} />}
+          {userRole !== 'employee' && userRole !== 'hr' && <TicketEscalation tickets={tickets} />}
         </TabsContent>
 
         <TabsContent value="assignment">
-          {userRole !== 'employee' && <TicketAssignment tickets={tickets} agents={agents} teams={teams} />}
+          {userRole !== 'employee' && userRole !== 'hr' && <TicketAssignment tickets={tickets} agents={agents} teams={teams} />}
         </TabsContent>
 
         <TabsContent value="assets">
-          {userRole !== 'employee' && (
+          {userRole !== 'employee' && userRole !== 'hr' && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center space-x-2">
@@ -424,7 +426,7 @@ const ITHelpdesk = () => {
         </TabsContent>
 
         <TabsContent value="lifecycle">
-          {userRole !== 'employee' && <AssetLifecycle assets={assets} />}
+          {userRole !== 'employee' && userRole !== 'hr' && <AssetLifecycle assets={assets} />}
         </TabsContent>
 
         <TabsContent value="knowledge">
@@ -434,7 +436,7 @@ const ITHelpdesk = () => {
                 <Shield className="w-5 h-5" />
                 <span>Knowledge Base</span>
               </CardTitle>
-              {userRole !== 'employee' && <Button>Add Article</Button>}
+              {userRole !== 'employee' && userRole !== 'hr' && <Button>Add Article</Button>}
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">

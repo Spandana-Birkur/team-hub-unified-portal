@@ -19,9 +19,19 @@ def ai_request():
     if request.method == 'POST':
         data = request.json
         prompt = data.get('prompt')
-        return jsonify({'response': AIRequest(prompt)})
+        return jsonify({'response': get_rag_response_keyword(prompt)})
     elif request.method == 'GET':
         return jsonify({'message': 'Send a POST request with a prompt.'})
+
+@app.route('/api/AIRequestHistory', methods = ['GET', 'POST'])
+def ai_request_history():
+    if request.method == 'POST':
+        data = request.json
+        prompt = data.get('prompt')
+        history = data.get('history', [])
+        return jsonify({'response': get_rag_response_with_history(prompt, history)})
+    elif request.method == 'GET':
+        return jsonify({'message': 'Send a POST request with a prompt and history.'})
 
 @app.route('/api/login', methods = ['GET', 'POST'])
 def login():

@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import EmployeePortal from "./pages/EmployeePortal";
+import Pay from "./pages/Pay";
 import HRManagement from "./pages/HRManagement";
 import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
@@ -63,6 +64,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
             <Route path="/employee" element={<EmployeePortal />} />
+            <Route path="/pay" element={<Pay />} />
             <Route path="/hr" element={<HRManagement />} />
             <Route path="/training" element={<Training />} />
             <Route path="/calendar" element={<Calendar />} />

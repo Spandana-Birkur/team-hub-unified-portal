@@ -14,7 +14,8 @@ import {
   ShieldCheck,
   MessageCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -27,6 +28,7 @@ const CompanySidebar = () => {
 
   const navItems = [
     { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/pay', icon: DollarSign, label: 'Pay', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
     { to: '/ithelpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },

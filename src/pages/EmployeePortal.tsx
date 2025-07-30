@@ -33,9 +33,6 @@ const EmployeePortal = () => {
   // Modal states
   const [showTimeOffModal, setShowTimeOffModal] = useState(false);
   const [showDocumentUploadModal, setShowDocumentUploadModal] = useState(false);
-  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
-  const [showTaxUpdateModal, setShowTaxUpdateModal] = useState(false);
-  const [showTimesheetModal, setShowTimesheetModal] = useState(false);
   const [showEventRSVPModal, setShowEventRSVPModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
@@ -65,12 +62,7 @@ const EmployeePortal = () => {
     file: null
   });
   
-  // State for dynamic data
-  const [payStubs, setPayStubs] = useState([
-    { period: 'Dec 15 - Dec 31, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Dec 1 - Dec 14, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-    { period: 'Nov 15 - Nov 30, 2023', grossPay: '$5,200.00', netPay: '$3,890.00', status: 'Available' },
-  ]);
+
   const [documents, setDocuments] = useState([
     { name: 'Employee Handbook 2024', type: 'PDF', uploadDate: '2024-01-01' },
     { name: 'W-2 Form 2023', type: 'PDF', uploadDate: '2024-01-15' },
@@ -84,24 +76,7 @@ const EmployeePortal = () => {
     days: request.days,
     status: request.status === 'pending' ? 'Pending' : request.status === 'approved' ? 'Approved' : 'Rejected'
   }));
-  const [taxInfo, setTaxInfo] = useState({
-    filingStatus: 'Single',
-    allowances: 2,
-    additionalWithholding: 0,
-    state: 'California'
-  });
-  
-  const [timesheetData, setTimesheetData] = useState({
-    weekEnding: '',
-    hours: Array(7).fill(8),
-    notes: ''
-  });
 
-  const [timesheets, setTimesheets] = useState([
-    { weekEnding: 'Jan 12, 2024', regularHours: 40.0, overtimeHours: 2.5, status: 'Approved' },
-    { weekEnding: 'Jan 5, 2024', regularHours: 38.5, overtimeHours: 0.0, status: 'Approved' },
-    { weekEnding: 'Dec 29, 2023', regularHours: 32.0, overtimeHours: 0.0, status: 'Pending' },
-  ]);
 
   const announcements = [
     {
@@ -159,12 +134,7 @@ const EmployeePortal = () => {
   const navigate = useNavigate();
   
   // Helper functions
-  const handleDownloadPayStub = (period: string) => {
-    toast({
-      title: "Download Started",
-      description: `Pay stub for ${period} is being downloaded.`,
-    });
-  };
+
   
   const handleDownloadDocument = (docName: string) => {
     toast({
@@ -173,12 +143,7 @@ const EmployeePortal = () => {
     });
   };
   
-  const handleDownloadTaxDocument = (docName: string) => {
-    toast({
-      title: "Download Started",
-      description: `${docName} is being downloaded.`,
-    });
-  };
+
   
   // Update handlers
   const handleTimeOffSubmit = () => {
@@ -218,38 +183,8 @@ const EmployeePortal = () => {
     setShowDocumentUploadModal(false);
     setDocumentUpload({ name: '', type: '', file: null });
   };
-  const handleBenefitsUpdate = () => {
-    toast({
-      title: "Benefits Updated",
-      description: "Your benefits information has been updated.",
-    });
-    setShowBenefitsModal(false);
-  };
-  const handleTaxInfoUpdate = () => {
-    setTaxInfo({ ...taxInfo }); // Already updated via form binding
-    toast({
-      title: "Tax Information Updated",
-      description: "Your tax information has been updated successfully.",
-    });
-    setShowTaxUpdateModal(false);
-  };
-  const handleTimesheetSubmit = () => {
-    setTimesheets(prev => [
-      {
-        weekEnding: timesheetData.weekEnding,
-        regularHours: timesheetData.hours.reduce((a, b) => a + b, 0),
-        overtimeHours: timesheetData.hours.filter(h => h > 8).reduce((a, b) => a + (b - 8), 0),
-        status: 'Pending',
-      },
-      ...prev,
-    ]);
-    toast({
-      title: "Timesheet Submitted",
-      description: "Your timesheet has been submitted for approval.",
-    });
-    setShowTimesheetModal(false);
-    setTimesheetData({ weekEnding: '', hours: Array(7).fill(8), notes: '' });
-  };
+
+
   
   const handleEventRSVP = (event: any, response: string) => {
     toast({
@@ -324,16 +259,12 @@ const EmployeePortal = () => {
       </div>
 
       <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
           <TabsTrigger value="personal">Personal</TabsTrigger>
-          <TabsTrigger value="benefits">Benefits</TabsTrigger>
-          <TabsTrigger value="pay">Pay</TabsTrigger>
           <TabsTrigger value="timeoff">Time Off</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="taxes">Taxes</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
-          <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
           {userRole === 'manager' && <TabsTrigger value="management">Management</TabsTrigger>}
         </TabsList>
 
@@ -447,140 +378,7 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="benefits">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5" />
-                  <span>Health Benefits</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Medical Plan:</strong> Premium Health Plus</p>
-                  <p><strong>Dental Plan:</strong> Comprehensive Dental</p>
-                  <p><strong>Vision Plan:</strong> Complete Vision Care</p>
-                  <p><strong>Deductible:</strong> $1,500 (Individual)</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowBenefitsModal(true)}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Retirement & Savings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>401(k) Plan:</strong> Enrolled</p>
-                  <p><strong>Contribution:</strong> 8% of salary</p>
-                  <p><strong>Company Match:</strong> 4% (100% match)</p>
-                  <p><strong>Vesting:</strong> Immediate</p>
-                </div>
-                <Button variant="outline" className="w-full">Manage Contributions</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Life & Disability</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Life Insurance:</strong> $250,000</p>
-                  <p><strong>Short-term Disability:</strong> 60% salary</p>
-                  <p><strong>Long-term Disability:</strong> 60% salary</p>
-                </div>
-                <Button variant="outline" className="w-full">View Coverage</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Benefits</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Flexible Spending Account:</strong> $2,500</p>
-                  <p><strong>Employee Assistance Program:</strong> Available</p>
-                  <p><strong>Wellness Program:</strong> Active</p>
-                </div>
-                <Button variant="outline" className="w-full">Enroll in Benefits</Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="pay">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5" />
-                  <span>Pay Information</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">$124,800</p>
-                    <p className="text-sm text-muted-foreground">Annual Salary</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">$10,400</p>
-                    <p className="text-sm text-muted-foreground">Monthly Gross</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">$7,780</p>
-                    <p className="text-sm text-muted-foreground">Monthly Net</p>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-semibold mb-4">Recent Pay Stubs</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Pay Period</TableHead>
-                      <TableHead>Gross Pay</TableHead>
-                      <TableHead>Net Pay</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payStubs.map((stub, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{stub.period}</TableCell>
-                        <TableCell>{stub.grossPay}</TableCell>
-                        <TableCell>{stub.netPay}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{stub.status}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleDownloadPayStub(stub.period)}
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            Download
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
 
         <TabsContent value="timeoff">
           <div className="space-y-6">
@@ -746,76 +544,7 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="taxes">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calculator className="w-5 h-5" />
-                  <span>Tax Documents</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 border rounded">
-                    <span>W-2 Form 2023</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDownloadTaxDocument('W-2 Form 2023')}
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      Download
-                    </Button>
-                  </div>
-                  <div className="flex justify-between items-center p-3 border rounded">
-                    <span>1095-C Form 2023</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDownloadTaxDocument('1095-C Form 2023')}
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      Download
-                    </Button>
-                  </div>
-                  <div className="flex justify-between items-center p-3 border rounded">
-                    <span>Tax Summary 2023</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDownloadTaxDocument('Tax Summary 2023')}
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Tax Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <p><strong>Filing Status:</strong> {taxInfo.filingStatus}</p>
-                  <p><strong>Allowances:</strong> {taxInfo.allowances}</p>
-                  <p><strong>Additional Withholding:</strong> ${taxInfo.additionalWithholding}</p>
-                  <p><strong>State:</strong> {taxInfo.state}</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowTaxUpdateModal(true)}
-                >
-                  Update Tax Information
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
 
         <TabsContent value="onboarding">
           <Card>
@@ -872,61 +601,7 @@ const EmployeePortal = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="timesheets">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center space-x-2">
-                <Clock className="w-5 h-5" />
-                <span>Timesheets</span>
-              </CardTitle>
-              <Button onClick={() => setShowTimesheetModal(true)}>Submit Timesheet</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">{timesheets[0]?.regularHours ?? 0}</p>
-                    <p className="text-sm text-gray-600">Hours This Week</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">{timesheets.reduce((a, t) => a + t.regularHours, 0)}</p>
-                    <p className="text-sm text-gray-600">Hours This Month</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">{timesheets.reduce((a, t) => a + t.overtimeHours, 0)}</p>
-                    <p className="text-sm text-gray-600">Overtime Hours</p>
-                  </div>
-                </div>
 
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Recent Timesheets</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Week Ending</TableHead>
-                        <TableHead>Regular Hours</TableHead>
-                        <TableHead>Overtime Hours</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {timesheets.map((ts, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{ts.weekEnding}</TableCell>
-                          <TableCell>{ts.regularHours}</TableCell>
-                          <TableCell>{ts.overtimeHours}</TableCell>
-                          <TableCell><Badge variant={ts.status === 'Pending' ? 'secondary' : undefined}>{ts.status}</Badge></TableCell>
-                          <TableCell><Button variant="outline" size="sm">View</Button></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {userRole === 'manager' && (
           <TabsContent value="management">
@@ -1243,167 +918,9 @@ const EmployeePortal = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Benefits Details Modal */}
-      <Dialog open={showBenefitsModal} onOpenChange={setShowBenefitsModal}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Benefits Details</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="font-semibold">Medical Benefits</h4>
-                <p className="text-sm text-gray-600">Premium Health Plus Plan</p>
-                <p className="text-sm text-gray-600">Coverage: 90% after deductible</p>
-                <p className="text-sm text-gray-600">Deductible: $1,500 individual</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Dental Benefits</h4>
-                <p className="text-sm text-gray-600">Comprehensive Dental Plan</p>
-                <p className="text-sm text-gray-600">Coverage: 100% preventive, 80% basic</p>
-                <p className="text-sm text-gray-600">Annual maximum: $2,000</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Vision Benefits</h4>
-              <p className="text-sm text-gray-600">Complete Vision Care</p>
-              <p className="text-sm text-gray-600">Coverage: Annual eye exam, frames every 2 years</p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <Button onClick={handleBenefitsUpdate}>
-              Update Benefits
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* Tax Information Update Modal */}
-      <Dialog open={showTaxUpdateModal} onOpenChange={setShowTaxUpdateModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Update Tax Information</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="filingStatus" className="text-right">Filing Status</Label>
-              <Select value={taxInfo.filingStatus} onValueChange={(value) => setTaxInfo({...taxInfo, filingStatus: value})}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Single">Single</SelectItem>
-                  <SelectItem value="Married">Married</SelectItem>
-                  <SelectItem value="Head of Household">Head of Household</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="allowances" className="text-right">Allowances</Label>
-              <Input
-                id="allowances"
-                type="number"
-                className="col-span-3"
-                value={taxInfo.allowances}
-                onChange={(e) => setTaxInfo({...taxInfo, allowances: parseInt(e.target.value)})}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="additionalWithholding" className="text-right">Additional Withholding</Label>
-              <Input
-                id="additionalWithholding"
-                type="number"
-                className="col-span-3"
-                value={taxInfo.additionalWithholding}
-                onChange={(e) => setTaxInfo({...taxInfo, additionalWithholding: parseInt(e.target.value)})}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="state" className="text-right">State</Label>
-              <Select value={taxInfo.state} onValueChange={(value) => setTaxInfo({...taxInfo, state: value})}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="California">California</SelectItem>
-                  <SelectItem value="New York">New York</SelectItem>
-                  <SelectItem value="Texas">Texas</SelectItem>
-                  <SelectItem value="Florida">Florida</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowTaxUpdateModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleTaxInfoUpdate}>
-              Update
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* Timesheet Submission Modal */}
-      <Dialog open={showTimesheetModal} onOpenChange={setShowTimesheetModal}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Submit Timesheet</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="weekEnding" className="text-right">Week Ending</Label>
-              <Input
-                id="weekEnding"
-                type="date"
-                className="col-span-3"
-                value={timesheetData.weekEnding}
-                onChange={(e) => setTimesheetData({...timesheetData, weekEnding: e.target.value})}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Daily Hours</Label>
-              <div className="grid grid-cols-7 gap-2">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
-                  <div key={day} className="space-y-1">
-                    <Label className="text-xs">{day}</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="24"
-                      step="0.5"
-                      value={timesheetData.hours[index]}
-                      onChange={(e) => {
-                        const newHours = [...timesheetData.hours];
-                        newHours[index] = parseFloat(e.target.value) || 0;
-                        setTimesheetData({...timesheetData, hours: newHours});
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="notes" className="text-right">Notes</Label>
-              <Textarea
-                id="notes"
-                className="col-span-3"
-                placeholder="Any additional notes about your timesheet"
-                value={timesheetData.notes}
-                onChange={(e) => setTimesheetData({...timesheetData, notes: e.target.value})}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleTimesheetSubmit}>
-              Submit Timesheet
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+
 
       {/* Event RSVP Modal */}
       <Dialog open={showEventRSVPModal} onOpenChange={setShowEventRSVPModal}>

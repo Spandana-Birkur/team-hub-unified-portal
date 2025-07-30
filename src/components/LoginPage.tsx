@@ -18,7 +18,6 @@ interface LoginFormData {
 const LoginPage = () => {
   const { setUserRole } = useRole();
   const { setProfile } = useUserProfile();
-  const [selectedRole, setSelectedRole] = useState<'employee' | 'hr' | 'manager' | 'it'>('employee');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Restore user data from localStorage on mount
@@ -54,32 +53,7 @@ const LoginPage = () => {
     }
   });
 
-  const roles = [
-    {
-      id: 'employee' as const,
-      title: 'Employee',
-      icon: Users,
-      color: 'bg-blue-500'
-    },
-    {
-      id: 'hr' as const,
-      title: 'HR Manager',
-      icon: UserCheck,
-      color: 'bg-green-500'
-    },
-    {
-      id: 'manager' as const,
-      title: 'Manager',
-      icon: Shield,
-      color: 'bg-purple-500'
-    },
-    {
-      id: 'it' as const,
-      title: 'IT Support',
-      icon: Headphones,
-      color: 'bg-orange-500'
-    }
-  ];
+
 
   const handleSubmit = async (data: LoginFormData) => {
     console.log("CLICK");
@@ -109,7 +83,8 @@ const LoginPage = () => {
       if (result.message != "Error") {
         // alert('Success:' + result.message);
 
-        setUserRole(selectedRole);
+        // Set default role as employee, user can change via dropdown later
+        setUserRole('employee');
         const profileData = {
           firstName: result.firstName,
           lastName: result.lastName,
@@ -124,7 +99,7 @@ const LoginPage = () => {
 
         // Save to localStorage
         localStorage.setItem('userProfile', JSON.stringify(profileData));
-        localStorage.setItem('userRole', selectedRole);
+        localStorage.setItem('userRole', 'employee');
         setIsLoggedIn(true);
       }
 
@@ -254,38 +229,7 @@ const LoginPage = () => {
                 )}
               />
 
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-gray-700">Select your role:</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {roles.map((role) => (
-                    <button
-                      key={role.id}
-                      type="button"
-                      onClick={() => setSelectedRole(role.id)}
-                      className={`p-4 rounded-xl text-center transition-all shadow-lg border-2 relative overflow-hidden group ${
-                        selectedRole === role.id
-                          ? 'border-sky-500 bg-sky-50 text-sky-900 scale-105'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-sky-400 hover:scale-105'
-                      }`}
-                      style={{
-                        boxShadow: selectedRole === role.id
-                          ? "0 0 16px 2px rgba(14,165,233,0.15)"
-                          : "0 2px 8px 0 rgba(14,165,233,0.08)"
-                      }}
-                    >
-                      <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                        style={{
-                          background: selectedRole === role.id
-                            ? "linear-gradient(90deg, rgba(14,165,233,0.08) 0%, rgba(2,132,199,0.08) 100%)"
-                            : "linear-gradient(90deg, rgba(14,165,233,0.04) 0%, rgba(2,132,199,0.04) 100%)"
-                        }}
-                      />
-                      <role.icon className="w-7 h-7 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" />
-                      <div className="text-sm font-semibold">{role.title}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <Button
                 type="submit"

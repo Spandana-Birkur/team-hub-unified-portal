@@ -27,15 +27,15 @@ const CompanySidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
-    { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/pay', icon: DollarSign, label: 'Pay', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'manager'] },
+    { to: '/pay', icon: DollarSign, label: 'Pay', roles: ['employee', 'manager'] },
     { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
-    { to: '/ithelpdesk', icon: Headphones, label: 'IT Helpdesk', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/safety', icon: ShieldCheck, label: 'Employee Safety', roles: ['employee', 'hr', 'manager', 'it'] },
-    { to: '/chatbot', icon: MessageCircle, label: 'AI Chatbot', roles: ['employee', 'hr', 'manager', 'it'] },
+    { to: '/ithelpdesk', icon: Headphones, label: 'Ticketing', roles: ['employee', 'it', 'manager'] },
+    { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'manager'] },
+    { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'manager'] },
+    { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'manager'] },
+    { to: '/safety', icon: ShieldCheck, label: 'Employee Safety', roles: ['employee', 'manager'] },
+    { to: '/chatbot', icon: MessageCircle, label: 'AI Chatbot', roles: ['employee', 'manager'] },
   ];
 
   const bottomNavItems = [

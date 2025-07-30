@@ -233,7 +233,7 @@ const ITHelpdesk = () => {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">IT Helpdesk</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Ticketing</h1>
         <p className="text-muted-foreground">Manage support tickets, assets, and IT infrastructure with advanced tracking.</p>
       </div>
 

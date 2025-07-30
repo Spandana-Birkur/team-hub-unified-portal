@@ -1,76 +1,96 @@
 
-import React from 'react';
-import { useRole } from '@/contexts/RoleContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { ChevronDown, Users, UserCheck, Shield, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Users, UserCheck, Shield, Headphones } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useRole } from '@/contexts/RoleContext';
 
 const RoleSelector = () => {
-  const { setUserRole } = useRole();
+  const { userRole, setUserRole } = useRole();
+  const [isOpen, setIsOpen] = useState(false);
 
   const roles = [
     {
       id: 'employee' as const,
-      title: 'Employee',
-      description: 'Access employee portal, training, and helpdesk',
+      title: 'Employee Access',
       icon: Users,
-      color: 'bg-blue-500'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       id: 'hr' as const,
-      title: 'HR Manager',
-      description: 'Manage employees, benefits, and HR processes',
+      title: 'HR Access',
       icon: UserCheck,
-      color: 'bg-green-500'
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
     },
     {
       id: 'manager' as const,
-      title: 'Manager',
-      description: 'Full system access - manage employees, HR, IT, training, and all company operations',
+      title: 'Manager Access',
       icon: Shield,
-      color: 'bg-purple-500'
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
       id: 'it' as const,
-      title: 'IT Support',
-      description: 'Manage helpdesk and technical support',
+      title: 'IT Access',
       icon: Headphones,
-      color: 'bg-orange-500'
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
     }
   ];
 
+  const currentRole = roles.find(role => role.id === userRole) || roles[0];
+
+  const handleRoleChange = (roleId: 'employee' | 'hr' | 'manager' | 'it') => {
+    setUserRole(roleId);
+    localStorage.setItem('userRole', roleId);
+    setIsOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Company Portal</h1>
-          <p className="text-gray-600">Please select your role to continue</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {roles.map((role) => (
-            <Card key={role.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader className="text-center">
-                <div className={`w-16 h-16 ${role.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  <role.icon className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-lg">{role.title}</CardTitle>
-                <CardDescription className="text-sm">{role.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={() => setUserRole(role.id)}
-                  className="w-full"
-                  variant="outline"
-                >
-                  Select Role
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-lg"
+        >
+          <div className={`p-1 rounded ${currentRole.bgColor}`}>
+            <currentRole.icon className={`w-4 h-4 ${currentRole.color}`} />
+          </div>
+          <span className="text-sm font-medium text-gray-700">
+            {currentRole.title}
+          </span>
+          <ChevronDown className="w-4 h-4 text-gray-500" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {roles.map((role) => (
+          <DropdownMenuItem
+            key={role.id}
+            onClick={() => handleRoleChange(role.id)}
+            className={`flex items-center space-x-3 px-3 py-2 cursor-pointer ${
+              userRole === role.id ? 'bg-gray-100' : 'hover:bg-gray-50'
+            }`}
+          >
+            <div className={`p-1 rounded ${role.bgColor}`}>
+              <role.icon className={`w-4 h-4 ${role.color}`} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-900">
+                {role.title}
+              </span>
+              <span className="text-xs text-gray-500">
+                {role.id === 'hr' && 'HR Portal only'}
+                {role.id === 'it' && 'IT Helpdesk only'}
+                {role.id === 'employee' && 'Employee features + Ticketing'}
+                {role.id === 'manager' && 'Full access'}
+              </span>
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

@@ -54,7 +54,6 @@ const AccessLanding = ({ onProceedToLogin }: AccessLandingProps) => {
               />
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Access</h1>
-                <p className="text-sm text-gray-600">Employee Portal</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">

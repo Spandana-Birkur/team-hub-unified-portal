@@ -265,7 +265,19 @@ const Training = () => {
         const progress = Math.round((completedModules / prevCourse.content.length) * 100);
         const status = progress === 100 ? 'completed' : 'in-progress';
         
-        return { ...prevCourse, content: updatedContent, progress, status };
+        const updatedCourse = { ...prevCourse, content: updatedContent, progress, status };
+        
+        // After completing a module, automatically start the quiz if available
+        if (updatedCourse.quizzes && updatedCourse.quizzes.length > 0) {
+          // Close the course dialog first
+          setCourseDialogOpen(false);
+          // Start the first quiz for this course
+          setTimeout(() => {
+            handleStartQuiz(courseId, updatedCourse.quizzes[0].id);
+          }, 300);
+        }
+        
+        return updatedCourse;
       }
       return prevCourse;
     });
@@ -870,12 +882,39 @@ const Training = () => {
               </div>
               <DialogFooter className="mt-6 flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setActiveQuiz(null)}>Cancel</Button>
-                <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+                {!quizResult ? (
+                  <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+                ) : (
+                  <Button onClick={() => {
+                    setActiveQuiz(null);
+                    setQuizResult(null);
+                    setQuizAnswers({});
+                    // Reopen the course dialog
+                    if (course) {
+                      setSelectedCourse(course);
+                      setCourseDialogOpen(true);
+                    }
+                  }}>
+                    Close and Continue
+                  </Button>
+                )}
               </DialogFooter>
               {quizResult && (
-                <div className="mt-4 text-center">
-                  <p className="font-semibold text-gray-900 dark:text-white">
+                <div className="mt-4 p-4 bg-muted rounded-lg text-center">
+                  <p className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Quiz Results
+                  </p>
+                  <p className="text-lg text-gray-900 dark:text-white">
                     You scored {quizResult.correct} out of {quizResult.total}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {quizResult.correct === quizResult.total ? 
+                      "Excellent! Perfect score!" : 
+                      `${Math.round((quizResult.correct / quizResult.total) * 100)}% - ${
+                        quizResult.correct / quizResult.total >= 0.8 ? "Great job!" : 
+                        quizResult.correct / quizResult.total >= 0.6 ? "Good effort!" : "Keep practicing!"
+                      }`
+                    }
                   </p>
                 </div>
               )}

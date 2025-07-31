@@ -153,83 +153,147 @@ const Pay = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Health Benefits */}
+        
+        
+        {/* Timesheets */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              Health Benefits
+              <Clock className="h-5 w-5" />
+              Timesheets
             </CardTitle>
-            <CardDescription>Manage your health insurance and wellness benefits</CardDescription>
+            <CardDescription>Submit and track your work hours</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Medical Insurance</p>
-                  <p className="text-sm text-gray-600">Blue Cross Blue Shield</p>
+              {timesheets.map((timesheet, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="font-medium">{timesheet.week}</p>
+                    <p className="text-sm text-gray-600">{timesheet.totalHours} hours</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={timesheet.status === 'Approved' ? 'default' : 'secondary'}>
+                      {timesheet.status}
+                    </Badge>
+                  </div>
                 </div>
-                <Badge variant="default">Active</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Dental Insurance</p>
-                  <p className="text-sm text-gray-600">Delta Dental</p>
-                </div>
-                <Badge variant="default">Active</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Vision Insurance</p>
-                  <p className="text-sm text-gray-600">VSP</p>
-                </div>
-                <Badge variant="default">Active</Badge>
-              </div>
+              ))}
             </div>
             
-            <Dialog open={showBenefitsModal} onOpenChange={setShowBenefitsModal}>
+            <Dialog open={showTimesheetModal} onOpenChange={setShowTimesheetModal}>
               <DialogTrigger asChild>
-                <Button className="w-full">Update Benefits</Button>
+                <Button className="w-full">Submit Timesheet</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Update Benefits Information</DialogTitle>
+                  <DialogTitle>Submit Timesheet</DialogTitle>
                   <DialogDescription>
-                    Make changes to your benefits selections
+                    Enter your work hours for the week
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="medical">Medical Plan</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select medical plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">Basic Plan</SelectItem>
-                        <SelectItem value="standard">Standard Plan</SelectItem>
-                        <SelectItem value="premium">Premium Plan</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="week">Week Ending</Label>
+                    <Input 
+                      id="week" 
+                      type="date" 
+                      value={timesheetData.week}
+                      onChange={(e) => setTimesheetData({...timesheetData, week: e.target.value})}
+                    />
                   </div>
+                  
+                  <div className="space-y-3">
+                    <Label>Daily Hours</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="monday">Monday</Label>
+                        <Input 
+                          id="monday" 
+                          type="number" 
+                          value={timesheetData.hours.monday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, monday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="tuesday">Tuesday</Label>
+                        <Input 
+                          id="tuesday" 
+                          type="number" 
+                          value={timesheetData.hours.tuesday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, tuesday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="wednesday">Wednesday</Label>
+                        <Input 
+                          id="wednesday" 
+                          type="number" 
+                          value={timesheetData.hours.wednesday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, wednesday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="thursday">Thursday</Label>
+                        <Input 
+                          id="thursday" 
+                          type="number" 
+                          value={timesheetData.hours.thursday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, thursday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="friday">Friday</Label>
+                        <Input 
+                          id="friday" 
+                          type="number" 
+                          value={timesheetData.hours.friday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, friday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="saturday">Saturday</Label>
+                        <Input 
+                          id="saturday" 
+                          type="number" 
+                          value={timesheetData.hours.saturday}
+                          onChange={(e) => setTimesheetData({
+                            ...timesheetData, 
+                            hours: {...timesheetData.hours, saturday: parseInt(e.target.value)}
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div>
-                    <Label htmlFor="dental">Dental Plan</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select dental plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">Basic Plan</SelectItem>
-                        <SelectItem value="premium">Premium Plan</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea 
+                      id="notes" 
+                      placeholder="Any additional notes..."
+                      value={timesheetData.notes}
+                      onChange={(e) => setTimesheetData({...timesheetData, notes: e.target.value})}
+                    />
                   </div>
+                  
                   <div className="flex gap-2">
-                    <Button onClick={handleBenefitsUpdate}>Save Changes</Button>
-                    <Button variant="outline" onClick={() => setShowBenefitsModal(false)}>
+                    <Button onClick={handleTimesheetSubmit}>Submit Timesheet</Button>
+                    <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
                       Cancel
                     </Button>
                   </div>
@@ -482,145 +546,82 @@ const Pay = () => {
           </CardContent>
         </Card>
 
-        {/* Timesheets */}
+        {/* Health Benefits */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Timesheets
+              <Heart className="h-5 w-5" />
+              Health Benefits
             </CardTitle>
-            <CardDescription>Submit and track your work hours</CardDescription>
+            <CardDescription>Manage your health insurance and wellness benefits</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              {timesheets.map((timesheet, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{timesheet.week}</p>
-                    <p className="text-sm text-gray-600">{timesheet.totalHours} hours</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={timesheet.status === 'Approved' ? 'default' : 'secondary'}>
-                      {timesheet.status}
-                    </Badge>
-                  </div>
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">Medical Insurance</p>
+                  <p className="text-sm text-gray-600">Blue Cross Blue Shield</p>
                 </div>
-              ))}
+                <Badge variant="default">Active</Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">Dental Insurance</p>
+                  <p className="text-sm text-gray-600">Delta Dental</p>
+                </div>
+                <Badge variant="default">Active</Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">Vision Insurance</p>
+                  <p className="text-sm text-gray-600">VSP</p>
+                </div>
+                <Badge variant="default">Active</Badge>
+              </div>
             </div>
             
-            <Dialog open={showTimesheetModal} onOpenChange={setShowTimesheetModal}>
+            <Dialog open={showBenefitsModal} onOpenChange={setShowBenefitsModal}>
               <DialogTrigger asChild>
-                <Button className="w-full">Submit Timesheet</Button>
+                <Button className="w-full">Update Benefits</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Submit Timesheet</DialogTitle>
+                  <DialogTitle>Update Benefits Information</DialogTitle>
                   <DialogDescription>
-                    Enter your work hours for the week
+                    Make changes to your benefits selections
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="week">Week Ending</Label>
-                    <Input 
-                      id="week" 
-                      type="date" 
-                      value={timesheetData.week}
-                      onChange={(e) => setTimesheetData({...timesheetData, week: e.target.value})}
-                    />
+                    <Label htmlFor="medical">Medical Plan</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select medical plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">Basic Plan</SelectItem>
+                        <SelectItem value="standard">Standard Plan</SelectItem>
+                        <SelectItem value="premium">Premium Plan</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <Label>Daily Hours</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="monday">Monday</Label>
-                        <Input 
-                          id="monday" 
-                          type="number" 
-                          value={timesheetData.hours.monday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, monday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="tuesday">Tuesday</Label>
-                        <Input 
-                          id="tuesday" 
-                          type="number" 
-                          value={timesheetData.hours.tuesday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, tuesday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="wednesday">Wednesday</Label>
-                        <Input 
-                          id="wednesday" 
-                          type="number" 
-                          value={timesheetData.hours.wednesday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, wednesday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="thursday">Thursday</Label>
-                        <Input 
-                          id="thursday" 
-                          type="number" 
-                          value={timesheetData.hours.thursday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, thursday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="friday">Friday</Label>
-                        <Input 
-                          id="friday" 
-                          type="number" 
-                          value={timesheetData.hours.friday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, friday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="saturday">Saturday</Label>
-                        <Input 
-                          id="saturday" 
-                          type="number" 
-                          value={timesheetData.hours.saturday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, saturday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
                   <div>
-                    <Label htmlFor="notes">Notes</Label>
-                    <Textarea 
-                      id="notes" 
-                      placeholder="Any additional notes..."
-                      value={timesheetData.notes}
-                      onChange={(e) => setTimesheetData({...timesheetData, notes: e.target.value})}
-                    />
+                    <Label htmlFor="dental">Dental Plan</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select dental plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">Basic Plan</SelectItem>
+                        <SelectItem value="premium">Premium Plan</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  
                   <div className="flex gap-2">
-                    <Button onClick={handleTimesheetSubmit}>Submit Timesheet</Button>
-                    <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
+                    <Button onClick={handleBenefitsUpdate}>Save Changes</Button>
+                    <Button variant="outline" onClick={() => setShowBenefitsModal(false)}>
                       Cancel
                     </Button>
                   </div>
@@ -629,6 +630,7 @@ const Pay = () => {
             </Dialog>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );

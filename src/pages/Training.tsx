@@ -32,6 +32,26 @@ const Training = () => {
         { id: 2, title: 'Password Security Best Practices', duration: '45 min', completed: false },
         { id: 3, title: 'Phishing Awareness', duration: '60 min', completed: false },
         { id: 4, title: 'Data Protection Guidelines', duration: '45 min', completed: false }
+      ],
+      quizzes: [
+        {
+          id: 1,
+          title: 'Cybersecurity Basics Quiz',
+          questions: [
+            {
+              id: 1,
+              question: 'What is phishing?',
+              options: ['A type of malware', 'A social engineering attack', 'A firewall', 'A password manager'],
+              answer: 1
+            },
+            {
+              id: 2,
+              question: 'Which is a strong password?',
+              options: ['password123', 'qwerty', 'MyDog$2024!', '123456'],
+              answer: 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -51,6 +71,26 @@ const Training = () => {
         { id: 2, title: 'Risk Management', duration: '60 min', completed: true },
         { id: 3, title: 'Team Communication', duration: '45 min', completed: false },
         { id: 4, title: 'Project Monitoring', duration: '45 min', completed: false }
+      ],
+      quizzes: [
+        {
+          id: 1,
+          title: 'Project Management Quiz',
+          questions: [
+            {
+              id: 1,
+              question: 'What does a Gantt chart represent?',
+              options: ['Project schedule', 'Budget allocation', 'Risk assessment', 'Quality control'],
+              answer: 0
+            },
+            {
+              id: 2,
+              question: 'Which is a key benefit of effective communication in project management?',
+              options: ['Increased costs', 'Delayed timelines', 'Enhanced collaboration', 'Scope creep'],
+              answer: 2
+            }
+          ]
+        }
       ]
     },
     {
@@ -70,6 +110,26 @@ const Training = () => {
         { id: 2, title: 'Data Analysis Tools', duration: '45 min', completed: true },
         { id: 3, title: 'Pivot Tables', duration: '45 min', completed: true },
         { id: 4, title: 'Macros and Automation', duration: '30 min', completed: true }
+      ],
+      quizzes: [
+        {
+          id: 1,
+          title: 'Excel Advanced Functions Quiz',
+          questions: [
+            {
+              id: 1,
+              question: 'What does the VLOOKUP function do?',
+              options: ['Looks up values vertically', 'Calculates the average of a range', 'Counts the number of cells', 'Finds the maximum value'],
+              answer: 0
+            },
+            {
+              id: 2,
+              question: 'How can you protect a worksheet from being edited?',
+              options: ['By hiding the sheet', 'By protecting it with a password', 'By making it read-only', 'By encrypting the file'],
+              answer: 1
+            }
+          ]
+        }
       ]
     },
     {
@@ -89,6 +149,26 @@ const Training = () => {
         { id: 2, title: 'Effective Communication', duration: '75 min', completed: false },
         { id: 3, title: 'Conflict Resolution', duration: '60 min', completed: false },
         { id: 4, title: 'Team Building', duration: '45 min', completed: false }
+      ],
+      quizzes: [
+        {
+          id: 1,
+          title: 'Leadership and Communication Quiz',
+          questions: [
+            {
+              id: 1,
+              question: 'What is the primary focus of servant leadership?',
+              options: ['Achieving results', 'Meeting organizational goals', 'Serving the needs of the team', 'Maintaining authority'],
+              answer: 2
+            },
+            {
+              id: 2,
+              question: 'Which is a key component of effective communication?',
+              options: ['Using complex language', 'Speaking loudly', 'Active listening', 'Avoiding eye contact'],
+              answer: 2
+            }
+          ]
+        }
       ]
     }
   ]);
@@ -99,6 +179,9 @@ const Training = () => {
   const [certificateDialogOpen, setCertificateDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<any>(null);
   const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<{ courseId: number; quizId: number } | null>(null);
+  const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
+  const [quizResult, setQuizResult] = useState<{ correct: number; total: number } | null>(null);
 
   const achievements = [
     { title: 'First Course Completed', date: '2024-01-10', icon: Award, color: 'bg-yellow-500' },
@@ -138,10 +221,10 @@ const Training = () => {
 
   const confirmEnrollment = () => {
     if (selectedCourse) {
-      setCourses(prevCourses => 
-        prevCourses.map(course => 
-          course.id === selectedCourse.id 
-            ? { ...course, status: 'in-progress', progress: 0 }
+      setCourses(prevCourses =>
+        prevCourses.map(course =>
+          course.id === selectedCourse.id
+            ? { ...course, status: 'in-progress', progress: 0, content: course.content.map(m => ({ ...m, completed: false })) }
             : course
         )
       );
@@ -193,6 +276,28 @@ const Training = () => {
     setCertificateDialogOpen(true);
   };
 
+  const handleStartQuiz = (courseId: number, quizId: number) => {
+    setActiveQuiz({ courseId, quizId });
+    setQuizAnswers({});
+    setQuizResult(null);
+  };
+
+  const handleQuizAnswer = (questionId: number, optionIdx: number) => {
+    setQuizAnswers((prev) => ({ ...prev, [questionId]: optionIdx }));
+  };
+
+  const handleSubmitQuiz = () => {
+    if (!activeQuiz) return;
+    const course = courses.find((c) => c.id === activeQuiz.courseId);
+    const quiz = course?.quizzes?.find((q) => q.id === activeQuiz.quizId);
+    if (!quiz) return;
+    let correct = 0;
+    quiz.questions.forEach((q) => {
+      if (quizAnswers[q.id] === q.answer) correct++;
+    });
+    setQuizResult({ correct, total: quiz.questions.length });
+  };
+
   const enrolledCourses = courses.filter(course => course.status !== 'available');
   const completedCourses = courses.filter(course => course.status === 'completed');
 
@@ -237,8 +342,8 @@ const Training = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
-                      <p className="text-sm text-muted-foreground mb-3">{course.description}</p>
+                      <CardTitle className="text-lg mb-2 text-gray-900 dark:text-white">{course.title}</CardTitle>
+                      <p className="text-sm text-gray-900 dark:text-white mb-3">{course.description}</p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                         <span className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
@@ -266,7 +371,7 @@ const Training = () => {
                       <Badge variant="outline">{course.category}</Badge>
                     </div>
                     
-                    {course.progress > 0 && (
+                    {course.status !== 'available' && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span>Progress</span>
@@ -301,6 +406,24 @@ const Training = () => {
                         </span>
                       </Button>
                     </div>
+
+                    {/* Quiz Section - New Code Added Here */}
+                    {course.quizzes && course.quizzes.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Quiz</h5>
+                        {course.quizzes.map((quiz) => (
+                          <Button
+                            key={quiz.id}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleStartQuiz(course.id, quiz.id)}
+                            className="mb-2"
+                          >
+                            Take "{quiz.title}"
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -713,6 +836,53 @@ const Training = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Quiz Modal */}
+      {activeQuiz && (() => {
+        const course = courses.find((c) => c.id === activeQuiz.courseId);
+        const quiz = course?.quizzes?.find((q) => q.id === activeQuiz.quizId);
+        if (!quiz) return null;
+        return (
+          <Dialog open={true} onOpenChange={() => setActiveQuiz(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="text-gray-900 dark:text-white">{quiz.title}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 mt-4">
+                {quiz.questions.map((q) => (
+                  <div key={q.id}>
+                    <p className="font-medium text-gray-900 dark:text-white mb-2">{q.question}</p>
+                    <div className="space-y-2">
+                      {q.options.map((opt, idx) => (
+                        <label key={idx} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`quiz-q${q.id}`}
+                            checked={quizAnswers[q.id] === idx}
+                            onChange={() => handleQuizAnswer(q.id, idx)}
+                          />
+                          <span className="text-gray-900 dark:text-white">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <DialogFooter className="mt-6 flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setActiveQuiz(null)}>Cancel</Button>
+                <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+              </DialogFooter>
+              {quizResult && (
+                <div className="mt-4 text-center">
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    You scored {quizResult.correct} out of {quizResult.total}
+                  </p>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </div>
   );
 };

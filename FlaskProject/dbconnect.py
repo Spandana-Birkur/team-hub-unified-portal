@@ -174,3 +174,30 @@ def getEmployeeByID(id):
         print("Error fetching employee: ", e)
         return None
     return employee
+
+def getTeammatesByID(id):
+    teammates = []
+    try:
+        connection = pyodbc.connect(
+            f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+        cursor = connection.cursor()
+        query = "SELECT * FROM EMPLOYEES WHERE Department = (SELECT Department FROM EMPLOYEES WHERE EmployeeID = ? ) AND ManagerID = (SELECT ManagerID FROM EMPLOYEES WHERE EmployeeID = ?)"
+        cursor.execute(query, (id, id))
+        rows = cursor.fetchall()
+
+        for row in rows:
+            if row[0] != id:  # Exclude the employee themselves
+                employee = Employee()
+                employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+                teammates.append(employee)
+        cursor.close()
+        connection.close()
+    except pyodbc.Error as e:
+        print("Error fetching teammates: ", e)
+    return teammates
+
+
+if __name__ == "__main__":
+    employees = getTeammatesByID(26)
+    for emp in employees:
+        print(emp.toDict())

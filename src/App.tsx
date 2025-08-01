@@ -15,7 +15,6 @@ import CompanySidebar from "./components/CompanySidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EmployeePortal from "./pages/EmployeePortal";
 import Pay from "./pages/Pay";
-import HRManagement from "./pages/HRManagement";
 import Training from "./pages/Training";
 import Calendar from "./pages/Calendar";
 import Notifications from "./pages/Notifications";
@@ -25,8 +24,23 @@ import LoginPage from "./components/LoginPage";
 import Documents from "./pages/Documents";
 import EmployeeSafetyConduct from "./pages/EmployeeSafetyConduct";
 import Chatbot from "./pages/Chatbot";
-import ITHelpdesk from './pages/ITHelpdesk';
 
+// HR Pages
+import EmployeeDirectory from "./pages/HR/EmployeeDirectory";
+import LeaveManagement from "./pages/HR/LeaveManagement";
+import PerformanceManagement from "./pages/HR/PerformanceManagement";
+import FeedbackReports from "./pages/HR/FeedbackReports";
+import HRAnnouncements from "./pages/HR/HRAnnouncements";
+import HRDocuments from "./pages/HR/HRDocuments";
+import ManagerTools from "./pages/HR/ManagerTools";
+
+// IT Pages
+import SupportTickets from "./pages/IT/SupportTickets";
+import SLAEscalation from "./pages/IT/SLAEscalation";
+import TeamAssignment from "./pages/IT/TeamAssignment";
+import AssetManagement from "./pages/IT/AssetManagement";
+import KnowledgeBase from "./pages/IT/KnowledgeBase";
+import AssetLifecyclePage from "./pages/IT/AssetLifecycle";
 
 const queryClient = new QueryClient();
 
@@ -42,29 +56,13 @@ const AppContent = () => {
       case 'employee':
         return '/employee';
       case 'hr':
-        return '/hr';
+        return '/hr/employees';
       case 'manager':
-        return '/hr';
+        return '/hr/employees';
       case 'it':
-        return '/ithelpdesk';
+        return '/ithelpdesk/tickets';
       default:
         return '/employee';
-    }
-  };
-
-  // Role-based route restrictions
-  const getAccessibleRoutes = () => {
-    switch (userRole) {
-      case 'hr':
-        return ['/hr'];
-      case 'it':
-        return ['/ithelpdesk'];
-      case 'employee':
-        return ['/employee', '/pay', '/training', '/calendar', '/documents', '/safety', '/chatbot', '/ithelpdesk'];
-      case 'manager':
-        return ['/employee', '/pay', '/hr', '/training', '/calendar', '/documents', '/safety', '/chatbot', '/ithelpdesk'];
-      default:
-        return ['/employee'];
     }
   };
 
@@ -90,11 +88,76 @@ const AppContent = () => {
                 <Pay />
               </ProtectedRoute>
             } />
-            <Route path="/hr" element={
+            
+            {/* HR Routes */}
+            <Route path="/hr/employees" element={
               <ProtectedRoute requiredRoles={['hr', 'manager']}>
-                <HRManagement />
+                <EmployeeDirectory />
               </ProtectedRoute>
             } />
+            <Route path="/hr/leave" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <LeaveManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/performance" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <PerformanceManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/feedback" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <FeedbackReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/announcements" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <HRAnnouncements />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/documents" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <HRDocuments />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/manager-tools" element={
+              <ProtectedRoute requiredRoles={['manager']}>
+                <ManagerTools />
+              </ProtectedRoute>
+            } />
+            
+            {/* IT Routes */}
+            <Route path="/ithelpdesk/tickets" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <SupportTickets />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk/escalation" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <SLAEscalation />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk/assignment" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <TeamAssignment />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk/assets" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <AssetManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk/lifecycle" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <AssetLifecyclePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/ithelpdesk/knowledge" element={
+              <ProtectedRoute requiredRoles={['it', 'manager']}>
+                <KnowledgeBase />
+              </ProtectedRoute>
+            } />
+            
             <Route path="/training" element={
               <ProtectedRoute requiredRoles={['employee', 'manager']}>
                 <Training />
@@ -103,11 +166,6 @@ const AppContent = () => {
             <Route path="/calendar" element={
               <ProtectedRoute requiredRoles={['employee', 'manager']}>
                 <Calendar />
-              </ProtectedRoute>
-            } />
-            <Route path="/ithelpdesk" element={
-              <ProtectedRoute requiredRoles={['employee', 'it', 'manager']}>
-                <ITHelpdesk />
               </ProtectedRoute>
             } />
             <Route path="/notifications" element={

@@ -407,21 +407,33 @@ const Training = () => {
                       </Button>
                     </div>
 
-                    {/* Quiz Section - New Code Added Here */}
+                    {/* Enhanced Quiz Section */}
                     {course.quizzes && course.quizzes.length > 0 && (
-                      <div className="mt-4">
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Quiz</h5>
-                        {course.quizzes.map((quiz) => (
-                          <Button
-                            key={quiz.id}
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStartQuiz(course.id, quiz.id)}
-                            className="mb-2"
-                          >
-                            Take "{quiz.title}"
-                          </Button>
-                        ))}
+                      <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border">
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
+                          <CheckCircle className="w-4 h-4 mr-2 text-blue-500" />
+                          Knowledge Assessment
+                        </h5>
+                        <div className="space-y-2">
+                          {course.quizzes.map((quiz) => (
+                            <div key={quiz.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border">
+                              <div>
+                                <p className="font-medium text-sm text-gray-900 dark:text-white">{quiz.title}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {quiz.questions.length} questions • Test your knowledge
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => handleStartQuiz(course.id, quiz.id)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                <Star className="w-3 h-3 mr-1" />
+                                Take Quiz
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

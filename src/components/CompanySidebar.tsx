@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 import { 
@@ -15,11 +15,20 @@ import {
   MessageCircle,
   ChevronLeft,
   ChevronRight,
-  DollarSign
+  DollarSign,
+  UserPlus,
+  FileSpreadsheet,
+  Award,
+  Megaphone,
+  FolderOpen,
+  Clock,
+  TrendingUp,
+  Laptop,
+  History,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { useState } from 'react';
 
 const CompanySidebar = () => {
   const { userRole, logout, hasAccess } = useRole();
@@ -29,8 +38,19 @@ const CompanySidebar = () => {
   const navItems = [
     { to: '/employee', icon: Home, label: 'Employee Portal', roles: ['employee', 'manager'] },
     { to: '/pay', icon: DollarSign, label: 'Pay', roles: ['employee', 'manager'] },
-    { to: '/hr', icon: UserCheck, label: 'HR Management', roles: ['hr', 'manager'] },
-    { to: '/ithelpdesk', icon: Headphones, label: 'Ticketing', roles: ['employee', 'it', 'manager'] },
+    { to: '/hr/employees', icon: Users, label: 'Employee Directory', roles: ['hr', 'manager'] },
+    { to: '/hr/leave', icon: Clock, label: 'Leave Management', roles: ['hr', 'manager'] },
+    { to: '/hr/performance', icon: Award, label: 'Performance Management', roles: ['hr', 'manager'] },
+    { to: '/hr/feedback', icon: FileSpreadsheet, label: 'Feedback Reports', roles: ['hr', 'manager'] },
+    { to: '/hr/announcements', icon: Megaphone, label: 'Announcements', roles: ['hr', 'manager'] },
+    { to: '/hr/documents', icon: FolderOpen, label: 'HR Documents', roles: ['hr', 'manager'] },
+    { to: '/hr/manager-tools', icon: UserPlus, label: 'Manager Tools', roles: ['manager'] },
+    { to: '/ithelpdesk/tickets', icon: Headphones, label: 'Support Tickets', roles: ['it', 'manager'] },
+    { to: '/ithelpdesk/escalation', icon: TrendingUp, label: 'SLA & Escalation', roles: ['it', 'manager'] },
+    { to: '/ithelpdesk/assignment', icon: Users, label: 'Team Assignment', roles: ['it', 'manager'] },
+    { to: '/ithelpdesk/assets', icon: Laptop, label: 'Asset Management', roles: ['it', 'manager'] },
+    { to: '/ithelpdesk/lifecycle', icon: History, label: 'Asset Lifecycle', roles: ['it', 'manager'] },
+    { to: '/ithelpdesk/knowledge', icon: Shield, label: 'Knowledge Base', roles: ['it', 'manager'] },
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee', 'manager'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee', 'manager'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee', 'manager'] },
@@ -106,7 +126,7 @@ const CompanySidebar = () => {
         )}
       </div>
       
-      <nav className="flex-1 px-2">
+      <nav className="flex-1 px-2 overflow-y-auto">
         <ul className="space-y-2">
           {visibleNavItems.map((item) => (
             <li key={item.to}>
@@ -173,19 +193,6 @@ const CompanySidebar = () => {
                 {!isCollapsed && <span>Logout</span>}
               </Button>
             </li>
-           {/* Logout Confirmation Dialog */}
-           <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-             <DialogContent>
-               <DialogHeader>
-                 <DialogTitle>Confirm Logout</DialogTitle>
-               </DialogHeader>
-               <p>Are you sure you want to log out?</p>
-               <DialogFooter>
-                 <Button onClick={cancelLogout} className="bg-gray-200 text-gray-800 hover:bg-gray-300">Cancel</Button>
-                 <Button onClick={confirmLogout} className="bg-red-600 text-white hover:bg-red-700">Log out</Button>
-               </DialogFooter>
-             </DialogContent>
-           </Dialog>
           </ul>
         </div>
       </nav>
@@ -200,6 +207,20 @@ const CompanySidebar = () => {
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </Button>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Logout</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to log out?</p>
+          <DialogFooter>
+            <Button onClick={cancelLogout} className="bg-gray-200 text-gray-800 hover:bg-gray-300">Cancel</Button>
+            <Button onClick={confirmLogout} className="bg-red-600 text-white hover:bg-red-700">Log out</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -4,10 +4,12 @@ import { ChevronDown, Users, UserCheck, Shield, Headphones } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useRole } from '@/contexts/RoleContext';
+import { useNavigate } from 'react-router-dom';
 
 const RoleSelector = () => {
   const { userRole, setUserRole } = useRole();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const roles = [
     {
@@ -42,10 +44,29 @@ const RoleSelector = () => {
 
   const currentRole = roles.find(role => role.id === userRole) || roles[0];
 
+  const getDefaultRoute = (role: 'employee' | 'hr' | 'manager' | 'it') => {
+    switch (role) {
+      case 'employee':
+        return '/employee';
+      case 'hr':
+        return '/hr/employees';
+      case 'manager':
+        return '/hr/employees';
+      case 'it':
+        return '/ithelpdesk/tickets';
+      default:
+        return '/employee';
+    }
+  };
+
   const handleRoleChange = (roleId: 'employee' | 'hr' | 'manager' | 'it') => {
     setUserRole(roleId);
     localStorage.setItem('userRole', roleId);
     setIsOpen(false);
+    
+    // Navigate to the default route for the new role
+    const defaultRoute = getDefaultRoute(roleId);
+    navigate(defaultRoute);
   };
 
   return (

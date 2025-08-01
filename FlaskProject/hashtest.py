@@ -162,7 +162,17 @@ def Authenticate(email, pw):
             return False
         
         # Extract user data
-        employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, stored_pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+        employee.ID = row[0]
+        employee.firstName = row[1]
+        employee.lastName = row[2]
+        employee.department = row[3]
+        employee.role = row[4]
+        employee.gender = row[5]
+        stored_pword = row[6]
+        employee.email = row[7]
+        employee.phoneNumber = row[8]
+        employee.bio = row[9]
+        employee.ManagerID = row[10]
         
         # Remove trailing spaces from stored password
         stored_pword = stored_pword.strip() if stored_pword else ""
@@ -187,4 +197,3 @@ def Authenticate(email, pw):
         if 'connection' in locals():
             connection.close()
         return False
-

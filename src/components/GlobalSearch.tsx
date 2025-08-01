@@ -163,8 +163,8 @@ const GlobalSearch: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-      <div className="fixed left-[50%] top-[20%] z-50 grid w-full max-w-lg translate-x-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg">
+    <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
+      <div className="fixed left-[50%] top-[20%] z-50 grid w-full max-w-lg translate-x-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 sm:rounded-lg">
         <div className="flex items-center gap-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input

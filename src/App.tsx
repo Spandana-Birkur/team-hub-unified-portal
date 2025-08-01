@@ -68,14 +68,12 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--background))' }}>
+    <div className="min-h-screen bg-background">
       <CompanyHeader />
       <div className="flex">
         <CompanySidebar />
-        <main className="flex-1 transition-all duration-300 ease-in-out" style={{ 
-          marginLeft: 'var(--sidebar-width, 256px)',
-          backgroundColor: 'hsl(var(--background))',
-          color: 'hsl(var(--foreground))'
+        <main className="flex-1 transition-all duration-300 ease-in-out bg-background text-foreground" style={{ 
+          marginLeft: 'var(--sidebar-width, 256px)'
         }}>
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { employees } from '@/data/employees';
-import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
+import { useLeaveRequests, LeaveRequest } from '@/contexts/LeaveRequestContext';
 import { useRole } from '@/contexts/RoleContext';
 import { 
   Users, 
@@ -18,7 +18,7 @@ import {
 const LeaveManagement = () => {
   const { leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useLeaveRequests();
   const { userRole } = useRole();
-  const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<any>(null);
+  const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<LeaveRequest | null>(null);
   const [leaveRequestDetailModalOpen, setLeaveRequestDetailModalOpen] = useState(false);
 
   const pendingLeaveCount = leaveRequests.filter(request => request.status === 'pending').length;
@@ -82,7 +82,7 @@ const LeaveManagement = () => {
     }
   };
 
-  const handleViewLeaveRequest = (request: any) => {
+  const handleViewLeaveRequest = (request: LeaveRequest) => {
     setSelectedLeaveRequest(request);
     setLeaveRequestDetailModalOpen(true);
   };

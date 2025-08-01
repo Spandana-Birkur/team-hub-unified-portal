@@ -48,7 +48,14 @@ def getTickets():
         # print results
         for row in rows:
             newTicket = Ticket()
-            newTicket.ticketId, newTicket.employeeId, newTicket.title, newTicket.body, newTicket.createdDate, newTicket.priority, newTicket.status, newTicket.category = row
+            newTicket.ticketId = row[0]
+            newTicket.employeeId = row[1]
+            newTicket.title = row[2]
+            newTicket.body = row[3]
+            newTicket.createdDate = row[4]
+            newTicket.priority = row[5]
+            newTicket.status = row[6]
+            newTicket.category = row[7]
             print(row)
             tickets.append(newTicket)
 
@@ -80,7 +87,15 @@ def getTicketById(ticketId):
         cursor.execute(query, ticketId)
         row = cursor.fetchone()
         if row:
-            ticket = Ticket(*row)
+            ticket = Ticket()
+            ticket.ticketId = row[0]
+            ticket.employeeId = row[1]
+            ticket.title = row[2]
+            ticket.body = row[3]
+            ticket.createdDate = row[4]
+            ticket.priority = row[5]
+            ticket.status = row[6]
+            ticket.category = row[7]
             print(ticket.toString())
             return ticket
         else:
@@ -108,7 +123,15 @@ def getTicketsByEmployeeId(employeeId):
         rows = cursor.fetchall()
 
         for row in rows:
-            ticket = Ticket(*row)
+            ticket = Ticket()
+            ticket.ticketId = row[0]
+            ticket.employeeId = row[1]
+            ticket.title = row[2]
+            ticket.body = row[3]
+            ticket.createdDate = row[4]
+            ticket.priority = row[5]
+            ticket.status = row[6]
+            ticket.category = row[7]
             tickets.append(ticket)
 
         cursor.close()
@@ -159,4 +182,3 @@ def deleteTicket(ticketId):
     finally:
         cursor.close()
         connection.close()
-

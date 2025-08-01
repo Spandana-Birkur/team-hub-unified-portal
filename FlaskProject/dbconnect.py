@@ -67,7 +67,17 @@ def parseDB():
         # print results
         for row in rows:
             newEmployee = Employee()
-            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID = row
+            newEmployee.ID = row[0]
+            newEmployee.firstName = row[1]
+            newEmployee.lastName = row[2]
+            newEmployee.department = row[3]
+            newEmployee.role = row[4]
+            newEmployee.gender = row[5]
+            newEmployee.pword = row[6]
+            newEmployee.email = row[7]
+            newEmployee.phoneNumber = row[8]
+            newEmployee.bio = row[9]
+            newEmployee.ManagerID = row[10]
             print(row)
             employees.append(newEmployee)
 
@@ -113,19 +123,17 @@ def getSubordinates(id):
 
         for row in rows:
             newEmployee = Employee() # getEmployeeByID(row[0])
-            (
-                newEmployee.ID,
-                newEmployee.firstName,
-                newEmployee.lastName,
-                newEmployee.department,
-                newEmployee.role,
-                newEmployee.gender,
-                newEmployee.pword,
-                newEmployee.email,
-                newEmployee.phoneNumber,
-                newEmployee.bio,
-                newEmployee.ManagerID
-            ) = row
+            newEmployee.ID = row[0]
+            newEmployee.firstName = row[1]
+            newEmployee.lastName = row[2]
+            newEmployee.department = row[3]
+            newEmployee.role = row[4]
+            newEmployee.gender = row[5]
+            newEmployee.pword = row[6]
+            newEmployee.email = row[7]
+            newEmployee.phoneNumber = row[8]
+            newEmployee.bio = row[9]
+            newEmployee.ManagerID = row[10]
             print(f"New subordinate added: {newEmployee.toString()}")
             subordinates.append(newEmployee)
         cursor.close()
@@ -167,7 +175,17 @@ def getEmployeeByID(id):
         row = cursor.fetchone()
 
         if row:
-            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+            employee.ID = row[0]
+            employee.firstName = row[1]
+            employee.lastName = row[2]
+            employee.department = row[3]
+            employee.role = row[4]
+            employee.gender = row[5]
+            employee.pword = row[6]
+            employee.email = row[7]
+            employee.phoneNumber = row[8]
+            employee.bio = row[9]
+            employee.ManagerID = row[10]
         cursor.close()
         connection.close()
     except pyodbc.Error as e:
@@ -188,7 +206,17 @@ def getTeammatesByID(id):
         for row in rows:
             if row[0] != id:  # Exclude the employee themselves
                 employee = Employee()
-                employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+                employee.ID = row[0]
+                employee.firstName = row[1]
+                employee.lastName = row[2]
+                employee.department = row[3]
+                employee.role = row[4]
+                employee.gender = row[5]
+                employee.pword = row[6]
+                employee.email = row[7]
+                employee.phoneNumber = row[8]
+                employee.bio = row[9]
+                employee.ManagerID = row[10]
                 teammates.append(employee)
         cursor.close()
         connection.close()

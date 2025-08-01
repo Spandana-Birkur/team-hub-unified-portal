@@ -4,7 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, Clock, TrendingUp, Bell } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertTriangle, Clock, TrendingUp, Bell, MessageSquare, CheckCircle } from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -19,14 +23,25 @@ interface Ticket {
   team: string;
   escalated: boolean;
   description: string;
+  resolutionNotes?: string;
+  updatedAt?: string;
 }
 
 interface TicketEscalationProps {
   tickets: Ticket[];
 }
 
-const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
+const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets: initialTickets }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
+  const [escalationModalOpen, setEscalationModalOpen] = useState(false);
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [escalationReason, setEscalationReason] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [updateNotes, setUpdateNotes] = useState('');
+  const [escalationLevel, setEscalationLevel] = useState('level1');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -72,6 +87,73 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
     return { color: 'text-green-600', bg: 'bg-green-100', label: 'On Track' };
   };
 
+  const handleEscalate = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setEscalationModalOpen(true);
+  };
+
+  const handleSubmitEscalation = () => {
+    if (selectedTicket && escalationReason) {
+      setTickets(prev => prev.map(ticket => 
+        ticket.id === selectedTicket.id 
+          ? { 
+              ...ticket, 
+              escalated: true, 
+              status: 'escalated',
+              updatedAt: new Date().toISOString()
+            }
+          : ticket
+      ));
+      setEscalationModalOpen(false);
+      setEscalationReason('');
+      setSelectedTicket(null);
+      setEscalationLevel('level1');
+    }
+  };
+
+  const handleNotify = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setNotificationMessage(`Urgent: Ticket ${ticket.id} requires immediate attention. SLA deadline: ${getTimeRemaining(ticket.slaDeadline)}`);
+    setNotificationModalOpen(true);
+  };
+
+  const handleSubmitNotification = () => {
+    if (selectedTicket && notificationMessage) {
+      // In a real app, this would send the notification
+      console.log('Notification sent:', {
+        ticket: selectedTicket.id,
+        message: notificationMessage,
+        timestamp: new Date().toISOString()
+      });
+      setNotificationModalOpen(false);
+      setNotificationMessage('');
+      setSelectedTicket(null);
+    }
+  };
+
+  const handleUpdate = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setUpdateNotes(ticket.resolutionNotes || '');
+    setUpdateModalOpen(true);
+  };
+
+  const handleSubmitUpdate = () => {
+    if (selectedTicket && updateNotes) {
+      setTickets(prev => prev.map(ticket => 
+        ticket.id === selectedTicket.id 
+          ? { 
+              ...ticket, 
+              resolutionNotes: updateNotes,
+              updatedAt: new Date().toISOString()
+            }
+          : ticket
+      ));
+      setUpdateModalOpen(false);
+      setUpdateNotes('');
+      setSelectedTicket(null);
+    }
+  };
+
   const activeTickets = tickets.filter(ticket => ticket.status !== 'resolved');
   const escalatedTickets = tickets.filter(ticket => ticket.escalated);
   const overdueTickets = activeTickets.filter(ticket => getTimeRemaining(ticket.slaDeadline) === 'Overdue');
@@ -110,7 +192,7 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">SLA Compliance</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {Math.round(((activeTickets.length - overdueTickets.length) / activeTickets.length) * 100)}%
+                  {activeTickets.length > 0 ? Math.round(((activeTickets.length - overdueTickets.length) / activeTickets.length) * 100) : 100}%
                 </p>
               </div>
               <Clock className="w-8 h-8 text-green-500" />
@@ -179,24 +261,204 @@ const TicketEscalation: React.FC<TicketEscalationProps> = ({ tickets }) => {
                     </div>
                     <div className="flex space-x-2">
                       {!ticket.escalated && progress >= 80 && (
-                        <Button size="sm" variant="outline" className="text-orange-600 hover:text-orange-700">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-orange-600 hover:text-orange-700"
+                          onClick={() => handleEscalate(ticket)}
+                        >
                           <TrendingUp className="w-3 h-3 mr-1" />
                           Escalate
                         </Button>
                       )}
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleNotify(ticket)}
+                      >
                         <Bell className="w-3 h-3 mr-1" />
                         Notify
                       </Button>
-                      <Button size="sm">Update</Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => handleUpdate(ticket)}
+                      >
+                        <MessageSquare className="w-3 h-3 mr-1" />
+                        Update
+                      </Button>
                     </div>
                   </div>
+                  
+                  {ticket.resolutionNotes && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-700">
+                        <strong>Latest Update:</strong> {ticket.resolutionNotes}
+                      </p>
+                      {ticket.updatedAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Updated: {new Date(ticket.updatedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </CardContent>
       </Card>
+
+      {/* Escalation Modal */}
+      <Dialog open={escalationModalOpen} onOpenChange={setEscalationModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <TrendingUp className="w-5 h-5" />
+              <span>Escalate Ticket</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedTicket && (
+              <div className="p-3 bg-orange-50 rounded-lg">
+                <p className="text-sm font-medium">Ticket: {selectedTicket.id}</p>
+                <p className="text-sm text-gray-600">{selectedTicket.title}</p>
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="escalation-level">Escalation Level</Label>
+              <Select value={escalationLevel} onValueChange={setEscalationLevel}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="level1">Level 1 - Team Lead</SelectItem>
+                  <SelectItem value="level2">Level 2 - Manager</SelectItem>
+                  <SelectItem value="level3">Level 3 - Director</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="escalation-reason">Reason for Escalation</Label>
+              <Textarea 
+                id="escalation-reason"
+                rows={3}
+                placeholder="Explain why this ticket needs to be escalated..."
+                value={escalationReason}
+                onChange={(e) => setEscalationReason(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setEscalationModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmitEscalation} 
+                disabled={!escalationReason}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Escalate
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Modal */}
+      <Dialog open={notificationModalOpen} onOpenChange={setNotificationModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Bell className="w-5 h-5" />
+              <span>Send Notification</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedTicket && (
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm font-medium">Ticket: {selectedTicket.id}</p>
+                <p className="text-sm text-gray-600">{selectedTicket.title}</p>
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="notification-message">Notification Message</Label>
+              <Textarea 
+                id="notification-message"
+                rows={4}
+                placeholder="Enter notification message..."
+                value={notificationMessage}
+                onChange={(e) => setNotificationMessage(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setNotificationModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmitNotification} 
+                disabled={!notificationMessage}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Send Notification
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Modal */}
+      <Dialog open={updateModalOpen} onOpenChange={setUpdateModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <MessageSquare className="w-5 h-5" />
+              <span>Update Ticket</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedTicket && (
+              <div className="p-3 bg-green-50 rounded-lg">
+                <p className="text-sm font-medium">Ticket: {selectedTicket.id}</p>
+                <p className="text-sm text-gray-600">{selectedTicket.title}</p>
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="update-notes">Update Notes</Label>
+              <Textarea 
+                id="update-notes"
+                rows={4}
+                placeholder="Enter update notes..."
+                value={updateNotes}
+                onChange={(e) => setUpdateNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setUpdateModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmitUpdate} 
+                disabled={!updateNotes}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Update Ticket
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

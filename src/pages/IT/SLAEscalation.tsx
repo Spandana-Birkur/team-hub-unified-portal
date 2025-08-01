@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertTriangle, TrendingUp, Clock, CheckCircle, Filter, RefreshCw, Settings } from 'lucide-react';
 import TicketEscalation from '@/components/TicketEscalation';
+import SLAConfiguration from '@/components/SLAConfiguration';
+import SLAReporting from '@/components/SLAReporting';
+
+interface Ticket {
+  id: string;
+  title: string;
+  user: string;
+  priority: string;
+  status: string;
+  category: string;
+  created: string;
+  slaDeadline: string;
+  assignedTo: string;
+  team: string;
+  escalated: boolean;
+  description: string;
+  resolutionNotes?: string;
+  updatedAt?: string;
+}
 
 const SLAEscalation = () => {
-  const tickets = [
+  const [activeTab, setActiveTab] = useState('monitoring');
+  const [tickets, setTickets] = useState<Ticket[]>([
     {
       id: 'TKT-001',
       title: 'Laptop Screen Flickering',
@@ -50,54 +74,129 @@ const SLAEscalation = () => {
       description: 'Outlook is not syncing emails properly since the last update.',
       resolutionNotes: 'Outlook sync issues were resolved by reinstalling the email client.',
       updatedAt: null
+    },
+    {
+      id: 'TKT-005',
+      title: 'Printer Not Working',
+      user: 'Lisa Davis',
+      priority: 'low',
+      status: 'open',
+      category: 'Hardware',
+      created: '2024-01-16',
+      slaDeadline: '2024-01-19T16:00:00Z',
+      assignedTo: 'John Smith',
+      team: 'Hardware Support',
+      escalated: false,
+      description: 'The office printer is showing error code E-04 and won\'t print.',
+      updatedAt: null
+    },
+    {
+      id: 'TKT-006',
+      title: 'VPN Connection Failed',
+      user: 'David Wilson',
+      priority: 'high',
+      status: 'in-progress',
+      category: 'Network',
+      created: '2024-01-15',
+      slaDeadline: '2024-01-16T18:00:00Z',
+      assignedTo: 'Jane Doe',
+      team: 'Network Team',
+      escalated: false,
+      description: 'Unable to connect to VPN from home office. Getting authentication error.',
+      updatedAt: null
     }
-  ];
+  ]);
 
-  const slaStats = [
-    { title: 'SLA Violations', value: '3', icon: AlertTriangle, color: 'bg-red-500' },
-    { title: 'Escalated Tickets', value: '1', icon: TrendingUp, color: 'bg-orange-500' },
-    { title: 'Near SLA Deadline', value: '2', icon: Clock, color: 'bg-yellow-500' },
-    { title: 'SLA Compliant', value: '89%', icon: CheckCircle, color: 'bg-green-500' },
-  ];
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const interval = setInterval(() => {
+      setLastRefresh(new Date());
+      // In a real app, this would fetch updated data from the server
+      console.log('Auto-refreshing SLA data...');
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  const handleManualRefresh = () => {
+    setLastRefresh(new Date());
+    // In a real app, this would fetch updated data from the server
+    console.log('Manual refresh triggered...');
+  };
+
+  const handleTicketUpdate = (updatedTickets: Ticket[]) => {
+    setTickets(updatedTickets);
+  };
 
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">SLA & Escalation Management</h1>
-        <p className="text-muted-foreground">Monitor service level agreements and manage ticket escalations.</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">SLA & Escalation Management</h1>
+            <p className="text-muted-foreground">Monitor service level agreements and manage ticket escalations.</p>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleManualRefresh}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button 
+                variant={autoRefresh ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAutoRefresh(!autoRefresh)}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Auto-refresh {autoRefresh ? 'On' : 'Off'}
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Last updated: {lastRefresh.toLocaleTimeString()}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* SLA Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {slaStats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="monitoring">SLA Monitoring</TabsTrigger>
+          <TabsTrigger value="configuration">SLA Configuration</TabsTrigger>
+          <TabsTrigger value="reporting">SLA Reporting</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="monitoring" className="space-y-6">
+          {/* SLA Escalation Component */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5" />
+                <span>SLA & Escalation Dashboard</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TicketEscalation tickets={tickets} />
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
 
-      {/* SLA Escalation Component */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <TrendingUp className="w-5 h-5" />
-            <span>SLA & Escalation Dashboard</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TicketEscalation tickets={tickets} />
-        </CardContent>
-      </Card>
+        <TabsContent value="configuration" className="space-y-6">
+          <SLAConfiguration />
+        </TabsContent>
+
+        <TabsContent value="reporting" className="space-y-6">
+          <SLAReporting />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

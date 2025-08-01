@@ -7,6 +7,7 @@ from flask_cors import CORS
 from dbconnect import *
 from aiconnect import *
 from hashtest import *
+from tickets import *
 
 # Load environment variables from .env file
 load_dotenv()
@@ -93,14 +94,40 @@ def get_subordinates(id):
     subordinates = getSubordinates(id)
     if not subordinates:
         return jsonify({'message': 'No subordinates found.'}), 404
-    return jsonify({'subordinates': [emp.toDict() for emp in subordinates]}), 200
+    return jsonify({[emp.toDict() for emp in subordinates]}), 200
 
 @app.route('/api/get-manager/<int:id>', methods=['GET'])
 def get_manager(id):
     manager = getManager(id)
     if not manager:
         return jsonify({'message': 'No manager found.'}), 404
-    return jsonify({'manager': manager.toDict()}), 200
+    print(f"Manager found: {manager.toString()}")
+    return jsonify({manager.toDict()}), 200
+
+
+
+
+
+"""
+Ticket Management API
+"""
+
+@app.route('/api/tickets', methods=['GET'])
+def tickets():
+    tickets = getTickets()
+    return jsonify({[ticket.toDict() for ticket in tickets]}), 200
+
+@app.route('/api/tickets/<int:ticketId>', methods=['GET'])
+def ticket(ticketId):
+    ticket = getTicketById(ticketId)
+    if not ticket:
+        return jsonify({'message': 'Ticket not found.'}), 404
+    return jsonify({ticket.toDict()}), 200
+
+@app.route('/api/tickets/<int:ticketId>', methods=['DELETE'])
+def delete_ticket(ticketId):
+    deleteTicket(ticketId)
+    return jsonify({'message': 'Ticket deleted successfully.'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

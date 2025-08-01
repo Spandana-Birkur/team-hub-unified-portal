@@ -28,11 +28,31 @@ The API will be available at `http://localhost:8080`
 
 ## API Endpoints
 
+### Authentication & Employees
 - `POST /api/AIRequest` - Send AI requests
+- `POST /api/AIRequestHistory` - Send AI requests with conversation history
 - `POST /api/login` - User authentication
 - `GET /api/employees` - Get all employees
 - `GET /api/employees/count` - Get employee count
+- `POST /api/update-bio` - Update employee bio
+- `GET /api/get-subordinates/<id>` - Get employee subordinates
+- `GET /api/get-manager/<id>` - Get employee manager
 - `GET /api/test` - CORS test endpoint
+
+### Ticket Management
+- `GET /api/tickets` - Get all tickets
+- `GET /api/tickets/<id>` - Get specific ticket
+- `DELETE /api/tickets/<id>` - Delete ticket
+
+### Leave Management
+- `GET /api/leave-requests` - Get all leave requests
+- `POST /api/leave-requests` - Create new leave request
+- `GET /api/leave-requests/<id>` - Get specific leave request
+- `PUT /api/leave-requests/<id>/approve` - Approve leave request
+- `PUT /api/leave-requests/<id>/reject` - Reject leave request
+- `GET /api/leave-requests/employee/<id>` - Get employee's leave requests
+- `GET /api/leave-requests/pending` - Get pending leave requests
+- `GET /api/leave-balance/<id>` - Get employee's leave balance
 
 ## Security
 

@@ -33,6 +33,7 @@ import FeedbackReports from "./pages/HR/FeedbackReports";
 import HRAnnouncements from "./pages/HR/HRAnnouncements";
 import HRDocuments from "./pages/HR/HRDocuments";
 import ManagerTools from "./pages/HR/ManagerTools";
+import ManagerCommunication from "./components/ManagerCommunication";
 
 // IT Pages
 import SupportTickets from "./pages/IT/SupportTickets";
@@ -58,7 +59,7 @@ const AppContent = () => {
       case 'hr':
         return '/hr/employees';
       case 'manager':
-        return '/hr/employees';
+        return '/hr/manager-tools';
       case 'it':
         return '/ithelpdesk/tickets';
       default:
@@ -79,7 +80,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
             <Route path="/employee" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <EmployeePortal />
               </ProtectedRoute>
             } />
@@ -91,32 +92,32 @@ const AppContent = () => {
             
             {/* HR Routes */}
             <Route path="/hr/employees" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <EmployeeDirectory />
               </ProtectedRoute>
             } />
             <Route path="/hr/leave" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <LeaveManagement />
               </ProtectedRoute>
             } />
             <Route path="/hr/performance" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <PerformanceManagement />
               </ProtectedRoute>
             } />
             <Route path="/hr/feedback" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <FeedbackReports />
               </ProtectedRoute>
             } />
             <Route path="/hr/announcements" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <HRAnnouncements />
               </ProtectedRoute>
             } />
             <Route path="/hr/documents" element={
-              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+              <ProtectedRoute requiredRoles={['hr']}>
                 <HRDocuments />
               </ProtectedRoute>
             } />
@@ -125,46 +126,51 @@ const AppContent = () => {
                 <ManagerTools />
               </ProtectedRoute>
             } />
+            <Route path="/hr/communication" element={
+              <ProtectedRoute requiredRoles={['manager']}>
+                <ManagerCommunication />
+              </ProtectedRoute>
+            } />
             
             {/* IT Routes */}
             <Route path="/ithelpdesk/tickets" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <SupportTickets />
               </ProtectedRoute>
             } />
             <Route path="/ithelpdesk/escalation" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <SLAEscalation />
               </ProtectedRoute>
             } />
             <Route path="/ithelpdesk/assignment" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <TeamAssignment />
               </ProtectedRoute>
             } />
             <Route path="/ithelpdesk/assets" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <AssetManagement />
               </ProtectedRoute>
             } />
             <Route path="/ithelpdesk/lifecycle" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <AssetLifecyclePage />
               </ProtectedRoute>
             } />
             <Route path="/ithelpdesk/knowledge" element={
-              <ProtectedRoute requiredRoles={['it', 'manager']}>
+              <ProtectedRoute requiredRoles={['it']}>
                 <KnowledgeBase />
               </ProtectedRoute>
             } />
             
             <Route path="/training" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <Training />
               </ProtectedRoute>
             } />
             <Route path="/calendar" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <Calendar />
               </ProtectedRoute>
             } />
@@ -179,17 +185,17 @@ const AppContent = () => {
               </ProtectedRoute>
             } />
             <Route path="/documents" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <Documents />
               </ProtectedRoute>
             } />
             <Route path="/safety" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <EmployeeSafetyConduct />
               </ProtectedRoute>
             } />
             <Route path="/chatbot" element={
-              <ProtectedRoute requiredRoles={['employee', 'manager']}>
+              <ProtectedRoute requiredRoles={['employee']}>
                 <Chatbot />
               </ProtectedRoute>
             } />

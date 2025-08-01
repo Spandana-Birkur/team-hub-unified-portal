@@ -79,6 +79,22 @@ const LeaveManagement = () => {
     setSelectedLeaveRequest(null);
   };
 
+  // Sort and filter leave requests - pending first, then by last action date
+  const sortedLeaveRequests = [...leaveRequests].sort((a, b) => {
+    // If one is pending and the other isn't, pending comes first
+    if (a.status === 'pending' && b.status !== 'pending') return -1;
+    if (b.status === 'pending' && a.status !== 'pending') return 1;
+    
+    // If both are pending, sort by submission date (oldest first)
+    if (a.status === 'pending' && b.status === 'pending') {
+      return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+    }
+    
+    // If both are approved/rejected, sort by last action date (oldest first)
+    // Since we don't have explicit action dates, we'll use submittedAt as a proxy
+    return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+  });
+
   return (
     <div className="p-6">
       <div className="space-y-6">
@@ -163,7 +179,7 @@ const LeaveManagement = () => {
           </CardHeader>
           <CardContent>
           <div className="space-y-4">
-            {leaveRequests.map((request) => {
+            {sortedLeaveRequests.map((request) => {
               const employee = getEmployeeById(request.employeeId);
               const remainingBalance = calculateRemainingLeaveBalance(request.employeeId, request.type.toLowerCase());
               const willExceed = request.status === 'pending' && (remainingBalance - request.days) < 0;
@@ -190,8 +206,9 @@ const LeaveManagement = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Badge variant={request.status === 'approved' ? 'default' : 'secondary'}>
-                      {request.status}
+                    <Badge variant={request.status === 'approved' ? 'default' : request.status === 'rejected' ? 'destructive' : request.status === 'pending' ? 'outline' : 'secondary'} 
+                           className={request.status === 'pending' ? 'border-yellow-500 text-yellow-700 bg-yellow-50' : ''}>
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                     </Badge>
                     <Button 
                       size="sm" 
@@ -218,7 +235,7 @@ const LeaveManagement = () => {
 
       {/* Leave Request Detail Modal */}
       <Dialog open={leaveRequestDetailModalOpen} onOpenChange={setLeaveRequestDetailModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <Calendar className="w-5 h-5" />
@@ -233,8 +250,9 @@ const LeaveManagement = () => {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">{selectedLeaveRequest.employeeName}</h2>
                   <p className="text-lg text-gray-600">{selectedLeaveRequest.type}</p>
-                  <Badge variant={selectedLeaveRequest.status === 'approved' ? 'default' : selectedLeaveRequest.status === 'rejected' ? 'destructive' : 'secondary'}>
-                    {selectedLeaveRequest.status}
+                  <Badge variant={selectedLeaveRequest.status === 'approved' ? 'default' : selectedLeaveRequest.status === 'rejected' ? 'destructive' : selectedLeaveRequest.status === 'pending' ? 'outline' : 'secondary'}
+                         className={selectedLeaveRequest.status === 'pending' ? 'border-yellow-500 text-yellow-700 bg-yellow-50' : ''}>
+                    {selectedLeaveRequest.status.charAt(0).toUpperCase() + selectedLeaveRequest.status.slice(1)}
                   </Badge>
                 </div>
                 <div className="text-right">

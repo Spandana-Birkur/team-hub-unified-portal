@@ -13,7 +13,7 @@ driver = os.getenv('DB_DRIVER')
 
 
 class Employee:
-    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None, vacationDays=20, sickDays=10, personalDays=5, otherDays=0):
+    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None):
         self.firstName = firstName
         self.lastName = lastName
         self.ID = ID
@@ -25,10 +25,6 @@ class Employee:
         self.phoneNumber = phoneNumber
         self.bio = bio
         self.ManagerID = ManagerID
-        self.vacationDays = vacationDays
-        self.sickDays = sickDays
-        self.personalDays = personalDays
-        self.otherDays = otherDays
 
     def toDict(self):
         return {
@@ -42,11 +38,7 @@ class Employee:
             "email": self.email,
             "phoneNumber": self.phoneNumber,
             "bio": self.bio,
-            "ManagerID": self.ManagerID,
-            "vacationDays": self.vacationDays,
-            "sickDays": self.sickDays,
-            "personalDays": self.personalDays,
-            "otherDays": self.otherDays
+            "ManagerID": self.ManagerID
         }
 
     def toString(self):
@@ -75,21 +67,7 @@ def parseDB():
         # print results
         for row in rows:
             newEmployee = Employee()
-            # Handle the case where leave balance columns might not exist yet
-            if len(row) >= 15:  # With leave balance columns
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
-                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays) = row
-            else:  # Without leave balance columns (fallback)
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
-                # Set default values
-                newEmployee.vacationDays = 20
-                newEmployee.sickDays = 10
-                newEmployee.personalDays = 5
-                newEmployee.otherDays = 0
+            newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID = row
             print(row)
             employees.append(newEmployee)
 

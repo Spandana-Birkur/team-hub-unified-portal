@@ -8,7 +8,6 @@ from dbconnect import *
 from aiconnect import *
 from hashtest import *
 from tickets import *
-from leave_management import *
 
 # Load environment variables from .env file
 load_dotenv()
@@ -139,82 +138,6 @@ def ticket(ticketId):
 def delete_ticket(ticketId):
     deleteTicket(ticketId)
     return jsonify({'message': 'Ticket deleted successfully.'}), 200
-
-"""
-Leave Management API
-"""
-
-@app.route('/api/leave-requests', methods=['GET', 'POST'])
-def leave_requests():
-    if request.method == 'GET':
-        leaveRequests = getLeaveRequests()
-        return jsonify({'leaveRequests': [request.toDict() for request in leaveRequests]}), 200
-    elif request.method == 'POST':
-        data = request.json
-        employeeId = data.get('employeeId')
-        leaveType = data.get('leaveType')
-        startDate = data.get('startDate')
-        endDate = data.get('endDate')
-        days = data.get('days')
-        reason = data.get('reason')
-        
-        if not all([employeeId, leaveType, startDate, endDate, days, reason]):
-            return jsonify({'message': 'All fields are required'}), 400
-        
-        if createLeaveRequest(employeeId, leaveType, startDate, endDate, days, reason):
-            return jsonify({'message': 'Leave request created successfully'}), 201
-        else:
-            return jsonify({'message': 'Failed to create leave request'}), 500
-
-@app.route('/api/leave-requests/<int:requestId>', methods=['GET'])
-def leave_request(requestId):
-    leaveRequest = getLeaveRequestById(requestId)
-    if not leaveRequest:
-        return jsonify({'message': 'Leave request not found'}), 404
-    return jsonify(leaveRequest.toDict()), 200
-
-@app.route('/api/leave-requests/<int:requestId>/approve', methods=['PUT'])
-def approve_leave_request(requestId):
-    data = request.json
-    approvedBy = data.get('approvedBy')
-    
-    if not approvedBy:
-        return jsonify({'message': 'Approver information is required'}), 400
-    
-    if approveLeaveRequest(requestId, approvedBy):
-        return jsonify({'message': 'Leave request approved successfully'}), 200
-    else:
-        return jsonify({'message': 'Failed to approve leave request'}), 500
-
-@app.route('/api/leave-requests/<int:requestId>/reject', methods=['PUT'])
-def reject_leave_request(requestId):
-    data = request.json
-    approvedBy = data.get('approvedBy')
-    
-    if not approvedBy:
-        return jsonify({'message': 'Approver information is required'}), 400
-    
-    if rejectLeaveRequest(requestId, approvedBy):
-        return jsonify({'message': 'Leave request rejected successfully'}), 200
-    else:
-        return jsonify({'message': 'Failed to reject leave request'}), 500
-
-@app.route('/api/leave-requests/employee/<int:employeeId>', methods=['GET'])
-def employee_leave_requests(employeeId):
-    leaveRequests = getLeaveRequestsByEmployeeId(employeeId)
-    return jsonify({'leaveRequests': [request.toDict() for request in leaveRequests]}), 200
-
-@app.route('/api/leave-requests/pending', methods=['GET'])
-def pending_leave_requests():
-    leaveRequests = getPendingLeaveRequests()
-    return jsonify({'leaveRequests': [request.toDict() for request in leaveRequests]}), 200
-
-@app.route('/api/leave-balance/<int:employeeId>', methods=['GET'])
-def leave_balance(employeeId):
-    leaveBalance = getLeaveBalance(employeeId)
-    if not leaveBalance:
-        return jsonify({'message': 'Employee not found'}), 404
-    return jsonify(leaveBalance.toDict()), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

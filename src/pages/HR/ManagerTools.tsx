@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { employees } from '@/data/employees';
+import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 import { 
   Users, 
   Clock, 
@@ -44,6 +46,10 @@ import {
 } from 'lucide-react';
 
 const ManagerTools = () => {
+  // Context hooks
+  const { leaveRequests: contextLeaveRequests, approveLeaveRequest, rejectLeaveRequest, loading, error } = useLeaveRequests();
+  const { profile } = useUserProfile();
+  
   // State for different sections
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -54,6 +60,8 @@ const ManagerTools = () => {
   const [performanceModalOpen, setPerformanceModalOpen] = useState(false);
   const [communicationModalOpen, setCommunicationModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [approvingRequestId, setApprovingRequestId] = useState<number | null>(null);
+  const [rejectingRequestId, setRejectingRequestId] = useState<number | null>(null);
 
   // Mock data for manager dashboard
   const [teamMembers, setTeamMembers] = useState(employees.filter(emp => emp.role === 'employee').slice(0, 8));
@@ -62,10 +70,8 @@ const ManagerTools = () => {
     { id: 2, employee: 'Sarah Johnson', week: 'Dec 9-15, 2024', hours: 38, status: 'approved', submitted: '2024-12-16' },
     { id: 3, employee: 'Mike Chen', week: 'Dec 9-15, 2024', hours: 42, status: 'pending', submitted: '2024-12-16' },
   ]);
-  const [leaveRequests, setLeaveRequests] = useState([
-    { id: 1, employee: 'John Doe', type: 'Vacation', days: 5, status: 'pending', startDate: '2024-12-20', endDate: '2024-12-24' },
-    { id: 2, employee: 'Sarah Johnson', type: 'Sick Leave', days: 2, status: 'approved', startDate: '2024-12-18', endDate: '2024-12-19' },
-  ]);
+  // Use leave requests from context instead of local state
+  const leaveRequests = contextLeaveRequests;
   const [performanceReviews, setPerformanceReviews] = useState([
     { id: 1, employee: 'John Doe', status: 'pending', dueDate: '2024-12-31', rating: null },
     { id: 2, employee: 'Sarah Johnson', status: 'completed', dueDate: '2024-12-15', rating: 'Exceeds Expectations' },
@@ -142,16 +148,28 @@ const ManagerTools = () => {
     ));
   };
 
-  const handleApproveLeave = (leaveId: number) => {
-    setLeaveRequests(prev => prev.map(lr => 
-      lr.id === leaveId ? { ...lr, status: 'approved' } : lr
-    ));
+  const handleApproveLeave = async (leaveId: number) => {
+    try {
+      setApprovingRequestId(leaveId);
+      const managerId = profile?.ID || 1; // Fallback to 1 if profile not available
+      await approveLeaveRequest(leaveId, managerId);
+    } catch (error) {
+      console.error('Error approving leave request:', error);
+    } finally {
+      setApprovingRequestId(null);
+    }
   };
 
-  const handleRejectLeave = (leaveId: number) => {
-    setLeaveRequests(prev => prev.map(lr => 
-      lr.id === leaveId ? { ...lr, status: 'rejected' } : lr
-    ));
+  const handleRejectLeave = async (leaveId: number) => {
+    try {
+      setRejectingRequestId(leaveId);
+      const managerId = profile?.ID || 1; // Fallback to 1 if profile not available
+      await rejectLeaveRequest(leaveId, managerId);
+    } catch (error) {
+      console.error('Error rejecting leave request:', error);
+    } finally {
+      setRejectingRequestId(null);
+    }
   };
 
   // Handle employee editing
@@ -238,6 +256,20 @@ const ManagerTools = () => {
         <h1 className="text-3xl font-bold text-gray-900">Manager Dashboard</h1>
         <p className="text-gray-600">Comprehensive management tools for your team</p>
       </div>
+      
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800">Error: {error}</p>
+        </div>
+      )}
+      
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-800">Processing request...</p>
+        </div>
+      )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -541,7 +573,7 @@ const ManagerTools = () => {
                   {leaveRequests.map((request) => (
                     <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <h4 className="font-medium">{request.employee}</h4>
+                        <h4 className="font-medium">{request.employeeName}</h4>
                         <p className="text-sm text-gray-600">{request.type} • {request.days} days</p>
                         <p className="text-xs text-gray-500">{request.startDate} - {request.endDate}</p>
                       </div>
@@ -551,15 +583,24 @@ const ManagerTools = () => {
                         </Badge>
                         {request.status === 'pending' && (
                           <>
-                            <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleRejectLeave(request.id)}
+                              disabled={loading || rejectingRequestId === request.id || approvingRequestId === request.id}
+                            >
                               <XCircle className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" onClick={() => handleApproveLeave(request.id)}>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleApproveLeave(request.id)}
+                              disabled={loading || approvingRequestId === request.id || rejectingRequestId === request.id}
+                            >
                               <CheckCircle className="w-4 h-4" />
                             </Button>
                           </>
                         )}
-              </div>
+                      </div>
                     </div>
                   ))}
             </div>

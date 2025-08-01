@@ -51,7 +51,7 @@ const RoleSelector = () => {
       case 'hr':
         return '/hr/employees';
       case 'manager':
-        return '/hr/employees';
+        return '/pay';
       case 'it':
         return '/ithelpdesk/tickets';
       default:

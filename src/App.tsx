@@ -59,7 +59,7 @@ const AppContent = () => {
       case 'hr':
         return '/hr/employees';
       case 'manager':
-        return '/hr/manager-tools';
+        return '/pay';
       case 'it':
         return '/ithelpdesk/tickets';
       default:

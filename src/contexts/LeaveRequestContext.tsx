@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { leaveManagementService, LeaveRequest as BackendLeaveRequest, LeaveBalance } from '@/services/leaveManagementService';
 
 export interface LeaveRequest {
   id: number;
@@ -16,11 +17,16 @@ export interface LeaveRequest {
 
 interface LeaveRequestContextType {
   leaveRequests: LeaveRequest[];
-  submitLeaveRequest: (request: Omit<LeaveRequest, 'id' | 'status' | 'submittedAt'>) => void;
-  approveLeaveRequest: (requestId: number) => void;
-  rejectLeaveRequest: (requestId: number) => void;
+  leaveBalances: Map<number, LeaveBalance>;
+  loading: boolean;
+  error: string | null;
+  submitLeaveRequest: (request: Omit<LeaveRequest, 'id' | 'status' | 'submittedAt'>) => Promise<void>;
+  approveLeaveRequest: (requestId: number, approvedBy: number) => Promise<void>;
+  rejectLeaveRequest: (requestId: number, approvedBy: number) => Promise<void>;
   getPendingRequests: () => LeaveRequest[];
   getRequestsByEmployee: (employeeId: string) => LeaveRequest[];
+  getLeaveBalance: (employeeId: number) => Promise<LeaveBalance>;
+  refreshLeaveRequests: () => Promise<void>;
 }
 
 const LeaveRequestContext = createContext<LeaveRequestContextType | undefined>(undefined);
@@ -38,139 +44,115 @@ interface LeaveRequestProviderProps {
 }
 
 export const LeaveRequestProvider: React.FC<LeaveRequestProviderProps> = ({ children }) => {
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([
-    {
-      id: 1,
-      employeeId: 'emp001',
-      employeeName: 'Sarah Johnson',
-      type: 'Vacation',
-      startDate: '2024-01-15',
-      endDate: '2024-01-19',
-      reason: 'Annual family vacation',
-      status: 'pending',
-      days: 5,
-      submittedAt: '2024-01-10T10:00:00Z'
-    },
-    {
-      id: 2,
-      employeeId: 'emp002',
-      employeeName: 'Mike Chen',
-      type: 'Sick Leave',
-      startDate: '2024-01-12',
-      endDate: '2024-01-12',
-      reason: 'Not feeling well',
-      status: 'approved',
-      days: 1,
-      submittedAt: '2024-01-11T08:30:00Z'
-    },
-    {
-      id: 3,
-      employeeId: 'emp003',
-      employeeName: 'Emily Davis',
-      type: 'Personal',
-      startDate: '2024-01-22',
-      endDate: '2024-01-23',
-      reason: 'Personal appointment',
-      status: 'pending',
-      days: 2,
-      submittedAt: '2024-01-15T14:20:00Z'
-    },
-    {
-      id: 4,
-      employeeId: 'emp004',
-      employeeName: 'Tom Wilson',
-      type: 'Vacation',
-      startDate: '2024-02-05',
-      endDate: '2024-02-09',
-      reason: 'Ski trip with family',
-      status: 'approved',
-      days: 5,
-      submittedAt: '2024-01-20T09:15:00Z'
-    },
-    {
-      id: 5,
-      employeeId: 'emp005',
-      employeeName: 'Alex Rodriguez',
-      type: 'Personal',
-      startDate: '2025-08-15',
-      endDate: '2025-08-16',
-      reason: 'Moving to new apartment',
-      status: 'pending',
-      days: 2,
-      submittedAt: '2025-07-30T11:30:00Z'
-    },
-    {
-      id: 6,
-      employeeId: 'emp006',
-      employeeName: 'Jessica Kim',
-      type: 'Sick Leave',
-      startDate: '2025-08-05',
-      endDate: '2025-08-07',
-      reason: 'Flu symptoms and recovery',
-      status: 'pending',
-      days: 3,
-      submittedAt: '2025-07-29T07:45:00Z'
-    },
-    {
-      id: 7,
-      employeeId: 'emp008',
-      employeeName: 'Rachel Green',
-      type: 'Vacation',
-      startDate: '2025-09-02',
-      endDate: '2025-09-06',
-      reason: 'Long weekend getaway with family',
-      status: 'pending',
-      days: 5,
-      submittedAt: '2025-07-28T16:20:00Z'
-    }
-  ]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveBalances, setLeaveBalances] = useState<Map<number, LeaveBalance>>(new Map());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load from localStorage on mount
+  // Load leave requests from backend on mount
   useEffect(() => {
-    const savedRequests = localStorage.getItem('leaveRequests');
-    if (savedRequests) {
-      try {
-        setLeaveRequests(JSON.parse(savedRequests));
-      } catch (error) {
-        console.error('Error loading leave requests from localStorage:', error);
-      }
-    }
+    refreshLeaveRequests();
   }, []);
 
-  // Save to localStorage whenever requests change
-  useEffect(() => {
-    localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-  }, [leaveRequests]);
-
-  const submitLeaveRequest = (request: Omit<LeaveRequest, 'id' | 'status' | 'submittedAt'>) => {
-    const newRequest: LeaveRequest = {
-      ...request,
-      id: Math.max(...leaveRequests.map(r => r.id), 0) + 1,
-      status: 'pending',
-      submittedAt: new Date().toISOString()
+  // Helper function to convert backend format to frontend format
+  const convertBackendToFrontend = (backendRequest: BackendLeaveRequest): LeaveRequest => {
+    return {
+      id: backendRequest.requestId,
+      employeeId: `emp${backendRequest.employeeId.toString().padStart(3, '0')}`,
+      employeeName: backendRequest.employeeName,
+      type: backendRequest.leaveType as 'Vacation' | 'Sick Leave' | 'Personal' | 'Other',
+      startDate: backendRequest.startDate,
+      endDate: backendRequest.endDate,
+      reason: backendRequest.reason,
+      status: backendRequest.status,
+      days: backendRequest.days,
+      submittedAt: backendRequest.submittedDate,
+      actionedAt: backendRequest.approvedDate
     };
-    
-    setLeaveRequests(prev => [newRequest, ...prev]);
   };
 
-  const approveLeaveRequest = (requestId: number) => {
-    setLeaveRequests(prev => 
-      prev.map(request => 
-        request.id === requestId 
-          ? { ...request, status: 'approved', actionedAt: new Date().toISOString() }
-          : request
-      )
-    );
+  // Helper function to convert frontend format to backend format
+  const convertFrontendToBackend = (frontendRequest: Omit<LeaveRequest, 'id' | 'status' | 'submittedAt'>) => {
+    return {
+      employeeId: parseInt(frontendRequest.employeeId.replace('emp', '')),
+      leaveType: frontendRequest.type,
+      startDate: frontendRequest.startDate,
+      endDate: frontendRequest.endDate,
+      days: frontendRequest.days,
+      reason: frontendRequest.reason
+    };
   };
 
-  const rejectLeaveRequest = (requestId: number) => {
-    setLeaveRequests(prev => 
-      prev.map(request => 
-        request.id === requestId 
-          ? { ...request, status: 'rejected', actionedAt: new Date().toISOString() }
-          : request
-      )
-    );
+  const refreshLeaveRequests = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const backendRequests = await leaveManagementService.getAllLeaveRequests();
+      const frontendRequests = backendRequests.map(convertBackendToFrontend);
+      setLeaveRequests(frontendRequests);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load leave requests');
+      console.error('Error loading leave requests:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitLeaveRequest = async (request: Omit<LeaveRequest, 'id' | 'status' | 'submittedAt'>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const backendRequest = convertFrontendToBackend(request);
+      await leaveManagementService.createLeaveRequest(backendRequest);
+      await refreshLeaveRequests(); // Refresh the list
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit leave request');
+      console.error('Error submitting leave request:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const approveLeaveRequest = async (requestId: number, approvedBy: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await leaveManagementService.approveLeaveRequest(requestId, approvedBy);
+      await refreshLeaveRequests(); // Refresh the list
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to approve leave request');
+      console.error('Error approving leave request:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectLeaveRequest = async (requestId: number, approvedBy: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await leaveManagementService.rejectLeaveRequest(requestId, approvedBy);
+      await refreshLeaveRequests(); // Refresh the list
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reject leave request');
+      console.error('Error rejecting leave request:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getLeaveBalance = async (employeeId: number): Promise<LeaveBalance> => {
+    try {
+      const balance = await leaveManagementService.getLeaveBalance(employeeId);
+      setLeaveBalances(prev => new Map(prev).set(employeeId, balance));
+      return balance;
+    } catch (err) {
+      console.error('Error fetching leave balance:', err);
+      throw err;
+    }
   };
 
   const getPendingRequests = () => {
@@ -183,11 +165,16 @@ export const LeaveRequestProvider: React.FC<LeaveRequestProviderProps> = ({ chil
 
   const value: LeaveRequestContextType = {
     leaveRequests,
+    leaveBalances,
+    loading,
+    error,
     submitLeaveRequest,
     approveLeaveRequest,
     rejectLeaveRequest,
     getPendingRequests,
-    getRequestsByEmployee
+    getRequestsByEmployee,
+    getLeaveBalance,
+    refreshLeaveRequests
   };
 
   return (

@@ -33,8 +33,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         redirectRoute = '/ithelpdesk';
         break;
       case 'employee':
-      case 'manager':
         redirectRoute = '/employee';
+        break;
+      case 'manager':
+        redirectRoute = '/pay';
         break;
       default:
         redirectRoute = '/employee';

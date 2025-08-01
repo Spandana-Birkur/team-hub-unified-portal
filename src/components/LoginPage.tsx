@@ -86,6 +86,7 @@ const LoginPage = () => {
         // Set default role as employee, user can change via dropdown later
         setUserRole('employee');
         const profileData = {
+          ID: result.ID,
           firstName: result.firstName,
           lastName: result.lastName,
           email: result.email,

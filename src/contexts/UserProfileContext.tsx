@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
 export interface UserProfile {
+  ID: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -18,6 +19,7 @@ interface UserProfileContextType {
 }
 
 const defaultProfile: UserProfile = {
+  ID: 1,
   firstName: 'John',
   lastName: 'Doe',
   email: 'john.doe@company.com',
@@ -38,6 +40,19 @@ export const useUserProfile = () => {
 
 export const UserProfileProvider: React.FC<{ children: React.ReactNode, initialProfile?: UserProfile }> = ({ children, initialProfile }) => {
   const [profile, setProfile] = useState<UserProfile>(initialProfile || defaultProfile);
+
+  // Load profile from localStorage on mount
+  React.useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      try {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfile(parsedProfile);
+      } catch (error) {
+        console.error('Error parsing saved profile:', error);
+      }
+    }
+  }, []);
 
   const updateProfile = (fields: Partial<UserProfile>) => {
     setProfile(prev => ({ ...prev, ...fields }));

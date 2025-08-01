@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { employees } from '@/data/employees';
 import { useLeaveRequests, LeaveRequest } from '@/contexts/LeaveRequestContext';
 import { useRole } from '@/contexts/RoleContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 import { 
   Users, 
   Calendar, 
@@ -16,10 +17,13 @@ import {
 } from 'lucide-react';
 
 const LeaveManagement = () => {
-  const { leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useLeaveRequests();
+  const { leaveRequests, approveLeaveRequest, rejectLeaveRequest, loading, error } = useLeaveRequests();
   const { userRole } = useRole();
+  const { profile } = useUserProfile();
   const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<LeaveRequest | null>(null);
   const [leaveRequestDetailModalOpen, setLeaveRequestDetailModalOpen] = useState(false);
+  const [approvingRequestId, setApprovingRequestId] = useState<number | null>(null);
+  const [rejectingRequestId, setRejectingRequestId] = useState<number | null>(null);
 
   const pendingLeaveCount = leaveRequests.filter(request => request.status === 'pending').length;
 
@@ -66,19 +70,39 @@ const LeaveManagement = () => {
   };
 
   // Leave management functions
-  const handleApproveLeave = (requestId: number) => {
-    approveLeaveRequest(requestId);
-    // Close modal if it's open
-    if (leaveRequestDetailModalOpen) {
-      closeLeaveRequestDetailModal();
+  const handleApproveLeave = async (requestId: number) => {
+    try {
+      setApprovingRequestId(requestId);
+      // Get the current user's ID (assuming they're the manager)
+      const managerId = profile?.ID || 1; // Fallback to 1 if profile not available
+      await approveLeaveRequest(requestId, managerId);
+      // Close modal if it's open
+      if (leaveRequestDetailModalOpen) {
+        closeLeaveRequestDetailModal();
+      }
+    } catch (error) {
+      console.error('Error approving leave request:', error);
+      // You could add a toast notification here
+    } finally {
+      setApprovingRequestId(null);
     }
   };
 
-  const handleRejectLeave = (requestId: number) => {
-    rejectLeaveRequest(requestId);
-    // Close modal if it's open
-    if (leaveRequestDetailModalOpen) {
-      closeLeaveRequestDetailModal();
+  const handleRejectLeave = async (requestId: number) => {
+    try {
+      setRejectingRequestId(requestId);
+      // Get the current user's ID (assuming they're the manager)
+      const managerId = profile?.ID || 1; // Fallback to 1 if profile not available
+      await rejectLeaveRequest(requestId, managerId);
+      // Close modal if it's open
+      if (leaveRequestDetailModalOpen) {
+        closeLeaveRequestDetailModal();
+      }
+    } catch (error) {
+      console.error('Error rejecting leave request:', error);
+      // You could add a toast notification here
+    } finally {
+      setRejectingRequestId(null);
     }
   };
 
@@ -127,6 +151,20 @@ const LeaveManagement = () => {
           }
         </p>
       </div>
+      
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800">Error: {error}</p>
+        </div>
+      )}
+      
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-800">Processing request...</p>
+        </div>
+      )}
       <div className="space-y-6">
         {/* Leave Management Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -248,12 +286,25 @@ const LeaveManagement = () => {
                       <Eye className="w-4 h-4 mr-1" />
                       View
                     </Button>
-                    {request.status === 'pending' && canTakeActions && (
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>Reject</Button>
-                        <Button size="sm" onClick={() => handleApproveLeave(request.id)}>Approve</Button>
-                      </div>
-                    )}
+                                         {request.status === 'pending' && canTakeActions && (
+                       <div className="flex space-x-2">
+                         <Button 
+                           size="sm" 
+                           variant="outline" 
+                           onClick={() => handleRejectLeave(request.id)}
+                           disabled={loading || rejectingRequestId === request.id || approvingRequestId === request.id}
+                         >
+                           {rejectingRequestId === request.id ? 'Rejecting...' : 'Reject'}
+                         </Button>
+                         <Button 
+                           size="sm" 
+                           onClick={() => handleApproveLeave(request.id)}
+                           disabled={loading || approvingRequestId === request.id || rejectingRequestId === request.id}
+                         >
+                           {approvingRequestId === request.id ? 'Approving...' : 'Approve'}
+                         </Button>
+                       </div>
+                     )}
                   </div>
                 </div>
               );
@@ -410,17 +461,24 @@ const LeaveManagement = () => {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons for Pending Requests */}
-              {selectedLeaveRequest.status === 'pending' && canTakeActions && (
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                  <Button variant="outline" onClick={() => handleRejectLeave(selectedLeaveRequest.id)}>
-                    Reject Request
-                  </Button>
-                  <Button onClick={() => handleApproveLeave(selectedLeaveRequest.id)}>
-                    Approve Request
-                  </Button>
-                </div>
-              )}
+                             {/* Action Buttons for Pending Requests */}
+               {selectedLeaveRequest.status === 'pending' && canTakeActions && (
+                 <div className="flex justify-end space-x-3 pt-4 border-t">
+                   <Button 
+                     variant="outline" 
+                     onClick={() => handleRejectLeave(selectedLeaveRequest.id)}
+                     disabled={loading || rejectingRequestId === selectedLeaveRequest.id || approvingRequestId === selectedLeaveRequest.id}
+                   >
+                     {rejectingRequestId === selectedLeaveRequest.id ? 'Rejecting...' : 'Reject Request'}
+                   </Button>
+                   <Button 
+                     onClick={() => handleApproveLeave(selectedLeaveRequest.id)}
+                     disabled={loading || approvingRequestId === selectedLeaveRequest.id || rejectingRequestId === selectedLeaveRequest.id}
+                   >
+                     {approvingRequestId === selectedLeaveRequest.id ? 'Approving...' : 'Approve Request'}
+                   </Button>
+                 </div>
+               )}
 
               {/* HR View Only Notice */}
               {selectedLeaveRequest.status === 'pending' && !canTakeActions && (

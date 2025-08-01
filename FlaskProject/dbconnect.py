@@ -13,7 +13,7 @@ driver = os.getenv('DB_DRIVER')
 
 
 class Employee:
-    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None):
+    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None, vacationDays=20, sickDays=10, personalDays=5, otherDays=0):
         self.firstName = firstName
         self.lastName = lastName
         self.ID = ID
@@ -25,6 +25,10 @@ class Employee:
         self.phoneNumber = phoneNumber
         self.bio = bio
         self.ManagerID = ManagerID
+        self.vacationDays = vacationDays
+        self.sickDays = sickDays
+        self.personalDays = personalDays
+        self.otherDays = otherDays
 
     def toDict(self):
         return {
@@ -38,7 +42,11 @@ class Employee:
             "email": self.email,
             "phoneNumber": self.phoneNumber,
             "bio": self.bio,
-            "ManagerID": self.ManagerID
+            "ManagerID": self.ManagerID,
+            "vacationDays": self.vacationDays,
+            "sickDays": self.sickDays,
+            "personalDays": self.personalDays,
+            "otherDays": self.otherDays
         }
 
     def toString(self):
@@ -67,17 +75,21 @@ def parseDB():
         # print results
         for row in rows:
             newEmployee = Employee()
-            newEmployee.ID = row[0]
-            newEmployee.firstName = row[1]
-            newEmployee.lastName = row[2]
-            newEmployee.department = row[3]
-            newEmployee.role = row[4]
-            newEmployee.gender = row[5]
-            newEmployee.pword = row[6]
-            newEmployee.email = row[7]
-            newEmployee.phoneNumber = row[8]
-            newEmployee.bio = row[9]
-            newEmployee.ManagerID = row[10]
+            # Handle the case where leave balance columns might not exist yet
+            if len(row) >= 15:  # With leave balance columns
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
+                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays) = row
+            else:  # Without leave balance columns (fallback)
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
+                # Set default values
+                newEmployee.vacationDays = 20
+                newEmployee.sickDays = 10
+                newEmployee.personalDays = 5
+                newEmployee.otherDays = 0
             print(row)
             employees.append(newEmployee)
 
@@ -123,17 +135,19 @@ def getSubordinates(id):
 
         for row in rows:
             newEmployee = Employee() # getEmployeeByID(row[0])
-            newEmployee.ID = row[0]
-            newEmployee.firstName = row[1]
-            newEmployee.lastName = row[2]
-            newEmployee.department = row[3]
-            newEmployee.role = row[4]
-            newEmployee.gender = row[5]
-            newEmployee.pword = row[6]
-            newEmployee.email = row[7]
-            newEmployee.phoneNumber = row[8]
-            newEmployee.bio = row[9]
-            newEmployee.ManagerID = row[10]
+            (
+                newEmployee.ID,
+                newEmployee.firstName,
+                newEmployee.lastName,
+                newEmployee.department,
+                newEmployee.role,
+                newEmployee.gender,
+                newEmployee.pword,
+                newEmployee.email,
+                newEmployee.phoneNumber,
+                newEmployee.bio,
+                newEmployee.ManagerID
+            ) = row
             print(f"New subordinate added: {newEmployee.toString()}")
             subordinates.append(newEmployee)
         cursor.close()
@@ -175,17 +189,7 @@ def getEmployeeByID(id):
         row = cursor.fetchone()
 
         if row:
-            employee.ID = row[0]
-            employee.firstName = row[1]
-            employee.lastName = row[2]
-            employee.department = row[3]
-            employee.role = row[4]
-            employee.gender = row[5]
-            employee.pword = row[6]
-            employee.email = row[7]
-            employee.phoneNumber = row[8]
-            employee.bio = row[9]
-            employee.ManagerID = row[10]
+            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
         cursor.close()
         connection.close()
     except pyodbc.Error as e:
@@ -206,17 +210,7 @@ def getTeammatesByID(id):
         for row in rows:
             if row[0] != id:  # Exclude the employee themselves
                 employee = Employee()
-                employee.ID = row[0]
-                employee.firstName = row[1]
-                employee.lastName = row[2]
-                employee.department = row[3]
-                employee.role = row[4]
-                employee.gender = row[5]
-                employee.pword = row[6]
-                employee.email = row[7]
-                employee.phoneNumber = row[8]
-                employee.bio = row[9]
-                employee.ManagerID = row[10]
+                employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
                 teammates.append(employee)
         cursor.close()
         connection.close()

@@ -29,6 +29,20 @@ const EmployeePortal = () => {
   const { toast } = useToast();
   const { submitLeaveRequest, getRequestsByEmployee } = useLeaveRequests();
   const { addEvent, getCompanyEvents } = useEvents();
+  const { profile } = useUserProfile();
+  const { userRole } = useRole();
+  
+  // Show loading state while profile is being loaded
+  if (!profile.ID) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Modal states
   const [showTimeOffModal, setShowTimeOffModal] = useState(false);
@@ -69,7 +83,7 @@ const EmployeePortal = () => {
     { name: 'Benefits Enrollment', type: 'PDF', uploadDate: '2023-12-01' },
   ]);
   // Get user's leave requests from context
-  const userEmployeeId = 'emp001'; // This would come from user profile in a real app
+  const userEmployeeId = profile.ID ? `emp${profile.ID.toString().padStart(3, '0')}` : 'emp001'; // Use current user's ID with fallback
   const timeOffRequests = getRequestsByEmployee(userEmployeeId).map(request => ({
     type: request.type,
     dates: `${request.startDate} - ${request.endDate}`,
@@ -117,8 +131,6 @@ const EmployeePortal = () => {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 5); // Show next 5 events
 
-  const { profile } = useUserProfile();
-  const { userRole } = useRole();
   const userProfile = {
     name: profile.firstName + ' ' + profile.lastName,
     email: profile.email,

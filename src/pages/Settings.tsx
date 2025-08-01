@@ -432,12 +432,13 @@ const Settings: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Theme</Label>
-                      <p className="text-sm text-muted-foreground">Toggle between light and dark mode</p>
+                      <Label className="text-gray-500">Theme (Disabled)</Label>
+                      <p className="text-sm text-muted-foreground">Dark mode is temporarily disabled</p>
                     </div>
                     <Switch
-                      checked={appearance.theme === 'dark'}
-                      onCheckedChange={(checked) => handleAppearanceChange('theme', checked ? 'dark' : 'light')}
+                      checked={false}
+                      disabled={true}
+                      onCheckedChange={() => {}} // Do nothing
                     />
                   </div>
                 </div>

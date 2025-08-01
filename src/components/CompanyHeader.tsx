@@ -8,6 +8,7 @@ import { useUserProfile } from '@/contexts/UserProfileContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import GlobalSearch from './GlobalSearch';
 import NotificationDropdown from './NotificationDropdown';
+import RoleSelector from './RoleSelector';
 
 const CompanyHeader = () => {
   const { profile } = useUserProfile();
@@ -42,6 +43,7 @@ const CompanyHeader = () => {
         <div className="flex items-center space-x-3">
           <GlobalSearch />
           <NotificationDropdown />
+          <RoleSelector />
           <div className="flex items-center space-x-2">
             <NavLink to="/settings">
               <Button variant="ghost" size="sm">

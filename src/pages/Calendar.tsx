@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../components/ui/button';
 import { useEvents } from '@/contexts/EventsContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-import { Calendar as CalendarIcon, Briefcase, Gift, Clock, Star, User as UserIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Briefcase, Gift, Clock, Star, User as UserIcon, Plus, Edit, Trash2 } from 'lucide-react';
 import { employees } from '../data/employees';
 
 // Helper function to get events for a specific date
@@ -143,26 +143,54 @@ const CalendarPage = () => {
     setWeekBaseDate(next);
   };
 
-  // Custom Day component for CalendarUI (now has access to events)
+  // Enhanced Custom Day component for CalendarUI with better styling and interaction
   const CalendarDay = (props) => {
     const { date, selected, ...rest } = props;
     const iso = date.toISOString().slice(0, 10);
     const dayEvents = getEventsForDate(iso, events);
     const isToday = date.toDateString() === new Date().toDateString();
+    const hasEvents = dayEvents.length > 0;
+    
     return (
       <button
         {...rest}
-        className={`h-9 w-9 p-0 font-normal rounded-lg relative flex flex-col items-center justify-center transition-colors
-          ${isToday ? 'bg-blue-100 border-2 border-blue-400 dark:bg-purple-800 dark:border-purple-400' : ''}
-          ${dayEvents.length > 0 ? 'bg-yellow-50 dark:bg-purple-900/40' : ''}
-          ${selected ? 'bg-primary text-primary-foreground' : 'text-foreground dark:text-white'}
+        className={`h-16 w-full p-1 font-normal rounded-lg relative flex flex-col items-start justify-start transition-all duration-200 hover:shadow-md border
+          ${isToday ? 'bg-blue-50 border-2 border-blue-400 dark:bg-purple-800 dark:border-purple-400' : 'border-gray-200 dark:border-gray-700'}
+          ${hasEvents ? 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-purple-900/40 dark:to-blue-900/40' : 'bg-white dark:bg-gray-800'}
+          ${selected ? 'ring-2 ring-blue-500 dark:ring-purple-400' : ''}
+          hover:bg-gray-50 dark:hover:bg-gray-700
         `}
         tabIndex={0}
+        onClick={() => handleDateSelect(date)}
       >
-        <span className="text-sm dark:text-white">{date.getDate()}</span>
-        {dayEvents.length > 0 && (
-          <span className="ml-1 bg-blue-200 text-blue-800 rounded-full px-1 text-xs font-medium dark:bg-purple-700 dark:text-white absolute bottom-1 right-1">{dayEvents.length}</span>
-        )}
+        <div className="flex items-center justify-between w-full mb-1">
+          <span className={`text-sm font-medium ${isToday ? 'text-blue-700 dark:text-purple-300' : 'text-gray-900 dark:text-white'}`}>
+            {date.getDate()}
+          </span>
+          {hasEvents && (
+            <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold dark:bg-purple-600">
+              {dayEvents.length}
+            </span>
+          )}
+        </div>
+        
+        {/* Show event previews */}
+        <div className="w-full space-y-0.5 overflow-hidden">
+          {dayEvents.slice(0, 2).map((event, idx) => (
+            <div
+              key={event.id}
+              className={`text-xs px-1 py-0.5 rounded truncate ${eventTypeMeta[event.type]?.color || 'bg-gray-200 text-gray-800'} dark:bg-purple-700 dark:text-white`}
+              title={event.title}
+            >
+              {event.title}
+            </div>
+          ))}
+          {dayEvents.length > 2 && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 px-1">
+              +{dayEvents.length - 2} more
+            </div>
+          )}
+        </div>
       </button>
     );
   };

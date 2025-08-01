@@ -44,6 +44,7 @@ const CompanySidebar = () => {
     { to: '/hr/feedback', icon: FileSpreadsheet, label: 'Feedback Reports', roles: ['hr'] },
     { to: '/hr/announcements', icon: Megaphone, label: 'Announcements', roles: ['hr'] },
     { to: '/hr/documents', icon: FolderOpen, label: 'HR Documents', roles: ['hr'] },
+    { to: '/manager/leave', icon: Clock, label: 'Leave Management', roles: ['manager'] },
     { to: '/hr/manager-tools', icon: UserPlus, label: 'Manager Tools', roles: ['manager'] },
     { to: '/hr/communication', icon: Megaphone, label: 'Communication', roles: ['manager'] },
     { to: '/ithelpdesk/tickets', icon: Headphones, label: 'Support Tickets', roles: ['it'] },

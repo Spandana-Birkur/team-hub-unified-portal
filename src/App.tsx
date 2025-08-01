@@ -101,6 +101,11 @@ const AppContent = () => {
                 <LeaveManagement />
               </ProtectedRoute>
             } />
+            <Route path="/manager/leave" element={
+              <ProtectedRoute requiredRoles={['manager']}>
+                <LeaveManagement />
+              </ProtectedRoute>
+            } />
             <Route path="/hr/performance" element={
               <ProtectedRoute requiredRoles={['hr']}>
                 <PerformanceManagement />

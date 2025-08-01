@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { employees } from '@/data/employees';
 import { useLeaveRequests } from '@/contexts/LeaveRequestContext';
+import { useRole } from '@/contexts/RoleContext';
 import { 
   Users, 
   Calendar, 
@@ -16,10 +17,14 @@ import {
 
 const LeaveManagement = () => {
   const { leaveRequests, approveLeaveRequest, rejectLeaveRequest } = useLeaveRequests();
+  const { userRole } = useRole();
   const [selectedLeaveRequest, setSelectedLeaveRequest] = useState<any>(null);
   const [leaveRequestDetailModalOpen, setLeaveRequestDetailModalOpen] = useState(false);
 
   const pendingLeaveCount = leaveRequests.filter(request => request.status === 'pending').length;
+
+  // Determine if user can take actions (managers can act, HR can only view)
+  const canTakeActions = userRole === 'manager';
 
   // Function to calculate remaining leave balance for an employee
   const calculateRemainingLeaveBalance = (employeeId: string, leaveType: string) => {
@@ -63,10 +68,18 @@ const LeaveManagement = () => {
   // Leave management functions
   const handleApproveLeave = (requestId: number) => {
     approveLeaveRequest(requestId);
+    // Close modal if it's open
+    if (leaveRequestDetailModalOpen) {
+      closeLeaveRequestDetailModal();
+    }
   };
 
   const handleRejectLeave = (requestId: number) => {
     rejectLeaveRequest(requestId);
+    // Close modal if it's open
+    if (leaveRequestDetailModalOpen) {
+      closeLeaveRequestDetailModal();
+    }
   };
 
   const handleViewLeaveRequest = (request: any) => {
@@ -79,7 +92,7 @@ const LeaveManagement = () => {
     setSelectedLeaveRequest(null);
   };
 
-  // Sort and filter leave requests - pending first, then by last action date
+  // Sort and filter leave requests - pending first, then by most recent action
   const sortedLeaveRequests = [...leaveRequests].sort((a, b) => {
     // If one is pending and the other isn't, pending comes first
     if (a.status === 'pending' && b.status !== 'pending') return -1;
@@ -90,13 +103,30 @@ const LeaveManagement = () => {
       return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
     }
     
-    // If both are approved/rejected, sort by last action date (oldest first)
-    // Since we don't have explicit action dates, we'll use submittedAt as a proxy
-    return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+    // If both are approved/rejected, sort by action date (newest first)
+    if (a.status !== 'pending' && b.status !== 'pending') {
+      const aActionTime = a.actionedAt ? new Date(a.actionedAt).getTime() : new Date(a.submittedAt).getTime();
+      const bActionTime = b.actionedAt ? new Date(b.actionedAt).getTime() : new Date(b.submittedAt).getTime();
+      return bActionTime - aActionTime; // Newest first
+    }
+    
+    // Fallback to submission date
+    return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
   });
 
   return (
     <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">
+          {userRole === 'manager' ? 'Leave Management - Manager Access' : 'Leave Management - HR View'}
+        </h1>
+        <p className="text-gray-600">
+          {userRole === 'manager' 
+            ? 'Review and manage leave requests for your team' 
+            : 'View leave requests and track employee leave balances'
+          }
+        </p>
+      </div>
       <div className="space-y-6">
         {/* Leave Management Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -218,7 +248,7 @@ const LeaveManagement = () => {
                       <Eye className="w-4 h-4 mr-1" />
                       View
                     </Button>
-                    {request.status === 'pending' && (
+                    {request.status === 'pending' && canTakeActions && (
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline" onClick={() => handleRejectLeave(request.id)}>Reject</Button>
                         <Button size="sm" onClick={() => handleApproveLeave(request.id)}>Approve</Button>
@@ -258,6 +288,11 @@ const LeaveManagement = () => {
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Request ID: {selectedLeaveRequest.id}</p>
                   <p className="text-sm text-gray-500">Submitted: {new Date(selectedLeaveRequest.submittedAt).toLocaleDateString()}</p>
+                  {selectedLeaveRequest.actionedAt && selectedLeaveRequest.status !== 'pending' && (
+                    <p className="text-sm text-gray-500">
+                      {selectedLeaveRequest.status === 'approved' ? 'Approved' : 'Rejected'}: {new Date(selectedLeaveRequest.actionedAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -376,7 +411,7 @@ const LeaveManagement = () => {
               </Card>
 
               {/* Action Buttons for Pending Requests */}
-              {selectedLeaveRequest.status === 'pending' && (
+              {selectedLeaveRequest.status === 'pending' && canTakeActions && (
                 <div className="flex justify-end space-x-3 pt-4 border-t">
                   <Button variant="outline" onClick={() => handleRejectLeave(selectedLeaveRequest.id)}>
                     Reject Request
@@ -384,6 +419,15 @@ const LeaveManagement = () => {
                   <Button onClick={() => handleApproveLeave(selectedLeaveRequest.id)}>
                     Approve Request
                   </Button>
+                </div>
+              )}
+
+              {/* HR View Only Notice */}
+              {selectedLeaveRequest.status === 'pending' && !canTakeActions && (
+                <div className="flex justify-center pt-4 border-t">
+                  <Badge variant="secondary" className="text-sm px-4 py-2">
+                    HR View Only - Contact Manager for Actions
+                  </Badge>
                 </div>
               )}
 

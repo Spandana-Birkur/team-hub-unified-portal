@@ -11,6 +11,7 @@ export interface LeaveRequest {
   status: 'pending' | 'approved' | 'rejected';
   days: number;
   submittedAt: string;
+  actionedAt?: string; // When the request was approved/rejected
 }
 
 interface LeaveRequestContextType {
@@ -85,6 +86,42 @@ export const LeaveRequestProvider: React.FC<LeaveRequestProviderProps> = ({ chil
       status: 'approved',
       days: 5,
       submittedAt: '2024-01-20T09:15:00Z'
+    },
+    {
+      id: 5,
+      employeeId: 'emp005',
+      employeeName: 'Alex Rodriguez',
+      type: 'Personal',
+      startDate: '2025-08-15',
+      endDate: '2025-08-16',
+      reason: 'Moving to new apartment',
+      status: 'pending',
+      days: 2,
+      submittedAt: '2025-07-30T11:30:00Z'
+    },
+    {
+      id: 6,
+      employeeId: 'emp006',
+      employeeName: 'Jessica Kim',
+      type: 'Sick Leave',
+      startDate: '2025-08-05',
+      endDate: '2025-08-07',
+      reason: 'Flu symptoms and recovery',
+      status: 'pending',
+      days: 3,
+      submittedAt: '2025-07-29T07:45:00Z'
+    },
+    {
+      id: 7,
+      employeeId: 'emp008',
+      employeeName: 'Rachel Green',
+      type: 'Vacation',
+      startDate: '2025-09-02',
+      endDate: '2025-09-06',
+      reason: 'Long weekend getaway with family',
+      status: 'pending',
+      days: 5,
+      submittedAt: '2025-07-28T16:20:00Z'
     }
   ]);
 
@@ -120,7 +157,7 @@ export const LeaveRequestProvider: React.FC<LeaveRequestProviderProps> = ({ chil
     setLeaveRequests(prev => 
       prev.map(request => 
         request.id === requestId 
-          ? { ...request, status: 'approved' }
+          ? { ...request, status: 'approved', actionedAt: new Date().toISOString() }
           : request
       )
     );
@@ -130,7 +167,7 @@ export const LeaveRequestProvider: React.FC<LeaveRequestProviderProps> = ({ chil
     setLeaveRequests(prev => 
       prev.map(request => 
         request.id === requestId 
-          ? { ...request, status: 'rejected' }
+          ? { ...request, status: 'rejected', actionedAt: new Date().toISOString() }
           : request
       )
     );

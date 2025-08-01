@@ -15,9 +15,9 @@ driver = os.getenv('DB_DRIVER')
 from dbconnect import Employee
 
 
-def CreateUser(firstName, lastName, department, position, gender, password):
+def CreateUser(firstName, lastName, department, position, gender, user_password):
 
-    str = password
+    str = user_password
     result = hashlib.sha256(str.encode())
 
     print("The hexadecimal equivalent of SHA256 is : ")
@@ -136,63 +136,55 @@ def AddPw(pw, email):
 def Authenticate(email, pw):
 
     pwordEnc = hashlib.sha256(pw.encode()).hexdigest()
-
     employee = Employee()
-
-    print(str(pwordEnc))
-
-    pword = ''
-
-
+    print(f"Hashed input password: {pwordEnc}")
 
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
-        print('Connection successful!')
+        print('Database connection successful!')
     except pyodbc.Error as e:
-        print('Error connecting to the database: ', e)
-
-    # query
+        print(f'Error connecting to the database: {e}')
+        return False
 
     try:
         cursor = connection.cursor()
-        # cursor.execute("Select * from EMPLOYEES")
-        query = f'SELECT Pword FROM EMPLOYEES WHERE Email = \'{email}\''
-        cursor.execute(query)
-
+        
+        # Use parameterized query to prevent SQL injection
+        query = "SELECT * FROM EMPLOYEES WHERE Email = ?"
+        cursor.execute(query, (email,))
+        
         row = cursor.fetchone()
-        if row:
-            pword = row.Pword.strip()  # remove trailing spaces
-            print(str(pword))
+        if not row:
+            print("No user found with this email.")
+            cursor.close()
+            connection.close()
+            return False
+        
+        # Extract user data
+        employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, stored_pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+        
+        # Remove trailing spaces from stored password
+        stored_pword = stored_pword.strip() if stored_pword else ""
+        print(f"Stored password hash: {stored_pword}")
+        
+        cursor.close()
+        connection.close()
+        
+        # Compare hashed passwords
+        if stored_pword == pwordEnc:
+            print("Password matches - authentication successful.")
+            employee.pword = stored_pword  # Set the password field
+            return employee
         else:
-
-            print("No result found.")
+            print("Password does not match.")
             return False
 
-        query = f'SELECT * FROM EMPLOYEES WHERE Email = \'{email}\' AND Pword = \'{pword}\';'
-        cursor.execute(query)
-
-        row = cursor.fetchone()
-
-        if row:
-            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
-            print(row)
-
-        # close cursor
-        cursor.close()
-
-        print("Connection Closed.")
-
     except pyodbc.Error as e:
-        print("Error fetching data: ", e)
-        return False
-
-    connection.close()
-
-    if str(pword) == str(pwordEnc):
-        print("Password matches.")
-        return employee
-    else:
-        print("Password does not match.")
+        print(f"Error fetching data: {e}")
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals():
+            connection.close()
         return False
 

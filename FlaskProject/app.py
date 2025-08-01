@@ -35,21 +35,31 @@ def ai_request_history():
 
 @app.route('/api/login', methods = ['GET', 'POST'])
 def login():
-    print("ASKJDNASLKJDLAKSJNLKASJNDLKSAJNDASD")
+    print("Login endpoint reached")
     if request.method == 'POST':
-        email = request.json.get('email')
-        pw = request.json.get('password')
-        print(f'pre auth {email}, {pw}')
-        result = Authenticate(email, pw)
-        print(f'result: {result}')
-        if isinstance(result, Employee):
-            print(f"Login for {Employee(result).email} successful.")
-            return jsonify(result.toDict())
-        else:
-            print("Womp womp")
-            return "Error"
-    print("SMTH WRONG")
-    return "Error"
+        try:
+            email = request.json.get('email')
+            pw = request.json.get('password')
+            print(f'Authentication attempt for email: {email}')
+            
+            if not email or not pw:
+                print("Missing email or password")
+                return jsonify({'message': 'Email and password are required'}), 400
+            
+            result = Authenticate(email, pw)
+            print(f'Authentication result: {result}')
+            
+            if isinstance(result, Employee):
+                print(f"Login successful for {result.email}")
+                return jsonify(result.toDict())
+            else:
+                print("Authentication failed - invalid credentials")
+                return jsonify({'message': 'Invalid email or password'}), 401
+        except Exception as e:
+            print(f"Login error: {str(e)}")
+            return jsonify({'message': 'Internal server error'}), 500
+    else:
+        return jsonify({'message': 'POST method required'}), 405
 
 
 @app.route('/api/test', methods=['GET'])

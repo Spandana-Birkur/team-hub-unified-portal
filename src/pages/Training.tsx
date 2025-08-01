@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { BookOpen, Play, Award, Clock, Users, Star, CheckCircle, X } from 'lucide-react';
+import { BookOpen, Play, Award, Clock, Users, Star, CheckCircle, X, Flag } from 'lucide-react';
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 
@@ -176,12 +176,15 @@ const Training = () => {
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
-  const [certificateDialogOpen, setCertificateDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<any>(null);
   const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<{ courseId: number; quizId: number } | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
   const [quizResult, setQuizResult] = useState<{ correct: number; total: number } | null>(null);
+  const [quizSlide, setQuizSlide] = useState(0);
+  const [badgeDialogOpen, setBadgeDialogOpen] = useState(false);
+  const [earnedBadge, setEarnedBadge] = useState<{ courseName: string; quizName: string } | null>(null);
+  const [certificationDialogOpen, setCertificationDialogOpen] = useState(false);
 
   const achievements = [
     { title: 'First Course Completed', date: '2024-01-10', icon: Award, color: 'bg-yellow-500' },
@@ -283,15 +286,11 @@ const Training = () => {
     });
   };
 
-  const handleViewCertificate = (course: any) => {
-    setSelectedCourse(course);
-    setCertificateDialogOpen(true);
-  };
-
   const handleStartQuiz = (courseId: number, quizId: number) => {
     setActiveQuiz({ courseId, quizId });
     setQuizAnswers({});
     setQuizResult(null);
+    setQuizSlide(0);
   };
 
   const handleQuizAnswer = (questionId: number, optionIdx: number) => {
@@ -308,6 +307,18 @@ const Training = () => {
       if (quizAnswers[q.id] === q.answer) correct++;
     });
     setQuizResult({ correct, total: quiz.questions.length });
+    
+    // Check if perfect score - show certification directly
+    if (correct === quiz.questions.length) {
+      setTimeout(() => {
+        setEarnedBadge({
+          courseName: course?.title || 'Course',
+          quizName: quiz.title
+        });
+        // Show certification dialog directly without badge dialog
+        setCertificationDialogOpen(true);
+      }, 1000); // Show certification after 1 second to let results show first
+    }
   };
 
   const enrolledCourses = courses.filter(course => course.status !== 'available');
@@ -403,7 +414,7 @@ const Training = () => {
                         className="flex items-center space-x-2"
                         onClick={() => {
                           if (course.status === 'completed') {
-                            handleViewCertificate(course);
+                            // No action for completed courses - certificate shows after perfect quiz
                           } else if (course.status === 'in-progress') {
                             handleStartCourse(course);
                           } else {
@@ -413,7 +424,7 @@ const Training = () => {
                       >
                         <Play className="w-4 h-4" />
                         <span>
-                          {course.status === 'completed' ? 'View Certificate' :
+                          {course.status === 'completed' ? 'Completed' :
                            course.status === 'in-progress' ? 'Continue' : 'Enroll'}
                         </span>
                       </Button>
@@ -478,13 +489,13 @@ const Training = () => {
                         variant="outline"
                         onClick={() => {
                           if (course.status === 'completed') {
-                            handleViewCertificate(course);
+                            // No action for completed courses - certificate shows after perfect quiz
                           } else {
                             handleStartCourse(course);
                           }
                         }}
                       >
-                        {course.status === 'completed' ? 'View Certificate' : 'Continue'}
+                        {course.status === 'completed' ? 'Completed' : 'Continue'}
                       </Button>
                     </div>
                   </div>
@@ -520,14 +531,6 @@ const Training = () => {
                     </div>
                     <h4 className="font-semibold mb-1">{course.title}</h4>
                     <p className="text-sm text-muted-foreground">Certificate Earned</p>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => handleViewCertificate(course)}
-                    >
-                      View Certificate
-                    </Button>
                   </div>
                 ))}
               </div>
@@ -776,7 +779,7 @@ const Training = () => {
                      </div>
                    </div>
                    {module.completed && (
-                     <p className="text-sm text-green-600">✓ Completed</p>
+                     <p className="text-sm text-green-600">Module Completed</p>
                    )}
                  </div>
                ))}
@@ -787,11 +790,6 @@ const Training = () => {
              <Button variant="outline" onClick={() => setCourseDialogOpen(false)}>
                Close
              </Button>
-             {selectedCourse?.status === 'completed' && (
-               <Button onClick={() => handleViewCertificate(selectedCourse)}>
-                 View Certificate
-               </Button>
-             )}
            </DialogFooter>
          </DialogContent>
        </Dialog>
@@ -817,32 +815,43 @@ const Training = () => {
       </Dialog>
 
       {/* Certificate Dialog */}
-      <Dialog open={certificateDialogOpen} onOpenChange={setCertificateDialogOpen}>
-        <DialogContent>
+      <Dialog open={certificationDialogOpen} onOpenChange={setCertificationDialogOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Certificate of Completion</DialogTitle>
-            <DialogDescription>
-              Congratulations! You have successfully completed "{selectedCourse?.title}".
+            <DialogTitle className="text-2xl font-bold text-center">Certificate of Completion</DialogTitle>
+            <DialogDescription className="text-center text-lg">
+              You have successfully completed "{earnedBadge?.courseName}".
             </DialogDescription>
           </DialogHeader>
           <div className="text-center py-8">
-            <div className="w-32 h-32 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-              <Award className="w-16 h-16 text-green-600" />
+            <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+              <Award className="w-16 h-16 text-white" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">{selectedCourse?.title}</h3>
-            <p className="text-muted-foreground mb-4">Certificate of Completion</p>
-            <p className="text-sm text-muted-foreground">
-              This certificate is awarded to {profile.firstName} {profile.lastName} for successfully completing the course.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{earnedBadge?.courseName}</h3>
+            <p className="text-xl text-muted-foreground mb-6 font-semibold">Certificate of Completion</p>
+            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg mb-6">
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
+                This certificate is awarded to <span className="font-semibold text-gray-900 dark:text-white">{profile.firstName} {profile.lastName}</span>
+              </p>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                for successfully completing the course.
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">
               Completed on {new Date().toLocaleDateString()}
             </p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCertificateDialogOpen(false)}>
+          <DialogFooter className="justify-center">
+            <Button 
+              variant="outline" 
+              onClick={() => setCertificationDialogOpen(false)}
+              className="px-8"
+            >
               Close
             </Button>
-            <Button>
+            <Button 
+              className="px-8 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+            >
               Download Certificate
             </Button>
           </DialogFooter>
@@ -854,64 +863,140 @@ const Training = () => {
         const course = courses.find((c) => c.id === activeQuiz.courseId);
         const quiz = course?.quizzes?.find((q) => q.id === activeQuiz.quizId);
         if (!quiz) return null;
+        const totalQuestions = quiz.questions.length;
+        const currentQuestion = quiz.questions[quizSlide];
+        // Animation classes for slide-in from right
+        const slideBase = "transition-transform duration-500 ease-in-out";
+        const slideIn = "translate-x-0 opacity-100";
+        const slideOut = "translate-x-full opacity-0";
         return (
           <Dialog open={true} onOpenChange={() => setActiveQuiz(null)}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle className="text-gray-900 dark:text-white">{quiz.title}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6 mt-4">
-                {quiz.questions.map((q) => (
-                  <div key={q.id}>
-                    <p className="font-medium text-gray-900 dark:text-white mb-2">{q.question}</p>
-                    <div className="space-y-2">
-                      {q.options.map((opt, idx) => (
-                        <label key={idx} className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`quiz-q${q.id}`}
-                            checked={quizAnswers[q.id] === idx}
-                            onChange={() => handleQuizAnswer(q.id, idx)}
-                          />
-                          <span className="text-gray-900 dark:text-white">{opt}</span>
-                        </label>
-                      ))}
+            <DialogContent className="max-w-4xl max-h-[90vh] w-full p-0 overflow-hidden">
+              {/* Top Bar Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold">{quiz.title}</h2>
+                      <p className="text-blue-100 text-sm">Question {quizSlide + 1} of {totalQuestions}</p>
                     </div>
                   </div>
-                ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveQuiz(null)}
+                    className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                {/* Progress Bar in Header */}
+                <div className="mt-4">
+                  <Progress 
+                    value={((quizSlide) / totalQuestions) * 100} 
+                    className="h-2 bg-white/20" 
+                  />
+                  <div className="flex justify-between text-xs mt-1 text-blue-100">
+                    <span>Progress: {Math.round(((quizSlide) / totalQuestions) * 100)}%</span>
+                    <span>{totalQuestions - quizSlide - 1} questions remaining</span>
+                  </div>
+                </div>
               </div>
-              <DialogFooter className="mt-6 flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setActiveQuiz(null)}>Cancel</Button>
+              
+              {/* Content Area */}
+              <div className="p-6">
+              <div className="relative min-h-[400px] flex items-center justify-center overflow-hidden">
+                {/* Only show the current question as a slide */}
+                <div
+                  key={currentQuestion.id}
+                  className={`absolute w-full ${slideBase} ${slideIn} bg-background p-8 rounded-lg shadow-lg border`}
+                  style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}
+                >
+                  <p className="font-medium text-gray-900 dark:text-white mb-6 text-xl leading-relaxed">{currentQuestion.question}</p>
+                  <div className="space-y-4">
+                    {currentQuestion.options.map((opt, idx) => (
+                      <label key={idx} className={`flex items-center space-x-3 cursor-pointer px-4 py-3 rounded-lg border text-base transition-all hover:shadow-md ${quizAnswers[currentQuestion.id] === idx ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' : 'border-gray-200 hover:border-blue-300'}` }>
+                        <input
+                          type="radio"
+                          name={`quiz-q${currentQuestion.id}`}
+                          checked={quizAnswers[currentQuestion.id] === idx}
+                          onChange={() => handleQuizAnswer(currentQuestion.id, idx)}
+                          className="accent-blue-600 w-4 h-4"
+                        />
+                        <span className="text-gray-900 dark:text-white">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Navigation Buttons */}
+              <div className="flex justify-between items-center mt-8 px-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setQuizSlide((s) => Math.max(0, s - 1))}
+                  disabled={quizSlide === 0 || !!quizResult}
+                  className="px-6 py-2 text-base"
+                >
+                  Previous
+                </Button>
                 {!quizResult ? (
-                  <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+                  quizSlide < totalQuestions - 1 ? (
+                    <Button
+                      onClick={() => setQuizSlide((s) => Math.min(totalQuestions - 1, s + 1))}
+                      disabled={typeof quizAnswers[currentQuestion.id] !== 'number'}
+                      className="px-6 py-2 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSubmitQuiz}
+                      disabled={typeof quizAnswers[currentQuestion.id] !== 'number'}
+                      className="px-6 py-2 text-base bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                    >
+                      Submit Quiz
+                    </Button>
+                  )
                 ) : (
-                  <Button onClick={() => {
-                    setActiveQuiz(null);
-                    setQuizResult(null);
-                    setQuizAnswers({});
-                    // Reopen the course dialog
-                    if (course) {
-                      setSelectedCourse(course);
-                      setCourseDialogOpen(true);
-                    }
-                  }}>
+                  <Button
+                    onClick={() => {
+                      setActiveQuiz(null);
+                      setQuizResult(null);
+                      setQuizAnswers({});
+                      setQuizSlide(0);
+                      // Reopen the course dialog
+                      if (course) {
+                        setSelectedCourse(course);
+                        setCourseDialogOpen(true);
+                      }
+                    }}
+                    className="px-6 py-2 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
                     Close and Continue
                   </Button>
                 )}
-              </DialogFooter>
+              </div>
+              </div>
+              {/* Quiz Result */}
               {quizResult && (
-                <div className="mt-4 p-4 bg-muted rounded-lg text-center">
-                  <p className="font-semibold text-gray-900 dark:text-white mb-2">
+                <div className="mx-6 mb-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg text-center border border-green-200 dark:border-green-800 animate-fade-in">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <Award className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="font-semibold text-gray-900 dark:text-white mb-2 text-lg">
                     Quiz Results
                   </p>
-                  <p className="text-lg text-gray-900 dark:text-white">
-                    You scored {quizResult.correct} out of {quizResult.total}
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    {quizResult.correct} / {quizResult.total}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-base text-muted-foreground">
                     {quizResult.correct === quizResult.total ? 
-                      "Excellent! Perfect score!" : 
+                      "Excellent! Perfect score achieved." : 
                       `${Math.round((quizResult.correct / quizResult.total) * 100)}% - ${
-                        quizResult.correct / quizResult.total >= 0.8 ? "Great job!" : 
+                        quizResult.correct / quizResult.total >= 0.8 ? "Great performance!" : 
                         quizResult.correct / quizResult.total >= 0.6 ? "Good effort!" : "Keep practicing!"
                       }`
                     }
@@ -922,6 +1007,76 @@ const Training = () => {
           </Dialog>
         );
       })()}
+
+      {/* Badge Award Dialog */}
+      <Dialog open={badgeDialogOpen} onOpenChange={setBadgeDialogOpen}>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          {/* Professional Header */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-6 text-center text-white">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-full flex items-center justify-center">
+              <Award className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-xl font-semibold mb-1">Achievement Unlocked</h2>
+            <p className="text-slate-200 text-sm">Perfect Quiz Performance</p>
+          </div>
+
+          {/* Badge Content */}
+          <div className="p-6 text-center bg-white dark:bg-gray-900">
+            <div className="relative inline-block mb-6">
+              {/* Professional Badge Circle */}
+              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-20 h-20 bg-gradient-to-br from-slate-500 to-slate-600 rounded-full flex items-center justify-center">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Excellence Badge
+            </h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-3 font-medium">
+              {earnedBadge?.courseName}
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Perfect score achieved on "{earnedBadge?.quizName}"
+            </p>
+
+            {/* Professional Stats */}
+            <div className="grid grid-cols-3 gap-3 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+              <div className="text-center">
+                <div className="text-xl font-bold text-slate-700 dark:text-slate-300">100%</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Accuracy</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-700 dark:text-green-400">
+                  <CheckCircle className="w-5 h-5 mx-auto" />
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-blue-700 dark:text-blue-400">
+                  <Star className="w-5 h-5 mx-auto" />
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Expert</div>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+              This achievement has been added to your professional development record.
+            </p>
+
+            <Button 
+              onClick={() => {
+                setBadgeDialogOpen(false);
+                setEarnedBadge(null);
+              }}
+              className="w-full bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white font-medium py-2.5"
+            >
+              Continue Learning
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

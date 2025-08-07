@@ -1,7 +1,7 @@
 // Leave Management Service
 // Handles all API calls to the backend for leave management functionality
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 export interface LeaveRequest {
   requestId: number;

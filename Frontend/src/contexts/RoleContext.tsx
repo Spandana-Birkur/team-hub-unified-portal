@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useUserProfile } from './UserProfileContext';
 
 type UserRole = 'employee' | 'hr' | 'manager' | 'it' | null;
 
@@ -23,6 +24,7 @@ export const useRole = () => {
 };
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { profile } = useUserProfile();
   const [userRole, setUserRoleState] = useState<UserRole>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -57,11 +59,41 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const hasAccess = (requiredRoles: UserRole[]) => {
-    return userRole ? requiredRoles.includes(userRole) : false;
+    if (!userRole) {
+      return false;
+    }
+
+    if (profile.role === 'Admin') {
+      return true;
+    }
+
+    if (requiredRoles.includes(userRole)) {
+      return true;
+    }
+
+    if (profile.role === 'Manager') {
+      const managerRoles: UserRole[] = ['manager', 'employee'];
+      if (profile.department === 'HR') {
+        managerRoles.push('hr');
+      }
+      if (profile.department === 'IT') {
+        managerRoles.push('it');
+      }
+      return requiredRoles.some(role => managerRoles.includes(role));
+    }
+
+    const employeeRoles: UserRole[] = ['employee'];
+    if (profile.department === 'HR') {
+      employeeRoles.push('hr');
+    }
+    if (profile.department === 'IT') {
+      employeeRoles.push('it');
+    }
+    return requiredRoles.some(role => employeeRoles.includes(role));
   };
 
   // Check if user can access IT staff interface
-  const canAccessITStaff = userRole === 'it' || userRole === 'manager';
+  const canAccessITStaff = userRole === 'it' || userRole === 'manager' || profile.role === 'Admin';
 
   return (
     <RoleContext.Provider value={{ 

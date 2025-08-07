@@ -58,7 +58,7 @@ const Settings: React.FC = () => {
 
     try {
       if (section === 'profile') {
-        const response = await fetch('http://localhost:8080/api/update-bio', {
+        const response = await fetch('http://localhost:8000/api/update-bio', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

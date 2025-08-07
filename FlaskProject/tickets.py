@@ -96,11 +96,12 @@ def createTicket(employeeId=None, title=None, body=None, createdDate=None, prior
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
         cursor = connection.cursor()
         query = """
+            SET NOCOUNT ON;
             INSERT INTO IT_TICKETS (EmployeeID, TicketTitle, TicketBody, CreatedDate, TicketPriority, [Status], TicketCategory) 
             VALUES (?, ?, ?, ?, ?, ?, ?);
             SELECT SCOPE_IDENTITY();
         """
-        cursor.execute(query, employeeId, title, body, createdDate, priority, status, category)
+        cursor.execute(query, (employeeId, title, body, createdDate, priority, status, category))
         new_ticket_id = cursor.fetchone()[0]
         connection.commit()
         print(f"Ticket created successfully with ID: {new_ticket_id}")
@@ -108,8 +109,11 @@ def createTicket(employeeId=None, title=None, body=None, createdDate=None, prior
         print("Error creating ticket: ", e)
         return None
     finally:
-        cursor.close()
-        connection.close()
+        # It's good practice to close the cursor and connection in the finally block
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if 'connection' in locals() and connection:
+            connection.close()
 
     if new_ticket_id:
         return getTicketById(new_ticket_id)

@@ -64,28 +64,25 @@ const LoginPage = () => {
         throw new Error('Failed to insert data');
       }
       result = await response.json();
-      if (
-        result.message !== "Error" &&
-        result.user &&
-        result.user.Role
-      ) {
-        setUserRole(result.user.Role.toLowerCase());
-        setAccesses(result.accesses);
+      if (result && result.Role) {
+        setUserRole(result.Role.toLowerCase());
+        // Assuming accesses are not part of the employee data for now
+        // setAccesses(result.accesses); 
         const profileData = {
-          ID: result.user.EmployeeID,
-          firstName: result.user.FirstName,
-          lastName: result.user.LastName,
-          email: result.user.Email,
-          phone: result.user.PhoneNumber,
-          department: result.user.Department,
-          role: result.user.Role,
-          bio: result.user.Bio,
-          gender: result.user.Gender,
+          ID: result.EmployeeID,
+          firstName: result.FirstName,
+          lastName: result.LastName,
+          email: result.Email,
+          phone: result.PhoneNumber,
+          department: result.Department,
+          role: result.Role,
+          bio: result.Bio,
+          gender: result.Gender,
         };
         setProfile(profileData);
         localStorage.setItem('userProfile', JSON.stringify(profileData));
-        localStorage.setItem('userRole', result.user.Role.toLowerCase());
-        localStorage.setItem('userAccesses', JSON.stringify(result.accesses));
+        localStorage.setItem('userRole', result.Role.toLowerCase());
+        // localStorage.setItem('userAccesses', JSON.stringify(result.accesses));
         setIsLoggedIn(true);
       } else {
         alert('Invalid email or password');

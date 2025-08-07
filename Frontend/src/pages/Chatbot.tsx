@@ -32,7 +32,7 @@ const Chatbot = () => {
 
     try {
       // Send prompt and history to backend
-      const response = await fetch('http://localhost:8080/api/AIRequestHistory', {
+      const response = await fetch('http://localhost:8000/api/AIRequestHistory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -217,8 +217,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ThemeProvider>
-          <RoleProvider>
-            <UserProfileProvider>
+          <UserProfileProvider>
+            <RoleProvider>
               <NotificationProvider>
                 <LeaveRequestProvider>
                   <EventsProvider>
@@ -226,8 +226,8 @@ const App = () => (
                   </EventsProvider>
                 </LeaveRequestProvider>
               </NotificationProvider>
-            </UserProfileProvider>
-          </RoleProvider>
+            </RoleProvider>
+          </UserProfileProvider>
         </ThemeProvider>
       </BrowserRouter>
     </TooltipProvider>

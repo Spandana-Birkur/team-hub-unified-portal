@@ -45,10 +45,26 @@ const RoleSelector = () => {
   ];
 
   const availableRoles = allRoles.filter(role => {
-    if (role.id === 'employee') return true;
-    if (profile.department === 'HR' && role.id === 'hr') return true;
-    if (profile.department === 'IT' && role.id === 'it') return true;
-    if ((profile.role === 'Manager' || profile.role === 'CEO') && role.id === 'manager') return true;
+    if (profile.role === 'Admin') {
+      return true;
+    }
+
+    if (role.id === 'employee') {
+      return true;
+    }
+
+    if (profile.department === 'HR' && role.id === 'hr') {
+      return true;
+    }
+
+    if (profile.department === 'IT' && role.id === 'it') {
+      return true;
+    }
+
+    if (profile.role === 'Manager' && role.id === 'manager') {
+      return true;
+    }
+
     return false;
   });
 

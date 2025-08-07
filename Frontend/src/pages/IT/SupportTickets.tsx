@@ -60,7 +60,7 @@ const SupportTickets = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://127.0.0.1:8080/api/tickets');
+        const response = await fetch('http://127.0.0.1:8000/api/tickets');
         const contentType = response.headers.get("content-type");
         if (!response.ok) {
           if (contentType && contentType.includes("application/json")) {
@@ -131,7 +131,7 @@ const SupportTickets = () => {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8080/api/tickets/create', {
+      const response = await fetch('http://127.0.0.1:8000/api/tickets/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ticketData),
@@ -147,7 +147,7 @@ const SupportTickets = () => {
       setCreateDialogOpen(false);
       
       // Fetch fresh tickets to ensure we have the latest data
-      const ticketsResponse = await fetch('http://127.0.0.1:8080/api/tickets');
+      const ticketsResponse = await fetch('http://127.0.0.1:8000/api/tickets');
       if (!ticketsResponse.ok) {
         throw new Error('Failed to fetch updated tickets');
       }
@@ -166,7 +166,7 @@ const SupportTickets = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://127.0.0.1:8080/api/tickets/update/${ticket.ticketId}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/tickets/update/${ticket.ticketId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'resolved' }),
@@ -179,7 +179,7 @@ const SupportTickets = () => {
       }
 
       // Fetch fresh tickets to ensure we have the latest data
-      const ticketsResponse = await fetch('http://127.0.0.1:8080/api/tickets');
+      const ticketsResponse = await fetch('http://127.0.0.1:8000/api/tickets');
       if (!ticketsResponse.ok) {
         throw new Error('Failed to fetch updated tickets');
       }

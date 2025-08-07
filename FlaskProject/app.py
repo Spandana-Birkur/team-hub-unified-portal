@@ -118,6 +118,7 @@ def get_profile(id):
     # In a real app, you'd get the user ID from a session or token
     employee = getEmployeeById(id)
     if employee:
+        print(f"Employee object before toDict(): {employee.toDict()}") # Add this line
         return jsonify(employee.toDict())
     return jsonify({'message': 'User not found'}), 404
 

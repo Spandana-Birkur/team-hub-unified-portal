@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useRole } from '@/contexts/RoleContext';
 import { 
   Megaphone, 
   MessageSquare, 
@@ -29,6 +30,8 @@ import {
 } from 'lucide-react';
 
 const ManagerCommunication = () => {
+  const { userRole } = useRole();
+  const isManager = userRole === 'manager';
   const [activeTab, setActiveTab] = useState('announcements');
   const [newAnnouncementModalOpen, setNewAnnouncementModalOpen] = useState(false);
   const [newMessageModalOpen, setNewMessageModalOpen] = useState(false);
@@ -276,8 +279,15 @@ const ManagerCommunication = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Communication Tools</h1>
-        <p className="text-gray-600">Manage team announcements, messages, and notifications</p>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {isManager ? 'Communication Tools' : 'Company Communications'}
+        </h1>
+        <p className="text-gray-600">
+          {isManager 
+            ? 'Manage team announcements, messages, and notifications' 
+            : 'View company announcements, messages, and notifications'
+          }
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -302,10 +312,12 @@ const ManagerCommunication = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Button onClick={() => setNewAnnouncementModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Announcement
-                </Button>
+                {isManager && (
+                  <Button onClick={() => setNewAnnouncementModalOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Announcement
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -328,16 +340,18 @@ const ManagerCommunication = () => {
                       <span>To: {announcement.recipients}</span>
                       <span>{announcement.date}</span>
                     </div>
-                    <div className="flex justify-end space-x-2 mt-3">
-                      <Button size="sm" variant="outline" onClick={() => handleEditAnnouncement(announcement.id)}>
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleArchiveAnnouncement(announcement.id)}>
-                        <Archive className="w-4 h-4 mr-1" />
-                        Archive
-                      </Button>
-                    </div>
+                    {isManager && (
+                      <div className="flex justify-end space-x-2 mt-3">
+                        <Button size="sm" variant="outline" onClick={() => handleEditAnnouncement(announcement.id)}>
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleArchiveAnnouncement(announcement.id)}>
+                          <Archive className="w-4 h-4 mr-1" />
+                          Archive
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -360,10 +374,12 @@ const ManagerCommunication = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Button onClick={() => setNewMessageModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Message
-                </Button>
+                {isManager && (
+                  <Button onClick={() => setNewMessageModalOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Message
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -409,10 +425,12 @@ const ManagerCommunication = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Button onClick={() => setNotificationSettingsModalOpen(true)}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </Button>
+                {isManager && (
+                  <Button onClick={() => setNotificationSettingsModalOpen(true)}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Button>
+                )}
               </div>
             </CardHeader>
             <CardContent>

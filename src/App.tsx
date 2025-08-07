@@ -130,7 +130,7 @@ const AppContent = () => {
               </ProtectedRoute>
             } />
             <Route path="/hr/communication" element={
-              <ProtectedRoute requiredRoles={['manager']}>
+              <ProtectedRoute requiredRoles={['manager', 'employee']}>
                 <ManagerCommunication />
               </ProtectedRoute>
             } />

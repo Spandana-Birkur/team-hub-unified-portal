@@ -198,33 +198,6 @@ def index():
         ]
     })
 
-# ✅ Root health-check route
-@app.route('/')
-def index():
-    return jsonify({
-        'message': '✅ The Employee Portal backend is running.',
-        'routes': [
-            '/api/AIRequest',
-            '/api/AIRequestHistory',
-            '/api/login',
-            '/api/test',
-            '/api/employees',
-            '/api/employees/count',
-            '/api/update-bio',
-            '/api/get-subordinates/<int:id>',
-            '/api/get-manager/<int:id>',
-            '/api/tickets',
-            '/api/tickets/<int:ticketId>',
-            '/api/leave-requests',
-            '/api/leave-requests/<int:requestId>',
-            '/api/leave-requests/<int:requestId>/approve',
-            '/api/leave-requests/<int:requestId>/reject',
-            '/api/leave-requests/employee/<int:employeeId>',
-            '/api/leave-requests/pending',
-            '/api/leave-balance/<int:employeeId>'
-        ]
-    })
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))
     app.run(debug=True, host='0.0.0.0', port=port)

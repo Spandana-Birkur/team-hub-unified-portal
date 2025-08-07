@@ -58,23 +58,17 @@ def parseDB():
 
     employees = []
 
+    connection = None  # Initialize connection to None
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
         print('Connection successful!')
-    except pyodbc.Error as e:
-        print('Error connecting to the database: ', e)
 
-    try:
-        query = "Select * from EMPLOYEES"
+        query = "SELECT * FROM EMPLOYEES"
         cursor = connection.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
 
-
-
-
-        # print results
         for row in rows:
             idpls = row.EmployeeID
             print(f"Employee ID: {idpls}")
@@ -98,18 +92,21 @@ def parseDB():
             newEmployee.personalDays = row.PersonalDays if hasattr(row, 'PersonalDays') else 5
             newEmployee.otherDays = row.OtherDays if hasattr(row, 'OtherDays') else 0
             newEmployee.salary = row.Salary if hasattr(row, 'Salary') else 0
-
             
             print(row)
             employees.append(newEmployee)
 
         # close cursor
         cursor.close()
-        connection.close()
-        print("Connection Closed.")
 
     except pyodbc.Error as e:
-        print("Error fetching data: ", e)
+        print("Error connecting to or fetching data from the database: ", e)
+    
+    finally:
+        # Make sure to close the connection if it was successfully opened
+        if connection:
+            connection.close()
+            print("Connection Closed.")
 
     print("Employees List: ")
     for employee in employees:
@@ -118,6 +115,7 @@ def parseDB():
     return employees
 
 def updateBio(email, new_bio):
+    connection = None
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
@@ -126,15 +124,18 @@ def updateBio(email, new_bio):
         cursor.execute(query, (new_bio, email))
         connection.commit()
         cursor.close()
-        connection.close()
         print("Bio updated successfully.")
         return True
     except pyodbc.Error as e:
         print("Error updating bio: ", e)
         return False
+    finally:
+        if connection:
+            connection.close()
     
 def getSubordinates(id):
     subordinates = []
+    connection = None
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
@@ -164,9 +165,11 @@ def getSubordinates(id):
             print(f"New subordinate added: {newEmployee.toString()}")
             subordinates.append(newEmployee)
         cursor.close()
-        connection.close()
     except pyodbc.Error as e:
         print("Error fetching subordinates: ", e)
+    finally:
+        if connection:
+            connection.close()
     return subordinates
 
 def getManager(id):
@@ -193,6 +196,7 @@ def getManagersHelper(manager, managers):
 
 def getEmployeeByID(id):
     employee = Employee()
+    connection = None
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
@@ -202,32 +206,39 @@ def getEmployeeByID(id):
         row = cursor.fetchone()
 
         if row:
-            newEmployee = Employee()
-            # Handle the case where leave balance columns might not exist yet
-            if len(row) >= 15:  # With leave balance columns
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
-                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays, newEmployee.salary) = row
-            else:  # Without leave balance columns (fallback)
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
-                # Set default values
-                newEmployee.vacationDays = 20
-                newEmployee.sickDays = 10
-                newEmployee.personalDays = 5
-                newEmployee.otherDays = 0
+            # Create a new Employee object and populate it with the row data
+            employee.ID = row.EmployeeID
+            employee.firstName = row.FirstName
+            employee.lastName = row.LastName
+            employee.department = row.Department
+            employee.role = row.Role
+            employee.gender = row.Gender
+            employee.pword = row.Pword
+            employee.email = row.Email
+            employee.phoneNumber = row.PhoneNumber
+            employee.bio = row.Bio
+            employee.ManagerID = row.ManagerID
+            employee.vacationDays = row.VacationDays if hasattr(row, 'VacationDays') else 20
+            employee.sickDays = row.SickDays if hasattr(row, 'SickDays') else 10
+            employee.personalDays = row.PersonalDays if hasattr(row, 'PersonalDays') else 5
+            employee.otherDays = row.OtherDays if hasattr(row, 'OtherDays') else 0
+            employee.salary = row.Salary if hasattr(row, 'Salary') else 0
             print(row)
+        else:
+            # If no employee is found, return None
+            return None
         cursor.close()
-        connection.close()
     except pyodbc.Error as e:
         print("Error fetching employee: ", e)
         return None
+    finally:
+        if connection:
+            connection.close()
     return employee
 
 def getTeammatesByID(id):
     teammates = []
+    connection = None
     try:
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
@@ -256,9 +267,11 @@ def getTeammatesByID(id):
                 print(row)
                 teammates.append(newEmployee)
         cursor.close()
-        connection.close()
     except pyodbc.Error as e:
         print("Error fetching teammates: ", e)
+    finally:
+        if connection:
+            connection.close()
     return teammates
 
 

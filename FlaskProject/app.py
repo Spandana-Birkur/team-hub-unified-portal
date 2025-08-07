@@ -1,5 +1,8 @@
 from urllib import request
 import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'site_packages'))
+
 from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
@@ -40,48 +43,41 @@ def ai_request_history():
 @app.route('/api/login', methods=['POST'])
 def login():
     print("Login endpoint reached")
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
-
-        user_employee = Authenticate(email, password)
-
-        if user_employee:
-            user = user_employee.toDict()
+    if request.method == 'POST':
+        try:
+            email = request.json.get('email')
+            pw = request.json.get('password')
+            print(f'Authentication attempt for email: {email}')
             
-            accesses = ['Employee']
-            if user['Role'] in ['Manager', 'CEO']:
-                accesses.append('Manager')
-            if user['Department'] == 'IT':
-                accesses.append('IT')
-            if user['Department'] == 'Human Resources':
-                accesses.append('HR')
+            if not email or not pw:
+                print("Missing email or password")
+                return jsonify({'message': 'Email and password are required'}), 400
             
-            return jsonify({
-                'message': 'Success',
-                'user': user,
-                'accesses': accesses
-            })
-        else:
-            return jsonify({'message': 'Error', 'error': 'Invalid credentials'}), 401
-
-    except Exception as e:
-        return jsonify({'message': 'Error', 'error': str(e)}), 500
-
+            result = Authenticate(email, pw)
+            print(f'Authentication result: {result}')
+            
+            if isinstance(result, Employee):
+                print(f"Login successful for {result.email}")
+                return jsonify(result.toDict())
+            else:
+                print("Authentication failed - invalid credentials")
+                return jsonify({'message': 'Invalid email or password'}), 401
+        except Exception as e:
+            print(f"Login error: {str(e)}")
+            return jsonify({'message': 'Internal server error'}), 500
+    else:
+        return jsonify({'message': 'POST method required'}), 405
 
 @app.route('/api/test', methods=['GET'])
 def test_cors():
     print("CORS test endpoint was reached successfully!")
     return jsonify({"message": "Success! CORS is configured correctly."})
 
-
 @app.route('/api/employees', methods = ['GET'])
 def employees():
     employees = parseDB()
     emps = [employee.toDict() for employee in employees]
-    return jsonify({'employees' : emps})
-
+    return jsonify({ 'employees' : emps })
 
 @app.route('/api/employees/count', methods=['GET'])
 def get_employee_count():
@@ -94,6 +90,7 @@ def update_bio():
     data = request.json
     email = data.get('email')
     new_bio = data.get('bio')
+    # Call a function to update the bio in the database
     if updateBio(email, new_bio):
         print(f"Bio for {email} updated successfully.")
     else:
@@ -116,10 +113,13 @@ def get_manager(id):
     print(f"Manager found: {manager.toString()}")
     return jsonify({manager.toDict()}), 200
 
+
+
+
+
 """
 Ticket Management API
 """
-
 @app.route('/api/tickets', methods=['GET'])
 def tickets():
     tickets_list = getTickets()
@@ -171,5 +171,60 @@ def update_ticket_route(ticketId):
 
 # ... (All other routes like /api/leave-requests etc. remain unchanged) ...
 
+# ✅ Root health-check route
+@app.route('/')
+def index():
+    return jsonify({
+        'message': '✅ The Employee Portal backend is running.',
+        'routes': [
+            '/api/AIRequest',
+            '/api/AIRequestHistory',
+            '/api/login',
+            '/api/test',
+            '/api/employees',
+            '/api/employees/count',
+            '/api/update-bio',
+            '/api/get-subordinates/<int:id>',
+            '/api/get-manager/<int:id>',
+            '/api/tickets',
+            '/api/tickets/<int:ticketId>',
+            '/api/leave-requests',
+            '/api/leave-requests/<int:requestId>',
+            '/api/leave-requests/<int:requestId>/approve',
+            '/api/leave-requests/<int:requestId>/reject',
+            '/api/leave-requests/employee/<int:employeeId>',
+            '/api/leave-requests/pending',
+            '/api/leave-balance/<int:employeeId>'
+        ]
+    })
+
+# ✅ Root health-check route
+@app.route('/')
+def index():
+    return jsonify({
+        'message': '✅ The Employee Portal backend is running.',
+        'routes': [
+            '/api/AIRequest',
+            '/api/AIRequestHistory',
+            '/api/login',
+            '/api/test',
+            '/api/employees',
+            '/api/employees/count',
+            '/api/update-bio',
+            '/api/get-subordinates/<int:id>',
+            '/api/get-manager/<int:id>',
+            '/api/tickets',
+            '/api/tickets/<int:ticketId>',
+            '/api/leave-requests',
+            '/api/leave-requests/<int:requestId>',
+            '/api/leave-requests/<int:requestId>/approve',
+            '/api/leave-requests/<int:requestId>/reject',
+            '/api/leave-requests/employee/<int:employeeId>',
+            '/api/leave-requests/pending',
+            '/api/leave-balance/<int:employeeId>'
+        ]
+    })
+
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    port = int(os.environ.get("PORT", 8000))
+    app.run(debug=True, host='0.0.0.0', port=port)

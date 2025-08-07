@@ -60,7 +60,7 @@ const SupportTickets = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('api/tickets');
+        const response = await fetch('/api/tickets');
         const contentType = response.headers.get("content-type");
         if (!response.ok) {
           if (contentType && contentType.includes("application/json")) {

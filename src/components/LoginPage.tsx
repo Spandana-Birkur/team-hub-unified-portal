@@ -50,7 +50,8 @@ const LoginPage = () => {
     var result;
     try {
       console.log("TRYING");
-      const response = await fetch('/api/login', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiBaseUrl}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +97,8 @@ const LoginPage = () => {
 
   const testApi = async () => {
     try {
-      const response = await fetch('/api/test');
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiBaseUrl}/api/test`);
       const data = await response.json();
       alert(data.message);
     } catch (e) {

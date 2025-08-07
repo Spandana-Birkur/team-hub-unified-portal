@@ -3,7 +3,7 @@ import hashlib
 import os
 import pyodbc
 
-load_dotenv(override=False)
+load_dotenv()
 
 # Connection Details
 server = os.getenv('DB_SERVER')

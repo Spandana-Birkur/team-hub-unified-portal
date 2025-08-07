@@ -25,7 +25,8 @@ import {
   TrendingUp,
   Laptop,
   History,
-  Shield
+  Shield,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -44,6 +45,7 @@ const CompanySidebar = () => {
     { to: '/hr/feedback', icon: FileSpreadsheet, label: 'Feedback Reports', roles: ['hr'] },
     { to: '/hr/announcements', icon: Megaphone, label: 'Announcements', roles: ['hr'] },
     { to: '/hr/documents', icon: FolderOpen, label: 'HR Documents', roles: ['hr'] },
+    { to: '/hr/analytics', icon: BarChart3, label: 'Analytics', roles: ['hr'] },
     { to: '/manager/leave', icon: Clock, label: 'Leave Management', roles: ['manager'] },
     { to: '/hr/manager-tools', icon: UserPlus, label: 'Manager Tools', roles: ['manager'] },
     { to: '/hr/communication', icon: Megaphone, label: 'Communication', roles: ['manager', 'employee'] },

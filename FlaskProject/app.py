@@ -58,6 +58,7 @@ def login():
             
             if isinstance(result, Employee):
                 print(f"Login successful for {result.email}")
+                print(result.toDict())
                 return jsonify(result.toDict())
             else:
                 print("Authentication failed - invalid credentials")
@@ -131,12 +132,16 @@ Ticket Management API
 """
 @app.route('/api/tickets', methods=['GET'])
 def tickets():
-    tickets_list = getTickets()
-    # Sort tickets to show newest first
-    if tickets_list:
-        sorted_tickets = sorted(tickets_list, key=lambda t: t.createdDate, reverse=True)
-        return jsonify({'tickets': [ticket.toDict() for ticket in sorted_tickets]}), 200
-    return jsonify({'tickets': []}), 200
+    try:
+        tickets_list = getTickets()
+        # Sort tickets to show newest first
+        if tickets_list:
+            sorted_tickets = sorted(tickets_list, key=lambda t: t.createdDate, reverse=True)
+            return jsonify({'tickets': [ticket.toDict() for ticket in sorted_tickets]}), 200
+        return jsonify({'tickets': []}), 200
+    except Exception as e:
+        print(f"Error in /api/tickets: {e}")
+        return jsonify({'error': 'Internal server error fetching tickets', 'details': str(e)}), 500
 
 @app.route('/api/tickets/create', methods=['POST'])
 def create_ticket():

@@ -1,5 +1,8 @@
 from urllib import request
 import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'site_packages'))
+
 from dotenv import load_dotenv
 
 from flask import Flask, jsonify, request
@@ -63,23 +66,16 @@ def login():
     else:
         return jsonify({'message': 'POST method required'}), 405
 
-
 @app.route('/api/test', methods=['GET'])
 def test_cors():
     print("CORS test endpoint was reached successfully!")
     return jsonify({"message": "Success! CORS is configured correctly."})
 
-
 @app.route('/api/employees', methods = ['GET'])
 def employees():
     employees = parseDB()
     emps = [employee.toDict() for employee in employees]
-
-    return jsonify({
-        'employees' : emps
-    })
-
-
+    return jsonify({ 'employees' : emps })
 
 @app.route('/api/employees/count', methods=['GET'])
 def get_employee_count():
@@ -92,7 +88,6 @@ def update_bio():
     data = request.json
     email = data.get('email')
     new_bio = data.get('bio')
-    # Call a function to update the bio in the database
     if updateBio(email, new_bio):
         print(f"Bio for {email} updated successfully.")
     else:
@@ -115,14 +110,9 @@ def get_manager(id):
     print(f"Manager found: {manager.toString()}")
     return jsonify({manager.toDict()}), 200
 
-
-
-
-
 """
 Ticket Management API
 """
-
 @app.route('/api/tickets', methods=['GET'])
 def tickets():
     tickets = getTickets()
@@ -143,7 +133,6 @@ def delete_ticket(ticketId):
 """
 Leave Management API
 """
-
 @app.route('/api/leave-requests', methods=['GET', 'POST'])
 def leave_requests():
     if request.method == 'GET':
@@ -216,5 +205,33 @@ def leave_balance(employeeId):
         return jsonify({'message': 'Employee not found'}), 404
     return jsonify(leaveBalance.toDict()), 200
 
+# ✅ Root health-check route
+@app.route('/')
+def index():
+    return jsonify({
+        'message': '✅ The Employee Portal backend is running.',
+        'routes': [
+            '/api/AIRequest',
+            '/api/AIRequestHistory',
+            '/api/login',
+            '/api/test',
+            '/api/employees',
+            '/api/employees/count',
+            '/api/update-bio',
+            '/api/get-subordinates/<int:id>',
+            '/api/get-manager/<int:id>',
+            '/api/tickets',
+            '/api/tickets/<int:ticketId>',
+            '/api/leave-requests',
+            '/api/leave-requests/<int:requestId>',
+            '/api/leave-requests/<int:requestId>/approve',
+            '/api/leave-requests/<int:requestId>/reject',
+            '/api/leave-requests/employee/<int:employeeId>',
+            '/api/leave-requests/pending',
+            '/api/leave-balance/<int:employeeId>'
+        ]
+    })
+
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    port = int(os.environ.get("PORT", 8000))
+    app.run(debug=True, host='0.0.0.0', port=port)

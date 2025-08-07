@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "siteName": {
+      "value": "ihopethisworks"
+    },
+    "servicePlanName": {
+      "value": "ASP-Access-9f99"
+    },
+    "location": {
+      "value": "East US"
+    },
+    "sqlServerName": {
+      "value": "mainiithink"
+    },
+    "sqlAdminUsername": {
+      "value": "db"
+    },
+    "sqlAdminPassword": {
+      "value": "PortaL!234abcd"
+    },
+    "sqlDbName": {
+      "value": "accessmaindatabase"
+    },
+    "sqlSkuName": {
+      "value": "GP_S_Gen5"
+    },
+    "openAiName": {
+      "value": "openai-service"
+    },
+    "storageAccountName": {
+      "value": "ihopethisworksstorage"
+    },
+    "searchServiceName": {
+      "value": "ihopethisworks-search"
+    }
+  }
+}

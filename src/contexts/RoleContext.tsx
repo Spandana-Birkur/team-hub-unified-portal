@@ -59,41 +59,38 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const hasAccess = (requiredRoles: UserRole[]) => {
-    if (!userRole) {
-      return false;
-    }
+    if (!userRole) return false;
 
-    if (profile.role === 'Admin') {
-      return true;
-    }
-
+    // Check if the currently selected role has access
     if (requiredRoles.includes(userRole)) {
       return true;
     }
 
-    if (profile.role === 'Manager') {
-      const managerRoles: UserRole[] = ['manager', 'employee'];
-      if (profile.department === 'HR') {
-        managerRoles.push('hr');
+    // Fallback to profile-based access if direct role check fails
+    if (profile) {
+      if (profile.role === 'Admin') {
+        return true;
       }
-      if (profile.department === 'IT') {
-        managerRoles.push('it');
+      
+      if (profile.role === 'Manager') {
+        const managerRoles: UserRole[] = ['manager', 'employee'];
+        if (profile.department === 'HR') managerRoles.push('hr');
+        if (profile.department === 'IT') managerRoles.push('it');
+        return requiredRoles.some(role => managerRoles.includes(role));
       }
-      return requiredRoles.some(role => managerRoles.includes(role));
+
+      // Default employee access based on department
+      const employeeRoles: UserRole[] = ['employee'];
+      if (profile.department === 'HR') employeeRoles.push('hr');
+      if (profile.department === 'IT') employeeRoles.push('it');
+      return requiredRoles.some(role => employeeRoles.includes(role));
     }
 
-    const employeeRoles: UserRole[] = ['employee'];
-    if (profile.department === 'HR') {
-      employeeRoles.push('hr');
-    }
-    if (profile.department === 'IT') {
-      employeeRoles.push('it');
-    }
-    return requiredRoles.some(role => employeeRoles.includes(role));
+    return false;
   };
-
+  
   // Check if user can access IT staff interface
-  const canAccessITStaff = userRole === 'it' || userRole === 'manager' || profile.role === 'Admin';
+  const canAccessITStaff = userRole === 'it' || userRole === 'manager' || (profile && profile.role === 'Admin');
 
   return (
     <RoleContext.Provider value={{ 

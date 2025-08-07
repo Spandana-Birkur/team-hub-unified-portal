@@ -11,9 +11,11 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Download, Upload, Calendar, DollarSign, Shield, Heart, Clock, FileText, CreditCard, Building2, Users, BarChart3, PieChart, TrendingUp, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useRole } from '@/contexts/RoleContext';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 
 const Pay = () => {
   const { userRole } = useRole();
+  const { profile, loading } = useUserProfile();
   const isManager = userRole === 'manager';
   
   // Manager-specific state
@@ -385,7 +387,9 @@ const Pay = () => {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <p className="font-semibold">Current Salary</p>
-                <p className="text-2xl font-bold text-green-600">$54,000/year</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {loading ? 'Loading...' : profile?.salary.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                </p>
               </div>
               <Badge variant="secondary">Full-time</Badge>
             </div>
@@ -897,4 +901,4 @@ const Pay = () => {
   );
 };
 
-export default Pay; 
+export default Pay;

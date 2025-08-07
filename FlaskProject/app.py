@@ -113,6 +113,15 @@ def get_manager(id):
     print(f"Manager found: {manager.toString()}")
     return jsonify({manager.toDict()}), 200
 
+@app.route('/api/profile', methods=['GET'])
+def get_profile():
+    # In a real app, you'd get the user ID from a session or token
+    user_id = 1  # Simulating user with ID 1
+    employee = getEmployeeById(user_id)
+    if employee:
+        return jsonify(employee.toDict())
+    return jsonify({'message': 'User not found'}), 404
+
 
 
 
@@ -186,6 +195,7 @@ def index():
             '/api/update-bio',
             '/api/get-subordinates/<int:id>',
             '/api/get-manager/<int:id>',
+            '/api/profile',
             '/api/tickets',
             '/api/tickets/<int:ticketId>',
             '/api/leave-requests',

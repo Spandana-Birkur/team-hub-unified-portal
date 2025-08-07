@@ -172,7 +172,7 @@ def update_ticket_route(ticketId):
 # ... (All other routes like /api/leave-requests etc. remain unchanged) ...
 
 # ✅ Root health-check route
-@app.route('/')
+@app.route('/health')
 def index():
     return jsonify({
         'message': '✅ The Employee Portal backend is running.',
@@ -197,6 +197,16 @@ def index():
             '/api/leave-balance/<int:employeeId>'
         ]
     })
+from flask import send_from_directory
+
+# Serve React static files
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join("dist", path)):
+        return send_from_directory('dist', path)
+    else:
+        return send_from_directory('dist', 'index.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))

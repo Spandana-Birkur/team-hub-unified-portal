@@ -137,7 +137,7 @@ const AppContent = () => {
             
             {/* IT Routes */}
             <Route path="/ithelpdesk/tickets" element={
-              <ProtectedRoute requiredRoles={['it']}>
+              <ProtectedRoute requiredRoles={['employee', 'it']}>
                 <SupportTickets />
               </ProtectedRoute>
             } />

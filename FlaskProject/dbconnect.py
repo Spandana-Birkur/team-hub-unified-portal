@@ -13,7 +13,7 @@ driver = os.getenv('DB_DRIVER')
 
 
 class Employee:
-    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None, vacationDays=20, sickDays=10, personalDays=5, otherDays=0):
+    def __init__(self, firstName="", lastName="", ID=-1, department="", role="", gender='', pword = "", email = "", phoneNumber="", bio="", ManagerID=None, vacationDays=20, sickDays=10, personalDays=5, otherDays=0, salary=0):
         self.firstName = firstName
         self.lastName = lastName
         self.ID = ID
@@ -29,24 +29,26 @@ class Employee:
         self.sickDays = sickDays
         self.personalDays = personalDays
         self.otherDays = otherDays
+        self.salary = salary
 
     def toDict(self):
         return {
-            "firstName": self.firstName,
-            "lastName": self.lastName,
-            "ID": self.ID,
-            "department": self.department,
-            "role": self.role,
-            "gender": self.gender,
-            "pword": self.pword,
-            "email": self.email,
-            "phoneNumber": self.phoneNumber,
-            "bio": self.bio,
+            "FirstName": self.firstName,
+            "LastName": self.lastName,
+            "EmployeeID": self.ID,
+            "Department": self.department,
+            "Role": self.role,
+            "Gender": self.gender,
+            "Pword": self.pword,
+            "Email": self.email,
+            "PhoneNumber": self.phoneNumber,
+            "Bio": self.bio,
             "ManagerID": self.ManagerID,
-            "vacationDays": self.vacationDays,
-            "sickDays": self.sickDays,
-            "personalDays": self.personalDays,
-            "otherDays": self.otherDays
+            "VacationDays": self.vacationDays,
+            "SickDays": self.sickDays,
+            "PersonalDays": self.personalDays,
+            "OtherDays": self.otherDays,
+            "Salary": self.salary
         }
 
     def toString(self):
@@ -74,22 +76,30 @@ def parseDB():
 
         # print results
         for row in rows:
+            idpls = row.EmployeeID
+            print(f"Employee ID: {idpls}")
+            # Create a new Employee object and populate it with the row data
+            print(type(row))
             newEmployee = Employee()
             # Handle the case where leave balance columns might not exist yet
-            if len(row) >= 15:  # With leave balance columns
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
-                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays) = row
-            else:  # Without leave balance columns (fallback)
-                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
-                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
-                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
-                # Set default values
-                newEmployee.vacationDays = 20
-                newEmployee.sickDays = 10
-                newEmployee.personalDays = 5
-                newEmployee.otherDays = 0
+            newEmployee.ID = row.EmployeeID
+            newEmployee.firstName = row.FirstName
+            newEmployee.lastName = row.LastName
+            newEmployee.department = row.Department
+            newEmployee.role = row.Role
+            newEmployee.gender = row.Gender
+            newEmployee.pword = row.Pword
+            newEmployee.email = row.Email
+            newEmployee.phoneNumber = row.PhoneNumber
+            newEmployee.bio = row.Bio
+            newEmployee.ManagerID = row.ManagerID
+            newEmployee.vacationDays = row.VacationDays if hasattr(row, 'VacationDays') else 20
+            newEmployee.sickDays = row.SickDays if hasattr(row, 'SickDays') else 10
+            newEmployee.personalDays = row.PersonalDays if hasattr(row, 'PersonalDays') else 5
+            newEmployee.otherDays = row.OtherDays if hasattr(row, 'OtherDays') else 0
+            newEmployee.salary = row.Salary if hasattr(row, 'Salary') else 0
+
+            
             print(row)
             employees.append(newEmployee)
 
@@ -134,20 +144,23 @@ def getSubordinates(id):
         rows = cursor.fetchall()
 
         for row in rows:
-            newEmployee = Employee() # getEmployeeByID(row[0])
-            (
-                newEmployee.ID,
-                newEmployee.firstName,
-                newEmployee.lastName,
-                newEmployee.department,
-                newEmployee.role,
-                newEmployee.gender,
-                newEmployee.pword,
-                newEmployee.email,
-                newEmployee.phoneNumber,
-                newEmployee.bio,
-                newEmployee.ManagerID
-            ) = row
+            newEmployee = Employee()
+            # Handle the case where leave balance columns might not exist yet
+            if len(row) >= 15:  # With leave balance columns
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
+                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays, newEmployee.salary) = row
+            else:  # Without leave balance columns (fallback)
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
+                # Set default values
+                newEmployee.vacationDays = 20
+                newEmployee.sickDays = 10
+                newEmployee.personalDays = 5
+                newEmployee.otherDays = 0
+            print(row)
             print(f"New subordinate added: {newEmployee.toString()}")
             subordinates.append(newEmployee)
         cursor.close()
@@ -189,7 +202,23 @@ def getEmployeeByID(id):
         row = cursor.fetchone()
 
         if row:
-            employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
+            newEmployee = Employee()
+            # Handle the case where leave balance columns might not exist yet
+            if len(row) >= 15:  # With leave balance columns
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
+                 newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays, newEmployee.salary) = row
+            else:  # Without leave balance columns (fallback)
+                (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                 newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                 newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
+                # Set default values
+                newEmployee.vacationDays = 20
+                newEmployee.sickDays = 10
+                newEmployee.personalDays = 5
+                newEmployee.otherDays = 0
+            print(row)
         cursor.close()
         connection.close()
     except pyodbc.Error as e:
@@ -209,9 +238,23 @@ def getTeammatesByID(id):
 
         for row in rows:
             if row[0] != id:  # Exclude the employee themselves
-                employee = Employee()
-                employee.ID, employee.firstName, employee.lastName, employee.department, employee.role, employee.gender, employee.pword, employee.email, employee.phoneNumber, employee.bio, employee.ManagerID = row
-                teammates.append(employee)
+                newEmployee = Employee()  # getEmployeeByID(row[0])
+                if len(row) >= 15:  # With leave balance columns
+                    (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                    newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                    newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID,
+                    newEmployee.vacationDays, newEmployee.sickDays, newEmployee.personalDays, newEmployee.otherDays, newEmployee.salary) = row
+                else:  # Without leave balance columns (fallback)
+                    (newEmployee.ID, newEmployee.firstName, newEmployee.lastName, newEmployee.department, 
+                    newEmployee.role, newEmployee.gender, newEmployee.pword, newEmployee.email, 
+                    newEmployee.phoneNumber, newEmployee.bio, newEmployee.ManagerID) = row
+                    # Set default values
+                    newEmployee.vacationDays = 20
+                    newEmployee.sickDays = 10
+                    newEmployee.personalDays = 5
+                    newEmployee.otherDays = 0
+                print(row)
+                teammates.append(newEmployee)
         cursor.close()
         connection.close()
     except pyodbc.Error as e:

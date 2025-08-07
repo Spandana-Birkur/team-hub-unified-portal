@@ -47,7 +47,7 @@ const CompanySidebar = () => {
     { to: '/manager/leave', icon: Clock, label: 'Leave Management', roles: ['manager'] },
     { to: '/hr/manager-tools', icon: UserPlus, label: 'Manager Tools', roles: ['manager'] },
     { to: '/hr/communication', icon: Megaphone, label: 'Communication', roles: ['manager'] },
-    { to: '/ithelpdesk/tickets', icon: Headphones, label: 'Support Tickets', roles: ['it', 'employee'] },
+    { to: '/ithelpdesk/tickets', icon: Headphones, label: 'Support Tickets', roles: ['employee', 'it'] },
     { to: '/ithelpdesk/escalation', icon: TrendingUp, label: 'SLA & Escalation', roles: ['it'] },
     { to: '/ithelpdesk/assignment', icon: Users, label: 'Team Assignment', roles: ['it'] },
     { to: '/ithelpdesk/assets', icon: Laptop, label: 'Asset Management', roles: ['it'] },

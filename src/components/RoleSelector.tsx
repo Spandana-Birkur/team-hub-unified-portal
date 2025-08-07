@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useRole } from '@/contexts/RoleContext';
 import { useNavigate } from 'react-router-dom';
+import { useUserProfile } from '@/contexts/UserProfileContext';
 
 const RoleSelector = () => {
   const { userRole, setUserRole } = useRole();
+  const { profile } = useUserProfile();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  const roles = [
+  const allRoles = [
     {
       id: 'employee' as const,
       title: 'Employee Access',
@@ -42,7 +44,15 @@ const RoleSelector = () => {
     }
   ];
 
-  const currentRole = roles.find(role => role.id === userRole) || roles[0];
+  const availableRoles = allRoles.filter(role => {
+    if (role.id === 'employee') return true;
+    if (profile.department === 'HR' && role.id === 'hr') return true;
+    if (profile.department === 'IT' && role.id === 'it') return true;
+    if ((profile.role === 'Manager' || profile.role === 'CEO') && role.id === 'manager') return true;
+    return false;
+  });
+
+  const currentRole = allRoles.find(role => role.id === userRole) || allRoles[0];
 
   const getDefaultRoute = (role: 'employee' | 'hr' | 'manager' | 'it') => {
     switch (role) {
@@ -86,7 +96,7 @@ const RoleSelector = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {roles.map((role) => (
+        {availableRoles.map((role) => (
           <DropdownMenuItem
             key={role.id}
             onClick={() => handleRoleChange(role.id)}

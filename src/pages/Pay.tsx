@@ -388,7 +388,7 @@ const Pay = () => {
               <div>
                 <p className="font-semibold">Current Salary</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {loading ? 'Loading...' : profile?.salary.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                  {loading || !profile || !profile.salary ? 'Loading...' : profile.salary.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                 </p>
               </div>
               <Badge variant="secondary">Full-time</Badge>

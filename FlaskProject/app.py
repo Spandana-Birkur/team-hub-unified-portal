@@ -113,11 +113,10 @@ def get_manager(id):
     print(f"Manager found: {manager.toString()}")
     return jsonify({manager.toDict()}), 200
 
-@app.route('/api/profile', methods=['GET'])
-def get_profile():
+@app.route('/api/profile/<int:id>', methods=['GET'])
+def get_profile(id):
     # In a real app, you'd get the user ID from a session or token
-    user_id = 1  # Simulating user with ID 1
-    employee = getEmployeeById(user_id)
+    employee = getEmployeeById(id)
     if employee:
         return jsonify(employee.toDict())
     return jsonify({'message': 'User not found'}), 404
@@ -181,7 +180,7 @@ def update_ticket_route(ticketId):
 # ... (All other routes like /api/leave-requests etc. remain unchanged) ...
 
 # ✅ Root health-check route
-@app.route('/health')
+@app.route('/')
 def index():
     return jsonify({
         'message': '✅ The Employee Portal backend is running.',
@@ -207,16 +206,7 @@ def index():
             '/api/leave-balance/<int:employeeId>'
         ]
     })
-from flask import send_from_directory
 
-# Serve React static files
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react(path):
-    if path != "" and os.path.exists(os.path.join("dist", path)):
-        return send_from_directory('dist', path)
-    else:
-        return send_from_directory('dist', 'index.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))

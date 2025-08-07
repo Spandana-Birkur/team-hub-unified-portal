@@ -91,7 +91,8 @@ def parseDB():
             newEmployee.sickDays = row.SickDays if hasattr(row, 'SickDays') else 10
             newEmployee.personalDays = row.PersonalDays if hasattr(row, 'PersonalDays') else 5
             newEmployee.otherDays = row.OtherDays if hasattr(row, 'OtherDays') else 0
-            newEmployee.salary = row.Salary if hasattr(row, 'Salary') else 0
+            # Ensure salary is a number, default to 0 if None or not present
+            newEmployee.salary = float(row.Salary) if hasattr(row, 'Salary') and row.Salary is not None else 0
             
             print(row)
             employees.append(newEmployee)
@@ -201,11 +202,13 @@ def getEmployeeByID(id):
         connection = pyodbc.connect(
             f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
         cursor = connection.cursor()
-        query = "SELECT * FROM EMPLOYEES WHERE EmployeeID = ?"
+        # Explicitly select all columns, including Salary, to ensure it's always retrieved
+        query = "SELECT EmployeeID, FirstName, LastName, Department, Role, Gender, Pword, Email, PhoneNumber, Bio, ManagerID, VacationDays, SickDays, PersonalDays, OtherDays, Salary FROM EMPLOYEES WHERE EmployeeID = ?"
         cursor.execute(query, (id,))
         row = cursor.fetchone()
 
         if row:
+            print(f"Raw row data from DB: {row}") # Add this print statement for debugging
             # Create a new Employee object and populate it with the row data
             employee.ID = row.EmployeeID
             employee.firstName = row.FirstName
@@ -222,8 +225,8 @@ def getEmployeeByID(id):
             employee.sickDays = row.SickDays if hasattr(row, 'SickDays') else 10
             employee.personalDays = row.PersonalDays if hasattr(row, 'PersonalDays') else 5
             employee.otherDays = row.OtherDays if hasattr(row, 'OtherDays') else 0
-            employee.salary = row.Salary if hasattr(row, 'Salary') else 0
-            print(row)
+            # Ensure salary is a number, default to 0 if None or not present
+            employee.salary = float(row.Salary) if hasattr(row, 'Salary') and row.Salary is not None else 0
         else:
             # If no employee is found, return None
             return None
@@ -273,6 +276,13 @@ def getTeammatesByID(id):
         if connection:
             connection.close()
     return teammates
+
+def getSalaryByID(id):
+    employee = getEmployeeByID(id)
+    if employee:
+        return employee.salary
+    else:
+        return None
 
 
 if __name__ == "__main__":

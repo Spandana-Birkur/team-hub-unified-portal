@@ -73,7 +73,7 @@ const Settings: React.FC = () => {
 
         // Update profile in context and localStorage
         updateProfile({ ...localProfile, bio: localProfile.bio });
-        localStorage.setItem('userProfile', JSON.stringify({ ...localProfile, bio: localProfile.bio }));
+        localStorage.setItem('userProfile', JSON.stringify({ ...localProfile, bio: localProfile.bio, salary: localProfile.salary }));
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

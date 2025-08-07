@@ -78,6 +78,7 @@ const LoginPage = () => {
           role: result.Role,
           bio: result.Bio,
           gender: result.Gender,
+          salary: result.Salary, // Add salary from API response
         };
         setProfile(profileData);
         localStorage.setItem('userProfile', JSON.stringify(profileData));

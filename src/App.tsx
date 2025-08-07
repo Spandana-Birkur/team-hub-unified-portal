@@ -32,6 +32,7 @@ import PerformanceManagement from "./pages/HR/PerformanceManagement";
 import FeedbackReports from "./pages/HR/FeedbackReports";
 import HRAnnouncements from "./pages/HR/HRAnnouncements";
 import HRDocuments from "./pages/HR/HRDocuments";
+import HRAnalytics from "./pages/HR/HRAnalytics";
 import ManagerTools from "./pages/HR/ManagerTools";
 import ManagerCommunication from "./components/ManagerCommunication";
 
@@ -122,6 +123,11 @@ const AppContent = () => {
             <Route path="/hr/documents" element={
               <ProtectedRoute requiredRoles={['hr']}>
                 <HRDocuments />
+              </ProtectedRoute>
+            } />
+            <Route path="/hr/analytics" element={
+              <ProtectedRoute requiredRoles={['hr']}>
+                <HRAnalytics />
               </ProtectedRoute>
             } />
             <Route path="/hr/manager-tools" element={

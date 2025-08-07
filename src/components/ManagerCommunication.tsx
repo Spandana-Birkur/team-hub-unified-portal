@@ -39,6 +39,39 @@ const ManagerCommunication = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Mock data
+  const [companyAnnouncements, setCompanyAnnouncements] = useState([
+    { 
+      id: 1, 
+      title: 'New Company Policy Update', 
+      content: 'We are implementing new remote work policies effective January 1st. Please review the updated guidelines in the employee handbook.', 
+      priority: 'info', 
+      date: '2024-12-16',
+      author: 'HR Department',
+      recipients: 'All Employees',
+      status: 'published'
+    },
+    { 
+      id: 2, 
+      title: 'Annual Company Meeting', 
+      content: 'Join us for our annual all-hands meeting on January 15th at 2 PM in the main auditorium. We will discuss company goals and achievements.', 
+      priority: 'urgent', 
+      date: '2024-12-15',
+      author: 'CEO Office',
+      recipients: 'All Employees',
+      status: 'published'
+    },
+    { 
+      id: 3, 
+      title: 'Benefits Enrollment Period', 
+      content: 'The annual benefits enrollment period is now open until December 31st. Please review your options and make your selections.', 
+      priority: 'reminder', 
+      date: '2024-12-10',
+      author: 'HR Department',
+      recipients: 'All Employees',
+      status: 'published'
+    },
+  ]);
+
   const [announcements, setAnnouncements] = useState([
     { 
       id: 1, 
@@ -141,6 +174,15 @@ const ManagerCommunication = () => {
   });
 
   // Filter data based on search
+  const filteredCompanyAnnouncements = companyAnnouncements.filter(announcement => {
+    const query = searchQuery.toLowerCase();
+    return (
+      announcement.title.toLowerCase().includes(query) ||
+      announcement.content.toLowerCase().includes(query) ||
+      announcement.recipients.toLowerCase().includes(query)
+    );
+  });
+
   const filteredAnnouncements = announcements.filter(announcement => {
     const query = searchQuery.toLowerCase();
     return (
@@ -299,11 +341,12 @@ const ManagerCommunication = () => {
 
         {/* Announcements Tab */}
         <TabsContent value="announcements" className="space-y-6">
+          {/* Company Wide Announcements */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
-                <Megaphone className="w-5 h-5" />
-                <span>Team Announcements</span>
+                <Megaphone className="w-5 h-5 text-red-500" />
+                <span>Company Wide Announcements</span>
               </CardTitle>
               <div className="flex space-x-2">
                 <Input 
@@ -315,10 +358,65 @@ const ManagerCommunication = () => {
                 {isManager && (
                   <Button onClick={() => setNewAnnouncementModalOpen(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    New Announcement
+                    New Company Announcement
                   </Button>
                 )}
               </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredCompanyAnnouncements.map((announcement) => (
+                  <div key={`company-${announcement.id}`} className="p-4 border-2 border-red-100 bg-red-50 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                        <p className="text-sm text-gray-600">{announcement.content}</p>
+                      </div>
+                      <div className="flex items-center space-x-2 ml-4">
+                        {getPriorityBadge(announcement.priority)}
+                        <Badge variant={announcement.status === 'published' ? 'default' : 'secondary'}>
+                          {announcement.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>By: {announcement.author} • To: {announcement.recipients}</span>
+                      <span>{announcement.date}</span>
+                    </div>
+                    {isManager && (
+                      <div className="flex justify-end space-x-2 mt-3">
+                        <Button size="sm" variant="outline" onClick={() => handleEditAnnouncement(announcement.id)}>
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleArchiveAnnouncement(announcement.id)}>
+                          <Archive className="w-4 h-4 mr-1" />
+                          Archive
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {filteredCompanyAnnouncements.length === 0 && (
+                  <p className="text-gray-500 text-center py-8">No company announcements found.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Team Announcements */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <Megaphone className="w-5 h-5" />
+                <span>Team Announcements</span>
+              </CardTitle>
+              {isManager && (
+                <Button onClick={() => setNewAnnouncementModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Team Announcement
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -354,6 +452,9 @@ const ManagerCommunication = () => {
                     )}
                   </div>
                 ))}
+                {filteredAnnouncements.length === 0 && (
+                  <p className="text-gray-500 text-center py-8">No team announcements found.</p>
+                )}
               </div>
             </CardContent>
           </Card>

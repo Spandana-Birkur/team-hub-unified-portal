@@ -50,7 +50,7 @@ const LoginPage = () => {
     var result;
     try {
       console.log("TRYING");
-      const response = await fetch('http://localhost:8000/api/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const LoginPage = () => {
 
   const testApi = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/test');
+      const response = await fetch('/api/test');
       const data = await response.json();
       alert(data.message);
     } catch (e) {

@@ -14,7 +14,7 @@ from tickets import *
 from leave_management import *
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=False)
 
 app = Flask(__name__)
 CORS(app)

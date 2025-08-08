@@ -274,7 +274,7 @@ const EmployeePortal = () => {
       <Tabs defaultValue="personal" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
           <TabsTrigger value="personal">Personal</TabsTrigger>
-          <TabsTrigger value="timeoff">Time Off</TabsTrigger>
+          <TabsTrigger value="timeoff">Leave Management</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
@@ -423,8 +423,8 @@ const EmployeePortal = () => {
 
               <Card className="md:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Time Off Requests</CardTitle>
-                  <Button onClick={() => setShowTimeOffModal(true)}>Request Time Off</Button>
+                  <CardTitle>Leave Requests</CardTitle>
+                  <Button onClick={() => setShowTimeOffModal(true)}>Request Leave</Button>
                 </CardHeader>
                 <CardContent>
                   <Table>

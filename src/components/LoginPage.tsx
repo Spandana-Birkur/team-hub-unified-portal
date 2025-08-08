@@ -143,11 +143,23 @@ const LoginPage = () => {
   console.log('LoginPage render, showLoginForm:', showLoginForm);
 
   if (!isLoggedIn) {
+    // Show AccessLanding first, then login form
+    if (!showLoginForm) {
+      return <AccessLanding onProceedToLogin={() => setShowLoginForm(true)} />;
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 via-white to-gray-200">
         {/* Add this button temporarily for testing */}
       <button onClick={testApi} className="absolute top-4 left-4 bg-red-500 text-white p-2 rounded">
         Test CORS
+      </button>
+      {/* Back button to return to landing */}
+      <button 
+        onClick={() => setShowLoginForm(false)} 
+        className="absolute top-4 right-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
+        ← Back to Landing
       </button>
         <Card className="w-full max-w-md shadow-2xl border-none bg-white rounded-2xl">
           <CardHeader className="text-center">

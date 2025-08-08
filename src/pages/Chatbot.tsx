@@ -268,7 +268,7 @@ const Chatbot = () => {
         }),
       });
       const data = await response.json();
-      const aiText = data.response || 'No response from AI.';
+      const aiText = data.response || 'No response from Nexis.';
 
       // Update current session with AI response and history
       setChatSessions(prev => 
@@ -291,7 +291,7 @@ const Chatbot = () => {
       setChatSessions(prev => 
         prev.map(session => 
           session.id === currentSessionId
-            ? { ...session, messages: [...session.messages, { text: 'Error: Could not get AI response.', sender: 'ai' as const }] }
+            ? { ...session, messages: [...session.messages, { text: 'Error: Could not get response from Nexis.', sender: 'ai' as const }] }
             : session
         )
       );
@@ -402,7 +402,7 @@ const Chatbot = () => {
                 <MessageCircle className="w-4 h-4 text-white" />
               </div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AI Assistant
+                Nexis AI Assistant
               </h1>
             </div>
           </div>
@@ -423,7 +423,7 @@ const Chatbot = () => {
                   How can I help you today?
                 </h2>
                 <p className="text-sm text-blue-500/60 text-center max-w-md">
-                  Start a conversation with your AI assistant. I'm here to help with any questions you might have.
+                  Start a conversation with Nexis, your AI assistant. I'm here to help with any questions you might have.
                 </p>
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
                   <div className="p-4 rounded-xl bg-white/60 backdrop-blur border border-blue-200/50 hover:bg-white/80 hover:glow-effect transition-all duration-300 cursor-pointer">
@@ -447,9 +447,9 @@ const Chatbot = () => {
                       <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg ${
                         msg.sender === 'user' 
                           ? 'bg-gradient-to-r from-blue-500 to-purple-600 glow-effect' 
-                          : 'bg-gradient-to-r from-green-500 to-cyan-500 glow-effect'
+                          : 'bg-gradient-to-r from-purple-500 to-pink-500 glow-effect'
                       }`}>
-                        {msg.sender === 'user' ? '👤' : '🤖'}
+                        {msg.sender === 'user' ? '👤' : '✨'}
                       </div>
                       <div className={`rounded-2xl px-6 py-4 shadow-lg transition-all duration-200 hover:shadow-xl ${
                         msg.sender === 'user'
@@ -470,15 +470,15 @@ const Chatbot = () => {
                 {loading && (
                   <div className="flex justify-start message-fade-in">
                     <div className="flex items-start gap-4 max-w-3xl">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-cyan-500 flex items-center justify-center text-white text-sm font-bold shadow-lg glow-effect">
-                        🤖
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold shadow-lg glow-effect">
+                        ✨
                       </div>
                       <div className="bg-white/80 backdrop-blur border border-blue-200/50 rounded-2xl px-6 py-4 shadow-lg">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                           <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                           <div className="w-3 h-3 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                          <span className="text-blue-600/70 text-sm ml-2">AI is thinking...</span>
+                          <span className="text-blue-600/70 text-sm ml-2">Nexis is thinking...</span>
                         </div>
                       </div>
                     </div>
@@ -497,7 +497,7 @@ const Chatbot = () => {
               <div className="relative">
                 <Input
                   className="w-full pr-14 py-4 px-6 border-2 border-blue-200/50 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 bg-white/80 backdrop-blur text-gray-800 placeholder-blue-400/70 text-sm transition-all duration-200 shadow-lg hover:shadow-xl focus:glow-effect"
-                  placeholder="Type your message here..."
+                  placeholder="Message Nexis..."
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   disabled={loading}
@@ -519,7 +519,7 @@ const Chatbot = () => {
             </form>
             <div className="mt-3 text-xs text-blue-500/60 text-center flex items-center justify-center gap-4">
               <span className="flex items-center gap-1">
-                🤖 AI can make mistakes. Consider checking important information.
+                🤖 Nexis can make mistakes. Consider checking important information.
               </span>
               {!isMobile && (
                 <span className="flex items-center gap-1">

@@ -22,6 +22,7 @@ from timesheets import *
 
 # Load environment variables from .env file
 load_dotenv()
+print("AZURE_CONNECTION_STRING =", os.getenv("AZURE_STORAGE_CONNECTION_STRING"))
 
 app = Flask(__name__)
 CORS(app)

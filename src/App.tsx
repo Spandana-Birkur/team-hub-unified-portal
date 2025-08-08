@@ -25,6 +25,7 @@ import LoginPage from "./components/LoginPage";
 import Documents from "./pages/Documents";
 import EmployeeSafetyConduct from "./pages/EmployeeSafetyConduct";
 import Chatbot from "./pages/Chatbot";
+import JobPostings from "./pages/JobPostings";
 
 // HR Pages
 import EmployeeDirectory from "./pages/HR/EmployeeDirectory";
@@ -35,6 +36,7 @@ import HRAnnouncements from "./pages/HR/HRAnnouncements";
 import HRDocuments from "./pages/HR/HRDocuments";
 import HRAnalytics from "./pages/HR/HRAnalytics";
 import ManagerTools from "./pages/HR/ManagerTools";
+import JobPostingManagement from "./pages/HR/JobPostingManagement";
 import ManagerCommunication from "./components/ManagerCommunication";
 
 // IT Pages
@@ -135,6 +137,11 @@ const AppContent = () => {
                 <ManagerTools />
               </ProtectedRoute>
             } />
+            <Route path="/hr/job-postings" element={
+              <ProtectedRoute requiredRoles={['hr', 'manager']}>
+                <JobPostingManagement />
+              </ProtectedRoute>
+            } />
             <Route path="/hr/communication" element={
               <ProtectedRoute requiredRoles={['manager', 'employee']}>
                 <ManagerCommunication />
@@ -196,6 +203,11 @@ const AppContent = () => {
             <Route path="/documents" element={
               <ProtectedRoute requiredRoles={['employee']}>
                 <Documents />
+              </ProtectedRoute>
+            } />
+            <Route path="/job-postings" element={
+              <ProtectedRoute requiredRoles={['employee']}>
+                <JobPostings />
               </ProtectedRoute>
             } />
             <Route path="/safety" element={

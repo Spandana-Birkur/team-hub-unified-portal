@@ -26,7 +26,8 @@ import {
   Laptop,
   History,
   Shield,
-  BarChart3
+  BarChart3,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -46,6 +47,7 @@ const CompanySidebar = () => {
     { to: '/hr/announcements', icon: Megaphone, label: 'Announcements', roles: ['hr'] },
     { to: '/hr/documents', icon: FolderOpen, label: 'HR Documents', roles: ['hr'] },
     { to: '/hr/analytics', icon: BarChart3, label: 'Analytics', roles: ['hr'] },
+    { to: '/hr/job-postings', icon: Briefcase, label: 'Job Postings', roles: ['hr', 'manager'] },
     { to: '/manager/leave', icon: Clock, label: 'Leave Management', roles: ['manager'] },
     { to: '/hr/manager-tools', icon: UserPlus, label: 'Manager Tools', roles: ['manager'] },
     { to: '/hr/communication', icon: Megaphone, label: 'Communication', roles: ['manager', 'employee'] },
@@ -58,6 +60,7 @@ const CompanySidebar = () => {
     { to: '/training', icon: BookOpen, label: 'Training', roles: ['employee'] },
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee'] },
+    { to: '/job-postings', icon: Briefcase, label: 'Job Postings', roles: ['employee'] },
     { to: '/safety', icon: ShieldCheck, label: 'Employee Safety', roles: ['employee'] },
     { to: '/chatbot', icon: MessageCircle, label: 'AI Chatbot', roles: ['employee'] },
   ];

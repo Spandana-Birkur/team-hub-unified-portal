@@ -21,7 +21,7 @@ from timesheets import *
 
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=False)
 print("AZURE_CONNECTION_STRING =", os.getenv("AZURE_STORAGE_CONNECTION_STRING"))
 
 app = Flask(__name__)

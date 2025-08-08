@@ -7,7 +7,7 @@ from azure.search.documents.models import VectorizedQuery
 from dotenv import load_dotenv
 from typing import List, Dict
 
-load_dotenv()
+load_dotenv(override=False)
 
 # ======================================================================================
 # TODO: CONFIGURE YOUR AZURE RESOURCES

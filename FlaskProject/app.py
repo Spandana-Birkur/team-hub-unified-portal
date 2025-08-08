@@ -1,39 +1,33 @@
 from urllib import request
 import os
 import sys
-from werkzeug.utils import secure_filename
-from azure.storage.blob import BlobServiceClient
-from dotenv import load_dotenv
-import uuid # Recommended for unique filenames
-import datetime
+# from werkzeug.utils import secure_filename
+# from azure.storage.blob import BlobServiceClient
+# from dotenv import load_dotenv
+# import uuid # Recommended for unique filenames
+# import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__), 'site_packages'))
-
+ 
 from dotenv import load_dotenv
-
+ 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dbconnect import *
-import aiconnect
+from aiconnect import *
 from hashtest import *
 from tickets import *
 from leave_management import *
 from timesheets import *
-
-
+ 
+ 
 # Load environment variables from .env file
-load_dotenv(override=False)
-
-# ✅ Validate required AI/Vector search environment variables
-import aiconnect
-aiconnect.validate_env_vars()
-
-print("AZURE_CONNECTION_STRING =", os.getenv("AZURE_STORAGE_CONNECTION_STRING"))
-
+load_dotenv()
+ 
 app = Flask(__name__)
 CORS(app)
-
+ 
 # ... (All other routes like /api/login, /api/employees, etc. remain unchanged) ...
-
+ 
 @app.route('/api/AIRequest', methods = ['GET', 'POST'])
 def ai_request():
     if request.method == 'POST':
@@ -42,7 +36,7 @@ def ai_request():
         return jsonify({'response': get_rag_response_hybrid(prompt)})
     elif request.method == 'GET':
         return jsonify({'message': 'Send a POST request with a prompt.'})
-
+ 
 @app.route('/api/AIRequestHistory', methods = ['GET', 'POST'])
 def ai_request_history():
     if request.method == 'POST':
@@ -52,7 +46,7 @@ def ai_request_history():
         return jsonify({'response': get_rag_response_hybrid_with_history(prompt, history)})
     elif request.method == 'GET':
         return jsonify({'message': 'Send a POST request with a prompt and history.'})
-
+ 
 @app.route('/api/login', methods=['POST'])
 def login():
     print("Login endpoint reached")
@@ -81,31 +75,31 @@ def login():
             return jsonify({'message': 'Internal server error'}), 500
     else:
         return jsonify({'message': 'POST method required'}), 405
-
+ 
 @app.route('/api/test', methods=['GET'])
 def test_cors():
     print("CORS test endpoint was reached successfully!")
     return jsonify({"message": "Success! CORS is configured correctly."})
-
+ 
 @app.route('/api/employees', methods = ['GET'])
 def employees():
     employees = parseDB()
     emps = [employee.toDict() for employee in employees]
     return jsonify({ 'employees' : emps })
-
+ 
 @app.route('/api/employees/<int:id>', methods=['GET'])
 def get_employee(id):
-    employee = getEmployeeById(id)
+    employee = getEmployeeByID(id)
     if employee:
         return jsonify(employee.toDict())
     return jsonify({'message': 'Employee not found'}), 404
-
+ 
 @app.route('/api/employees/count', methods=['GET'])
 def get_employee_count():
     employees = parseDB()
     count = len(employees) if employees else 0
     return jsonify({'count': count})
-
+ 
 @app.route('/api/update-bio', methods=['POST'])
 def update_bio():
     data = request.json
@@ -118,14 +112,14 @@ def update_bio():
         print(f"Failed to update bio for {email}.")
         return jsonify({'message': 'Failed to update bio.'}), 500
     return jsonify({'message': 'Bio updated successfully.'}), 200
-
+ 
 @app.route('/api/get-subordinates/<int:id>', methods=['GET'])
 def get_subordinates(id):
     subordinates = getSubordinates(id)
     if not subordinates:
         return jsonify({'message': 'No subordinates found.'}), 404
     return jsonify({[emp.toDict() for emp in subordinates]}), 200
-
+ 
 @app.route('/api/get-manager/<int:id>', methods=['GET'])
 def get_manager(id):
     manager = getManager(id)
@@ -133,7 +127,7 @@ def get_manager(id):
         return jsonify({'message': 'No manager found.'}), 404
     print(f"Manager found: {manager.toString()}")
     return jsonify({manager.toDict()}), 200
-
+ 
 @app.route('/api/profile/<int:id>', methods=['GET'])
 def get_profile(id):
     # In a real app, you'd get the user ID from a session or token
@@ -142,11 +136,11 @@ def get_profile(id):
         print(f"Employee object before toDict(): {employee.toDict()}") # Add this line
         return jsonify(employee.toDict())
     return jsonify({'message': 'User not found'}), 404
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
 """
 Ticket Management API
 """
@@ -162,7 +156,7 @@ def tickets():
     except Exception as e:
         print(f"Error in /api/tickets: {e}")
         return jsonify({'error': 'Internal server error fetching tickets', 'details': str(e)}), 500
-
+ 
 @app.route('/api/tickets/create', methods=['POST'])
 def create_ticket():
     try:
@@ -174,16 +168,16 @@ def create_ticket():
         priority = data.get('priority')
         category = data.get('category')
         status = data.get('status')
-
+ 
         if not all([employeeId, title, body, createdDate, priority, category, status]):
             return jsonify({'error': 'All fields are required'}), 400
-
+ 
         new_ticket = createTicket(employeeId, title, body, createdDate, priority, status, category)
         
         if new_ticket:
             return jsonify({'message': 'Ticket created successfully', 'ticket': new_ticket.toDict()}), 201
         return jsonify({'error': 'Failed to create ticket'}), 500
-
+ 
     except ValueError as e:
         return jsonify({'error': 'Invalid employee ID format'}), 400
     except Exception as e:
@@ -202,7 +196,7 @@ def update_ticket_route(ticketId):
         return jsonify({'message': 'Ticket updated successfully', 'ticket': updated_ticket.toDict()}), 200
     else:
         return jsonify({'message': 'Failed to update ticket or ticket not found'}), 404
-
+ 
 # Leave Management API Routes
 @app.route('/api/leave-requests', methods=['GET', 'POST'])
 def leave_requests():
@@ -235,7 +229,7 @@ def leave_requests():
         except Exception as e:
             print(f"Error creating leave request: {e}")
             return jsonify({'error': 'Failed to create leave request'}), 500
-
+ 
 @app.route('/api/leave-requests/pending', methods=['GET'])
 def pending_leave_requests():
     try:
@@ -244,7 +238,7 @@ def pending_leave_requests():
     except Exception as e:
         print(f"Error fetching pending leave requests: {e}")
         return jsonify({'error': 'Failed to fetch pending leave requests'}), 500
-
+ 
 @app.route('/api/leave-requests/employee/<int:employeeId>', methods=['GET'])
 def employee_leave_requests(employeeId):
     try:
@@ -253,7 +247,7 @@ def employee_leave_requests(employeeId):
     except Exception as e:
         print(f"Error fetching employee leave requests: {e}")
         return jsonify({'error': 'Failed to fetch employee leave requests'}), 500
-
+ 
 @app.route('/api/leave-requests/<int:requestId>', methods=['GET'])
 def get_leave_request(requestId):
     try:
@@ -265,7 +259,7 @@ def get_leave_request(requestId):
     except Exception as e:
         print(f"Error fetching leave request: {e}")
         return jsonify({'error': 'Failed to fetch leave request'}), 500
-
+ 
 @app.route('/api/leave-requests/<int:requestId>/approve', methods=['PUT'])
 def approve_leave_request_route(requestId):
     try:
@@ -283,7 +277,7 @@ def approve_leave_request_route(requestId):
     except Exception as e:
         print(f"Error approving leave request: {e}")
         return jsonify({'error': 'Failed to approve leave request'}), 500
-
+ 
 @app.route('/api/leave-requests/<int:requestId>/reject', methods=['PUT'])
 def reject_leave_request_route(requestId):
     try:
@@ -301,7 +295,7 @@ def reject_leave_request_route(requestId):
     except Exception as e:
         print(f"Error rejecting leave request: {e}")
         return jsonify({'error': 'Failed to reject leave request'}), 500
-
+ 
 @app.route('/api/leave-balance/<int:employeeId>', methods=['GET'])
 def get_leave_balance_route(employeeId):
     try:
@@ -325,7 +319,7 @@ def get_timesheets():
     except Exception as e:
         print(f"Error fetching timesheets: {e}")
         return jsonify({'error': 'Failed to fetch timesheets'}), 500
-
+ 
 @app.route('/api/timesheets/<int:employeeId>', methods=['GET'])
 def get_timesheets_by_employee(employeeId):
     try:
@@ -334,7 +328,7 @@ def get_timesheets_by_employee(employeeId):
     except Exception as e:
         print(f"Error fetching timesheets for employee {employeeId}: {e}")
         return jsonify({'error': 'Failed to fetch timesheets for employee'}), 500
-
+ 
 @app.route('/api/timesheets/create', methods=['POST'])
 def create_timesheet():
     try:
@@ -349,65 +343,65 @@ def create_timesheet():
         saturday = data.get('saturday')
         totalHours = data.get('totalHours')
         notes = data.get('notes')
-
+ 
         createTimesheet(employeeId, weekOf, monday, tuesday, wednesday, thursday, friday, saturday, totalHours, notes)
         return jsonify({'message': 'Timesheet created successfully'}), 201
     except Exception as e:
         print(f"Error creating timesheet: {e}")
         return jsonify({'error': 'Failed to create timesheet'}), 500
-
-
-# Get Azure Storage connection string and container name from environment
-AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")
-
-# Initialize BlobServiceClient
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
-
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({"error": "No file selected for uploading"}), 400
-
-    if file:
-        # It's good practice to secure the filename
-        original_filename = secure_filename(file.filename)
+ 
+ 
+# # Get Azure Storage connection string and container name from environment
+# AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+# AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")
+ 
+# # Initialize BlobServiceClient
+# blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+ 
+# @app.route('/api/upload', methods=['POST'])
+# def upload_file():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part in the request"}), 400
+ 
+#     file = request.files['file']
+ 
+#     if file.filename == '':
+#         return jsonify({"error": "No file selected for uploading"}), 400
+ 
+#     if file:
+#         # It's good practice to secure the filename
+#         original_filename = secure_filename(file.filename)
         
-        # Create a unique name for the blob to avoid overwrites
-        # E.g., using a UUID with the original file extension
-        file_extension = os.path.splitext(original_filename)[1]
-        unique_blob_name = f"{uuid.uuid4()}{file_extension}"
-
-        try:
-            # Get a blob client using the container name and new blob name
-            blob_client = blob_service_client.get_blob_client(
-                container=AZURE_CONTAINER_NAME, 
-                blob=unique_blob_name
-            )
-
-            # Upload the file stream directly to the blob
-            blob_client.upload_blob(file.stream, overwrite=True)
-
-            # Return a success message with the blob name
-            return jsonify({
-                "message": "File uploaded successfully!",
-                "filename": unique_blob_name
-            }), 200
-
-        except Exception as e:
-            # Log the error for debugging
-            print(f"An error occurred: {e}")
-            return jsonify({"error": str(e)}), 500
-
-    return jsonify({"error": "An unknown error occurred"}), 500
+#         # Create a unique name for the blob to avoid overwrites
+#         # E.g., using a UUID with the original file extension
+#         file_extension = os.path.splitext(original_filename)[1]
+#         unique_blob_name = f"{uuid.uuid4()}{file_extension}"
+ 
+#         try:
+#             # Get a blob client using the container name and new blob name
+#             blob_client = blob_service_client.get_blob_client(
+#                 container=AZURE_CONTAINER_NAME,
+#                 blob=unique_blob_name
+#             )
+ 
+#             # Upload the file stream directly to the blob
+#             blob_client.upload_blob(file.stream, overwrite=True)
+ 
+#             # Return a success message with the blob name
+#             return jsonify({
+#                 "message": "File uploaded successfully!",
+#                 "filename": unique_blob_name
+#             }), 200
+ 
+#         except Exception as e:
+#             # Log the error for debugging
+#             print(f"An error occurred: {e}")
+#             return jsonify({"error": str(e)}), 500
+ 
+#     return jsonify({"error": "An unknown error occurred"}), 500
     
-
-
+ 
+ 
 # ✅ Root health-check route
 @app.route('/')
 def index():
@@ -438,8 +432,10 @@ def index():
             '/api/timesheets/create',
         ]
     })
-
-
+ 
+ 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))
     app.run(debug=True, host='0.0.0.0', port=port)
+ 
+ 

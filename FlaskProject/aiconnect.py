@@ -7,7 +7,7 @@ from azure.search.documents.models import VectorizedQuery
 from dotenv import load_dotenv
 from typing import List, Dict
 
-load_dotenv()
+load_dotenv(override=False)
 
 # ======================================================================================
 # TODO: CONFIGURE YOUR AZURE RESOURCES
@@ -36,24 +36,24 @@ SEMANTIC_CONFIGURATION_NAME = os.getenv('SEMANTIC_CONFIGURATION_NAME')
 
 
 # Check for required environment variables
-required_envs = {   
-    "AZURE_SEARCH_SERVICE_ENDPOINT": AZURE_SEARCH_SERVICE_ENDPOINT,
-    "AZURE_SEARCH_INDEX_NAME": AZURE_SEARCH_INDEX_NAME,
-    "AZURE_SEARCH_ADMIN_KEY": AZURE_SEARCH_ADMIN_KEY,
-    "AZURE_AI_ENDPOINT": AZURE_AI_ENDPOINT,
-    "AZURE_AI_API_KEY": AZURE_AI_API_KEY,
-    "AZURE_AI_DEPLOYMENT_NAME": AZURE_AI_DEPLOYMENT_NAME,
-    "AZURE_AI_API_VERSION": AZURE_AI_API_VERSION,
-    "AZURE_AI_EMBEDDING_DEPLOYMENT_NAME": AZURE_AI_EMBEDDING_DEPLOYMENT_NAME,
-    "AZURE_SEARCH_VECTOR_FIELD_NAME": AZURE_SEARCH_VECTOR_FIELD_NAME,
-}
+def validate_env_vars():
+    required_envs = {   
+        "AZURE_SEARCH_SERVICE_ENDPOINT": os.getenv("AZURE_SEARCH_SERVICE_ENDPOINT"),
+        "AZURE_SEARCH_INDEX_NAME": os.getenv("AZURE_SEARCH_INDEX_NAME"),
+        "AZURE_SEARCH_ADMIN_KEY": os.getenv("AZURE_SEARCH_ADMIN_KEY"),
+        "AZURE_AI_ENDPOINT": os.getenv("AZURE_AI_ENDPOINT"),
+        "AZURE_AI_API_KEY": os.getenv("AZURE_AI_API_KEY"),
+        "AZURE_AI_DEPLOYMENT_NAME": os.getenv("AZURE_AI_DEPLOYMENT_NAME"),
+        "AZURE_AI_API_VERSION": os.getenv("AZURE_AI_API_VERSION"),
+        "AZURE_AI_EMBEDDING_DEPLOYMENT_NAME": os.getenv("AZURE_AI_EMBEDDING_DEPLOYMENT_NAME"),
+        "AZURE_SEARCH_VECTOR_FIELD_NAME": os.getenv("AZURE_SEARCH_VECTOR_FIELD_NAME"),
+    }
 
-missing = [k for k, v in required_envs.items() if not v]
-if missing:
-    raise EnvironmentError(f"Missing required environment variables: {', '.join(missing)}")
-else:
-    print("All required environment variables loaded successfully.")
-
+    missing = [k for k, v in required_envs.items() if not v]
+    if missing:
+        raise EnvironmentError(f"Missing required environment variables: {', '.join(missing)}")
+    else:
+        print("✅ All required environment variables loaded successfully.")
 
 # ======================================================================================
 #  NEW RAG FUNCTION - HYBRID (VECTOR + KEYWORD) SEARCH

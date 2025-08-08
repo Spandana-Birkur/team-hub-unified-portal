@@ -27,13 +27,43 @@ function getWeekDates(date) {
   });
 }
 
-// Helper for event type color/icon
+// Helper for event type color/icon with emoji indicators
 const eventTypeMeta = {
-  Meeting: { color: 'bg-blue-100 text-blue-700 border border-blue-300', icon: <Briefcase className="inline w-4 h-4 mr-1" /> },
-  Holiday: { color: 'bg-green-100 text-green-700 border border-green-300', icon: <Gift className="inline w-4 h-4 mr-1" /> },
-  Deadline: { color: 'bg-red-100 text-red-700 border border-red-300', icon: <Clock className="inline w-4 h-4 mr-1" /> },
-  Event: { color: 'bg-orange-100 text-orange-700 border border-orange-300', icon: <Star className="inline w-4 h-4 mr-1" /> },
-  Personal: { color: 'bg-purple-100 text-purple-700 border border-purple-300', icon: <UserIcon className="inline w-4 h-4 mr-1" /> },
+  Meeting: { 
+    color: 'bg-orange-100 text-orange-700 border border-orange-300', 
+    icon: <Briefcase className="inline w-3 h-3 mr-1" />, 
+    emoji: '🟠',
+    darkColor: 'bg-orange-500 text-white',
+    lightBg: 'bg-orange-50'
+  },
+  Holiday: { 
+    color: 'bg-green-100 text-green-700 border border-green-300', 
+    icon: <Gift className="inline w-3 h-3 mr-1" />, 
+    emoji: '🟢',
+    darkColor: 'bg-green-500 text-white',
+    lightBg: 'bg-green-50'
+  },
+  Deadline: { 
+    color: 'bg-red-100 text-red-700 border border-red-300', 
+    icon: <Clock className="inline w-3 h-3 mr-1" />, 
+    emoji: '🔴',
+    darkColor: 'bg-red-500 text-white',
+    lightBg: 'bg-red-50'
+  },
+  Event: { 
+    color: 'bg-blue-100 text-blue-700 border border-blue-300', 
+    icon: <Star className="inline w-3 h-3 mr-1" />, 
+    emoji: '🔵',
+    darkColor: 'bg-blue-500 text-white',
+    lightBg: 'bg-blue-50'
+  },
+  Personal: { 
+    color: 'bg-purple-100 text-purple-700 border border-purple-300', 
+    icon: <UserIcon className="inline w-3 h-3 mr-1" />, 
+    emoji: '🟣',
+    darkColor: 'bg-purple-500 text-white',
+    lightBg: 'bg-purple-50'
+  },
 };
 
 // 1. Define your custom Day component above your CalendarPage
@@ -124,78 +154,79 @@ const NewModernCalendar = ({ events, onDateSelect }) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   return (
-    <div className="p-8">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-4xl font-bold text-blue-600">
+    <div className="p-4 sm:p-8">
+      {/* Calendar Header - Responsive */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+        <div className="w-full sm:w-auto">
+          <h2 className="text-2xl sm:text-4xl font-bold text-blue-600">
             {monthNames[month]} {year}
           </h2>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">
             Today is {today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
           
-          {/* Quick Stats in Calendar */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-6 text-sm">
-              <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-xl border border-blue-200">
+          {/* Quick Stats in Calendar - Responsive Grid */}
+          <div className="flex items-center gap-2 sm:gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-6 text-sm w-full sm:w-auto">
+              <div className="flex items-center gap-1 sm:gap-2 bg-blue-50 px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl border border-blue-200">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="font-medium text-blue-700">{eventStats.total} Total</span>
+                <span className="font-medium text-blue-700 text-xs sm:text-sm">{eventStats.total} Total</span>
               </div>
-              <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-xl border border-green-200">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="font-medium text-green-700">{eventStats.holiday} Holidays</span>
+              <div className="flex items-center gap-1 sm:gap-2 bg-green-50 px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl border border-green-200">
+                <span className="text-sm">🟢</span>
+                <span className="font-medium text-green-700 text-xs sm:text-sm">{eventStats.holiday} Holiday</span>
               </div>
-              <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-xl border border-orange-200">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span className="font-medium text-orange-700">{eventStats.meeting} Meetings</span>
+              <div className="flex items-center gap-1 sm:gap-2 bg-orange-50 px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl border border-orange-200">
+                <span className="text-sm">🟠</span>
+                <span className="font-medium text-orange-700 text-xs sm:text-sm">{eventStats.meeting} Meeting</span>
               </div>
-              <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-xl border border-red-200">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="font-medium text-red-700">{eventStats.deadline} Deadlines</span>
+              <div className="flex items-center gap-1 sm:gap-2 bg-red-50 px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl border border-red-200">
+                <span className="text-sm">🔴</span>
+                <span className="font-medium text-red-700 text-xs sm:text-sm">{eventStats.deadline} Deadline</span>
               </div>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <button
             onClick={goToPrevMonth}
-            className="p-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 group"
+            className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 group"
           >
-            <svg className="w-5 h-5 text-gray-600 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={() => setCurrentDate(new Date())}
-            className="px-4 py-2 rounded-2xl bg-blue-500 text-white font-medium hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="px-3 py-2 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-blue-500 text-white font-medium hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
           >
             Today
           </button>
           <button
             onClick={goToNextMonth}
-            className="p-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 group"
+            className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 group"
           >
-            <svg className="w-5 h-5 text-gray-600 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
       </div>
       
-      {/* Day Names Header */}
-      <div className="grid grid-cols-7 gap-4 mb-4">
+      {/* Day Names Header - Responsive */}
+      <div className="grid grid-cols-7 gap-2 sm:gap-4 mb-2 sm:mb-4">
         {dayNames.map(day => (
-          <div key={day} className="text-center py-3">
-            <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-              {day}
+          <div key={day} className="text-center py-2 sm:py-3">
+            <span className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">
+              <span className="sm:hidden">{day.slice(0, 3)}</span>
+              <span className="hidden sm:inline">{day}</span>
             </span>
           </div>
         ))}
       </div>
       
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-4">
+      {/* Calendar Grid - Responsive */}
+      <div className="grid grid-cols-7 gap-2 sm:gap-4">
         {calendarDays.map((day, index) => {
           if (day === null) {
             return <div key={`empty-${index}`} className="aspect-square"></div>;
@@ -207,11 +238,20 @@ const NewModernCalendar = ({ events, onDateSelect }) => {
           const isToday = date.toDateString() === today.toDateString();
           const isWeekend = date.getDay() === 0 || date.getDay() === 6;
           
+          // Calculate event type counts for this day
+          const eventTypeCounts = {
+            Meeting: dayEvents.filter(e => e.type === 'Meeting').length,
+            Holiday: dayEvents.filter(e => e.type === 'Holiday').length,
+            Deadline: dayEvents.filter(e => e.type === 'Deadline').length,
+            Event: dayEvents.filter(e => e.type === 'Event').length,
+            Personal: dayEvents.filter(e => e.type === 'Personal').length,
+          };
+          
           return (
             <button
               key={day}
               onClick={() => onDateSelect(date)}
-              className={`aspect-square p-4 rounded-3xl relative transition-all duration-300 hover:scale-105 hover:shadow-lg group ${
+              className={`aspect-square p-1 sm:p-2 rounded-xl sm:rounded-3xl relative transition-all duration-300 hover:scale-105 hover:shadow-lg group min-h-[100px] sm:min-h-[120px] ${
                 isToday
                   ? 'bg-blue-500 text-white shadow-lg'
                   : dayEvents.length > 0
@@ -222,44 +262,90 @@ const NewModernCalendar = ({ events, onDateSelect }) => {
               }`}
             >
               <div className="flex flex-col h-full">
-                <span className={`text-lg font-bold mb-2 ${
-                  isToday ? 'text-white' : 'text-gray-800'
-                }`}>
-                  {day}
-                </span>
-                
-                {/* Event indicators */}
-                <div className="flex-1 flex flex-col gap-1 overflow-hidden">
-                  {dayEvents.slice(0, 3).map((event, idx) => (
-                    <div
-                      key={event.id}
-                      className={`text-xs px-2 py-1 rounded-lg truncate ${
-                        isToday
-                          ? 'bg-white/20 text-white'
-                          : eventTypeMeta[event.type]?.color || 'bg-gray-100 text-gray-700'
-                      }`}
-                      title={event.title}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-                  {dayEvents.length > 3 && (
-                    <div className={`text-xs px-2 py-1 rounded-lg ${
+                {/* Day number and total count */}
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <span className={`text-sm sm:text-lg font-bold ${
+                    isToday ? 'text-white' : 'text-gray-800'
+                  }`}>
+                    {day}
+                  </span>
+                  {/* Total event count badge */}
+                  {dayEvents.length > 0 && (
+                    <div className={`rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold shadow-sm ${
                       isToday
                         ? 'bg-white/20 text-white'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-blue-500 text-white'
                     }`}>
-                      +{dayEvents.length - 3} more
+                      {dayEvents.length}
                     </div>
                   )}
                 </div>
                 
-                {/* Event count badge */}
-                {dayEvents.length > 0 && !isToday && (
-                  <div className="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg">
-                    {dayEvents.length}
-                  </div>
-                )}
+                {/* Event type indicators with counts and emojis */}
+                <div className="flex-1 flex flex-col gap-0.5 sm:gap-1 overflow-hidden">
+                  {/* Show event type counts with emojis - prioritize most important */}
+                  {['Holiday', 'Deadline', 'Meeting', 'Event', 'Personal'].map(type => {
+                    const count = eventTypeCounts[type];
+                    if (count === 0) return null;
+                    const meta = eventTypeMeta[type];
+                    return (
+                      <div
+                        key={type}
+                        className={`text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg flex items-center justify-between transition-colors ${
+                          isToday
+                            ? 'bg-white/20 text-white'
+                            : `${meta.lightBg} ${meta.color.split(' ')[1]} border ${meta.color.split(' ')[3]} ${meta.color.split(' ')[4]}`
+                        }`}
+                        title={`${count} ${type}${count > 1 ? 's' : ''} on ${dateStr}`}
+                      >
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <span className="text-xs sm:text-sm">{meta.emoji}</span>
+                          <span className="font-medium text-xs hidden sm:inline">{type}</span>
+                          <span className="font-medium text-xs sm:hidden">{type.slice(0, 3)}</span>
+                        </div>
+                        <span className={`rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs font-bold ${
+                          isToday ? 'bg-white/30' : meta.darkColor
+                        }`}>
+                          {count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Show individual event titles if there's space and few event types */}
+                  {dayEvents.length > 0 && Object.values(eventTypeCounts).filter(count => count > 0).length <= 1 && (
+                    <div className="mt-1 space-y-0.5 sm:space-y-1">
+                      {dayEvents.slice(0, 2).map((event, idx) => (
+                        <div
+                          key={event.id}
+                          className={`text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-colors hover:shadow-sm ${
+                            isToday
+                              ? 'bg-white/20 text-white'
+                              : eventTypeMeta[event.type]?.color || 'bg-gray-100 text-gray-700'
+                          }`}
+                          title={`${event.title} ${event.time ? `at ${event.time}` : ''}`}
+                        >
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            <span className="text-xs">{eventTypeMeta[event.type]?.emoji}</span>
+                            <span className="truncate text-xs">{event.title}</span>
+                          </div>
+                        </div>
+                      ))}
+                      {dayEvents.length > 2 && (
+                        <div className={`text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded-md ${
+                          isToday
+                            ? 'bg-white/20 text-white'
+                            : 'bg-gray-100 text-gray-600 border'
+                        }`}>
+                          +{dayEvents.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Hover overlay for more details */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 rounded-xl sm:rounded-3xl transition-colors pointer-events-none" />
               </div>
             </button>
           );
@@ -413,31 +499,31 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="p-6 w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Top Navigation Bar with People and Quick Actions */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-3xl font-bold text-gray-800">Calendar</h1>
+    <div className="p-3 sm:p-6 w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      {/* Top Navigation Bar with People and Quick Actions - Responsive */}
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Calendar</h1>
           <div className="flex items-center space-x-2">
-            <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setViewMode('month')}>Monthly</Button>
-            <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setViewMode('week')}>Weekly</Button>
+            <Button size="sm" variant={viewMode === 'month' ? 'default' : 'outline'} className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm" onClick={() => setViewMode('month')}>Monthly</Button>
+            <Button size="sm" variant={viewMode === 'week' ? 'default' : 'outline'} className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm" onClick={() => setViewMode('week')}>Weekly</Button>
           </div>
           {viewingEmployee && (
-            <span className="flex items-center gap-2 text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full border border-blue-200">
-              <UserIcon className="w-4 h-4" />
-              Viewing: {viewingEmployee.name}
+            <span className="flex items-center gap-2 text-xs sm:text-sm text-blue-700 bg-blue-100 px-2 sm:px-3 py-1 rounded-full border border-blue-200">
+              <UserIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Viewing:</span> {viewingEmployee.name}
               <button className="ml-1 text-xs underline hover:text-blue-900" onClick={() => setViewingEmployee(null)}>Switch back</button>
             </span>
           )}
         </div>
         
-        {/* People Dropdown */}
-        <div className="flex items-center space-x-4">
-          <div className="relative">
+        {/* People Dropdown and New Event Button - Responsive */}
+        <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial">
             <select 
-              className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               onChange={(e) => {
-                const emp = employees.find(emp => emp.id === e.target.value);
+                const emp = employees.find(emp => emp.id === parseInt(e.target.value));
                 setViewingEmployee(emp || null);
               }}
               value={viewingEmployee?.id || ''}
@@ -448,30 +534,30 @@ const CalendarPage = () => {
               ))}
             </select>
           </div>
-          <Button className="bg-green-600 hover:bg-green-700 text-white shadow-md px-6 py-2 rounded-lg font-medium" onClick={() => setCreateDialogOpen(true)}>
+          <Button className="bg-green-600 hover:bg-green-700 text-white shadow-md px-3 sm:px-6 py-2 rounded-lg font-medium text-xs sm:text-sm whitespace-nowrap" onClick={() => setCreateDialogOpen(true)}>
             + New Event
           </Button>
         </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex gap-6">
+      {/* Main Layout - Responsive */}
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
         {/* Main Calendar Area - New Modern Design */}
-        <div className="flex-1">
-          <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-gray-50 rounded-3xl overflow-hidden">
+        <div className="flex-1 order-2 lg:order-1">
+          <Card className="shadow-xl sm:shadow-2xl border-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl overflow-hidden">
             <CardContent className="p-0">
               <NewModernCalendar events={events} onDateSelect={handleDateSelect} />
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Sidebar - Compact */}
-        <div className="w-80 space-y-4">
+        {/* Right Sidebar - Responsive */}
+        <div className="w-full lg:w-80 space-y-4 order-1 lg:order-2">
           {/* Upcoming Events */}
           <Card className="shadow-lg border border-gray-200 bg-white/90 backdrop-blur-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-blue-500" />
+              <CardTitle className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 Upcoming Events
               </CardTitle>
             </CardHeader>
@@ -479,10 +565,10 @@ const CalendarPage = () => {
               {upcomingEvents.length === 0 ? (
                 <div className="text-gray-500 text-sm py-4 text-center">No events in the next 7 days</div>
               ) : (
-                <div className="space-y-3 max-h-64 overflow-y-auto">
+                <div className="space-y-3 max-h-48 sm:max-h-64 overflow-y-auto">
                   {upcomingEvents.map(ev => (
-                    <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50 cursor-pointer border border-gray-100 hover:border-blue-200 transition-colors" onClick={() => { setEventsForDay([ev]); setSelectedDate(ev.date); setShowDialog(true); }}>
-                      <div className={`mt-1 ${eventTypeMeta[ev.type]?.color} rounded-full p-2`}>
+                    <div key={ev.id} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg hover:bg-blue-50 cursor-pointer border border-gray-100 hover:border-blue-200 transition-colors" onClick={() => { setEventsForDay([ev]); setSelectedDate(ev.date); setShowDialog(true); }}>
+                      <div className={`mt-0.5 sm:mt-1 ${eventTypeMeta[ev.type]?.color} rounded-full p-1 sm:p-2`}>
                         {eventTypeMeta[ev.type]?.icon}
                       </div>
                       <div className="flex-1">

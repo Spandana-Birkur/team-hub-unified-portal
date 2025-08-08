@@ -25,10 +25,14 @@ const RoleSelector = () => {
       
       // Wait a moment for components to render, then auto-click
       setTimeout(() => {
-        handleRoleChange('employee');
+        // Inline the role change logic to avoid dependency issues
+        setUserRole('employee');
+        localStorage.setItem('userRole', 'employee');
+        setIsOpen(false);
+        navigate('/employee');
       }, 500);
     }
-  }, [profile, userRole, autoClickTriggered]);
+  }, [profile, userRole, autoClickTriggered, setUserRole, navigate]);
 
   const allRoles = [
     {

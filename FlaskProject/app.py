@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dbconnect import *
-from aiconnect import *
+import aiconnect
 from hashtest import *
 from tickets import *
 from leave_management import *
@@ -22,6 +22,11 @@ from timesheets import *
 
 # Load environment variables from .env file
 load_dotenv(override=False)
+
+# ✅ Validate required AI/Vector search environment variables
+import aiconnect
+aiconnect.validate_env_vars()
+
 print("AZURE_CONNECTION_STRING =", os.getenv("AZURE_STORAGE_CONNECTION_STRING"))
 
 app = Flask(__name__)

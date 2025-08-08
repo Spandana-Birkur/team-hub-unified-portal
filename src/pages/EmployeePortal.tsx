@@ -395,39 +395,40 @@ const EmployeePortal = () => {
 
         <TabsContent value="timeoff">
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Plane className="w-5 h-5" />
-                    <span>Time Off Balance</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Vacation Days</span>
-                      <span className="font-semibold">18 days</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sick Leave</span>
-                      <span className="font-semibold">5 days</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Personal Days</span>
-                      <span className="font-semibold">3 days</span>
-                    </div>
+            {/* Leave Balance - Full Width */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Plane className="w-5 h-5" />
+                  <span>Leave Balance</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="flex justify-between items-center p-4 border rounded-lg">
+                    <span className="text-lg">Vacation Days</span>
+                    <span className="text-2xl font-bold text-blue-600">18 days</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between items-center p-4 border rounded-lg">
+                    <span className="text-lg">Sick Leave</span>
+                    <span className="text-2xl font-bold text-green-600">5 days</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 border rounded-lg">
+                    <span className="text-lg">Personal Days</span>
+                    <span className="text-2xl font-bold text-purple-600">3 days</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              <Card className="md:col-span-2">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Leave Requests</CardTitle>
-                  <Button onClick={() => setShowTimeOffModal(true)}>Request Leave</Button>
-                </CardHeader>
-                <CardContent>
-                  <Table>
+            {/* Leave Requests - Full Width Below */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Leave Requests</CardTitle>
+                <Button onClick={() => setShowTimeOffModal(true)}>Request Leave</Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Type</TableHead>
@@ -439,13 +440,23 @@ const EmployeePortal = () => {
                     <TableBody>
                       {timeOffRequests.map((request, index) => (
                         <TableRow key={index}>
-                          <TableCell>{request.type}</TableCell>
+                          <TableCell>{request.type.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}</TableCell>
                           <TableCell>{request.dates}</TableCell>
                           <TableCell>{request.days}</TableCell>
                           <TableCell>
-                            <Badge variant={request.status === 'Approved' ? 'default' : 'secondary'}>
-                              {request.status}
-                            </Badge>
+                            {request.status === 'Pending' ? (
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                                {request.status}
+                              </Badge>
+                            ) : (
+                              <Badge variant={
+                                request.status === 'Approved' ? 'default' : 
+                                request.status === 'Rejected' ? 'destructive' : 
+                                'secondary'
+                              }>
+                                {request.status}
+                              </Badge>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -453,7 +464,6 @@ const EmployeePortal = () => {
                   </Table>
                 </CardContent>
               </Card>
-            </div>
           </div>
         </TabsContent>
 
@@ -816,11 +826,11 @@ const EmployeePortal = () => {
         )}
       </Tabs>
 
-      {/* Time Off Request Modal */}
+      {/* Leave Request Modal */}
       <Dialog open={showTimeOffModal} onOpenChange={setShowTimeOffModal}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Request Time Off</DialogTitle>
+            <DialogTitle>Request Leave</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">

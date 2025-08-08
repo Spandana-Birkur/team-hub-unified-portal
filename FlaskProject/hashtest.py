@@ -135,51 +135,6 @@ def AddPw(pw, email):
 
 def Authenticate(email, pw):
 
-    # TEMPORARY BYPASS - REMOVE THIS LATER
-    if email == "test@test.com" and pw == "test123":
-        print("TEMPORARY BYPASS: Using test credentials")
-        employee = Employee()
-        employee.ID = 1
-        employee.firstName = "Admin"
-        employee.lastName = "User"
-        employee.department = "HR"  # HR department gives access to HR features
-        employee.role = "Manager"   # Manager role gives access to manager features
-        employee.gender = "M"
-        employee.email = "test@test.com"
-        employee.phoneNumber = "123-456-7890"
-        employee.bio = "Full access test user for development - has admin privileges"
-        employee.ManagerID = None  # Top level - no manager above
-        employee.vacationDays = 999
-        employee.sickDays = 999
-        employee.personalDays = 999
-        employee.otherDays = 999
-        employee.salary = 150000
-        employee.pword = "test_hash"
-        return employee
-    
-    # IT Admin test user
-    if email == "it@test.com" and pw == "test123":
-        print("TEMPORARY BYPASS: Using IT test credentials")
-        employee = Employee()
-        employee.ID = 2
-        employee.firstName = "IT"
-        employee.lastName = "Admin"
-        employee.department = "IT"  # IT department gives access to IT features
-        employee.role = "Manager"   # Manager role gives access to manager features
-        employee.gender = "M"
-        employee.email = "it@test.com"
-        employee.phoneNumber = "123-456-7890"
-        employee.bio = "IT admin test user for development - has IT privileges"
-        employee.ManagerID = None  # Top level - no manager above
-        employee.vacationDays = 999
-        employee.sickDays = 999
-        employee.personalDays = 999
-        employee.otherDays = 999
-        employee.salary = 150000
-        employee.pword = "test_hash"
-        return employee
-    # END TEMPORARY BYPASS
-
     pwordEnc = hashlib.sha256(pw.encode()).hexdigest()
     employee = Employee()
     print(f"Hashed input password: {pwordEnc}")

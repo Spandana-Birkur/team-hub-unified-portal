@@ -51,7 +51,12 @@ export const useUserProfile = () => {
 };
 
 export const UserProfileProvider: React.FC<{ children: React.ReactNode, initialProfile?: UserProfile }> = ({ children, initialProfile }) => {
-  const [profile, setProfile] = useState<UserProfile | null>(initialProfile || null);
+  const [profile, setProfile] = useState<UserProfile | null>(() => {
+    // Initialize from localStorage or initialProfile to prevent loading flash
+    if (initialProfile) return initialProfile;
+    const savedProfile = localStorage.getItem('userProfile');
+    return savedProfile ? JSON.parse(savedProfile) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

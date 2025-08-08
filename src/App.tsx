@@ -1,9 +1,10 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
@@ -48,24 +49,23 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { userRole, isLoggedIn } = useRole();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Force navigation to employee portal when user logs in
+  React.useEffect(() => {
+    if (isLoggedIn && location.pathname === '/') {
+      navigate('/employee', { replace: true });
+    }
+  }, [isLoggedIn, location.pathname, navigate]);
 
   if (!isLoggedIn) {
     return <LoginPage />;
   }
 
   const getDefaultRoute = () => {
-    switch (userRole) {
-      case 'employee':
-        return '/employee';
-      case 'hr':
-        return '/hr/employees';
-      case 'manager':
-        return '/pay';
-      case 'it':
-        return '/ithelpdesk/tickets';
-      default:
-        return '/employee';
-    }
+    // Always return employee portal regardless of role
+    return '/employee';
   };
 
   return (
@@ -79,7 +79,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
             <Route path="/employee" element={
-              <ProtectedRoute requiredRoles={['employee']}>
+              <ProtectedRoute requiredRoles={['employee', 'manager', 'hr', 'it']}>
                 <EmployeePortal />
               </ProtectedRoute>
             } />

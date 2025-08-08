@@ -25,19 +25,16 @@ export const useRole = () => {
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { profile } = useUserProfile();
-  const [userRole, setUserRoleState] = useState<UserRole>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Initialize state from localStorage to prevent flash of login page
+  const [userRole, setUserRoleState] = useState<UserRole>(() => {
+    return (localStorage.getItem('userRole') as UserRole) || null;
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
 
-  // Load role from localStorage on mount
-  useEffect(() => {
-    const savedRole = localStorage.getItem('userRole') as UserRole;
-    const loginStatus = localStorage.getItem('isLoggedIn');
-    
-    if (savedRole && loginStatus === 'true') {
-      setUserRoleState(savedRole);
-      setIsLoggedIn(true);
-    }
-  }, []);
+  // No need for useEffect since we initialize from localStorage
 
   // Save role to localStorage when it changes
   const setUserRole = (role: UserRole) => {

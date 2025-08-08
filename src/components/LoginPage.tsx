@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,10 +17,25 @@ interface LoginFormData {
 }
 
 const LoginPage = () => {
-  const { setUserRole } = useRole();
+  const navigate = useNavigate();
+  const { setUserRole, isLoggedIn } = useRole();
   const { setProfile } = useUserProfile();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [accesses, setAccesses] = useState<string[]>([]);
+
+  const getDefaultRoute = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'employee':
+        return '/employee';
+      case 'hr':
+        return '/employee'; // Changed to employee portal for HR users too
+      case 'manager':
+        return '/employee'; // Changed to employee portal for managers too
+      case 'it':
+        return '/employee'; // Changed to employee portal for IT users too
+      default:
+        return '/employee';
+    }
+  };
 
   // Restore user data from localStorage on mount
   React.useEffect(() => {
@@ -30,7 +46,6 @@ const LoginPage = () => {
       setProfile(JSON.parse(storedProfile));
       setUserRole(storedRole as any);
       if (storedAccesses) setAccesses(JSON.parse(storedAccesses));
-      setIsLoggedIn(true);
     }
   }, [setProfile, setUserRole]);
 
@@ -66,9 +81,12 @@ const LoginPage = () => {
       }
       result = await response.json();
       if (result && result.Role) {
-        setUserRole(result.Role.toLowerCase());
-        // Assuming accesses are not part of the employee data for now
-        // setAccesses(result.accesses); 
+        // Clear any existing session data first
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('userRole'); 
+        localStorage.removeItem('isLoggedIn');
+        
+        // Set new profile data
         const profileData = {
           ID: result.EmployeeID,
           firstName: result.FirstName,
@@ -81,11 +99,14 @@ const LoginPage = () => {
           gender: result.Gender,
           salary: result.Salary, // Add salary from API response
         };
+        
+        // Update contexts and localStorage
         setProfile(profileData);
+        setUserRole(result.Role.toLowerCase() as any);
         localStorage.setItem('userProfile', JSON.stringify(profileData));
         localStorage.setItem('userRole', result.Role.toLowerCase());
-        // localStorage.setItem('userAccesses', JSON.stringify(result.accesses));
-        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('justLoggedIn', 'true'); // Flag for auto-click
       } else {
         alert('Invalid email or password');
       }
@@ -112,7 +133,6 @@ const LoginPage = () => {
     localStorage.removeItem('userRole');
     setProfile(null);
     setUserRole(null);
-    setIsLoggedIn(false);
     setShowLoginForm(false); // Optionally show landing page again
   };
 
@@ -216,41 +236,7 @@ const LoginPage = () => {
     );
   }
 
-  // If logged in, show a simple dashboard and access dropdown
-  if (isLoggedIn) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-100 via-white to-gray-200">
-        <Card className="w-full max-w-md shadow-2xl border-none bg-white rounded-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome, {localStorage.getItem('userRole')}
-            </CardTitle>
-            <CardDescription className="text-base text-gray-500">
-              You are logged in.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <label htmlFor="accessDropdown" className="block text-sm font-medium text-gray-700 mb-1">Select Access</label>
-              <select id="accessDropdown" className="w-full border rounded p-2" defaultValue={accesses[0] || ''}>
-                {accesses.map((access) => (
-                  <option key={access} value={access}>{access === 'Manager' && localStorage.getItem('userRole') === 'CEO' ? 'CEO' : access}</option>
-                ))}
-              </select>
-            </div>
-            <Button
-              type="button"
-              className="w-full py-3 text-lg font-bold bg-red-600 text-white rounded-xl shadow-xl hover:bg-red-700 transition-transform"
-              onClick={handleLogout}
-            >
-              Log Out
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  // User is logged in, let App.tsx handle navigation
   return null;
 };
 

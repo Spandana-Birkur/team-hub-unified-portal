@@ -11,6 +11,8 @@ import { useForm } from 'react-hook-form';
 import { Users, UserCheck, Shield, Headphones } from 'lucide-react';
 import AccessLanding from './AccessLanding';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 interface LoginFormData {
   email: string;
   password: string;
@@ -65,7 +67,7 @@ const LoginPage = () => {
     var result;
     try {
       console.log("TRYING");
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+      
       const response = await fetch(`${apiBaseUrl}/api/login`, {
         method: 'POST',
         headers: {
@@ -118,7 +120,6 @@ const LoginPage = () => {
 
   const testApi = async () => {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${apiBaseUrl}/api/test`);
       const data = await response.json();
       alert(data.message);

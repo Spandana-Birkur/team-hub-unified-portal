@@ -13,6 +13,8 @@ import { Separator } from '../components/ui/separator';
 import { useUserProfile } from '../contexts/UserProfileContext';
 import { useTheme } from '../contexts/ThemeContext';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -58,7 +60,7 @@ const Settings: React.FC = () => {
 
     try {
       if (section === 'profile') {
-        const response = await fetch('/api/update-bio', {
+        const response = await fetch(`${apiBaseUrl}/api/update-bio`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

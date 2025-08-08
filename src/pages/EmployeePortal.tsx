@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,8 +31,8 @@ const EmployeePortal = () => {
   const { profile } = useUserProfile();
   const { userRole } = useRole();
   
-  // Show loading state while profile is being loaded
-  if (!profile.ID) {
+  // Show loading only if profile is completely null, not if just missing ID
+  if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Users, UserCheck, Shield, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -11,7 +11,28 @@ const RoleSelector = () => {
   const { userRole, setUserRole } = useRole();
   const { profile } = useUserProfile();
   const [isOpen, setIsOpen] = useState(false);
+  const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   const navigate = useNavigate();
+
+  // Auto-click Employee Access after login
+  useEffect(() => {
+    const justLoggedIn = localStorage.getItem('justLoggedIn');
+    
+    if (justLoggedIn === 'true' && !autoClickTriggered && profile && userRole) {
+      console.log('Auto-clicking Employee Access after login');
+      setAutoClickTriggered(true);
+      localStorage.removeItem('justLoggedIn');
+      
+      // Wait a moment for components to render, then auto-click
+      setTimeout(() => {
+        // Inline the role change logic to avoid dependency issues
+        setUserRole('employee');
+        localStorage.setItem('userRole', 'employee');
+        setIsOpen(false);
+        navigate('/employee');
+      }, 500);
+    }
+  }, [profile, userRole, autoClickTriggered, setUserRole, navigate]);
 
   const allRoles = [
     {

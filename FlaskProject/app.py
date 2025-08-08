@@ -183,7 +183,116 @@ def update_ticket_route(ticketId):
     else:
         return jsonify({'message': 'Failed to update ticket or ticket not found'}), 404
 
-# ... (All other routes like /api/leave-requests etc. remain unchanged) ...
+# Leave Management API Routes
+@app.route('/api/leave-requests', methods=['GET', 'POST'])
+def leave_requests():
+    if request.method == 'GET':
+        try:
+            leave_requests = getLeaveRequests()
+            return jsonify({'leaveRequests': [req.toDict() for req in leave_requests]}), 200
+        except Exception as e:
+            print(f"Error fetching leave requests: {e}")
+            return jsonify({'error': 'Failed to fetch leave requests'}), 500
+    
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            employeeId = data.get('employeeId')
+            leaveType = data.get('leaveType')
+            startDate = data.get('startDate')
+            endDate = data.get('endDate')
+            days = data.get('days')
+            reason = data.get('reason')
+            
+            if not all([employeeId, leaveType, startDate, endDate, days, reason]):
+                return jsonify({'error': 'All fields are required'}), 400
+            
+            success = createLeaveRequest(employeeId, leaveType, startDate, endDate, days, reason)
+            if success:
+                return jsonify({'message': 'Leave request created successfully'}), 201
+            else:
+                return jsonify({'error': 'Failed to create leave request'}), 500
+        except Exception as e:
+            print(f"Error creating leave request: {e}")
+            return jsonify({'error': 'Failed to create leave request'}), 500
+
+@app.route('/api/leave-requests/pending', methods=['GET'])
+def pending_leave_requests():
+    try:
+        pending_requests = getPendingLeaveRequests()
+        return jsonify({'leaveRequests': [req.toDict() for req in pending_requests]}), 200
+    except Exception as e:
+        print(f"Error fetching pending leave requests: {e}")
+        return jsonify({'error': 'Failed to fetch pending leave requests'}), 500
+
+@app.route('/api/leave-requests/employee/<int:employeeId>', methods=['GET'])
+def employee_leave_requests(employeeId):
+    try:
+        employee_requests = getLeaveRequestsByEmployeeId(employeeId)
+        return jsonify({'leaveRequests': [req.toDict() for req in employee_requests]}), 200
+    except Exception as e:
+        print(f"Error fetching employee leave requests: {e}")
+        return jsonify({'error': 'Failed to fetch employee leave requests'}), 500
+
+@app.route('/api/leave-requests/<int:requestId>', methods=['GET'])
+def get_leave_request(requestId):
+    try:
+        leave_request = getLeaveRequestById(requestId)
+        if leave_request:
+            return jsonify(leave_request.toDict()), 200
+        else:
+            return jsonify({'error': 'Leave request not found'}), 404
+    except Exception as e:
+        print(f"Error fetching leave request: {e}")
+        return jsonify({'error': 'Failed to fetch leave request'}), 500
+
+@app.route('/api/leave-requests/<int:requestId>/approve', methods=['PUT'])
+def approve_leave_request_route(requestId):
+    try:
+        data = request.json
+        approvedBy = data.get('approvedBy')
+        
+        if not approvedBy:
+            return jsonify({'error': 'approvedBy is required'}), 400
+        
+        success = approveLeaveRequest(requestId, approvedBy)
+        if success:
+            return jsonify({'message': 'Leave request approved successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to approve leave request'}), 500
+    except Exception as e:
+        print(f"Error approving leave request: {e}")
+        return jsonify({'error': 'Failed to approve leave request'}), 500
+
+@app.route('/api/leave-requests/<int:requestId>/reject', methods=['PUT'])
+def reject_leave_request_route(requestId):
+    try:
+        data = request.json
+        approvedBy = data.get('approvedBy')
+        
+        if not approvedBy:
+            return jsonify({'error': 'approvedBy is required'}), 400
+        
+        success = rejectLeaveRequest(requestId, approvedBy)
+        if success:
+            return jsonify({'message': 'Leave request rejected successfully'}), 200
+        else:
+            return jsonify({'error': 'Failed to reject leave request'}), 500
+    except Exception as e:
+        print(f"Error rejecting leave request: {e}")
+        return jsonify({'error': 'Failed to reject leave request'}), 500
+
+@app.route('/api/leave-balance/<int:employeeId>', methods=['GET'])
+def get_leave_balance_route(employeeId):
+    try:
+        leave_balance = getLeaveBalance(employeeId)
+        if leave_balance:
+            return jsonify(leave_balance.toDict()), 200
+        else:
+            return jsonify({'error': 'Employee not found or no leave balance available'}), 404
+    except Exception as e:
+        print(f"Error fetching leave balance: {e}")
+        return jsonify({'error': 'Failed to fetch leave balance'}), 500
 
 # ✅ Root health-check route
 @app.route('/')

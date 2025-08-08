@@ -1,11 +1,11 @@
 from urllib import request
 import os
 import sys
-from werkzeug.utils import secure_filename
-from azure.storage.blob import BlobServiceClient
-from dotenv import load_dotenv
-import uuid # Recommended for unique filenames
-import datetime
+# from werkzeug.utils import secure_filename
+# from azure.storage.blob import BlobServiceClient
+# from dotenv import load_dotenv
+# import uuid # Recommended for unique filenames
+# import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__), 'site_packages'))
 
 from dotenv import load_dotenv
@@ -18,6 +18,7 @@ from hashtest import *
 from tickets import *
 from leave_management import *
 from timesheets import *
+from courses import *
 
 
 # Load environment variables from .env file
@@ -89,7 +90,7 @@ def employees():
 
 @app.route('/api/employees/<int:id>', methods=['GET'])
 def get_employee(id):
-    employee = getEmployeeById(id)
+    employee = getEmployeeByID(id)
     if employee:
         return jsonify(employee.toDict())
     return jsonify({'message': 'Employee not found'}), 404
@@ -350,55 +351,143 @@ def create_timesheet():
         print(f"Error creating timesheet: {e}")
         return jsonify({'error': 'Failed to create timesheet'}), 500
 
-
-# Get Azure Storage connection string and container name from environment
-AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")
-
-# Initialize BlobServiceClient
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
-
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return jsonify({"error": "No file selected for uploading"}), 400
-
-    if file:
-        # It's good practice to secure the filename
-        original_filename = secure_filename(file.filename)
+"""
+Course Management API
+"""
+@app.route('/api/courses', methods=['GET'])
+def get_courses():
+    try:
+        courses = getCourses()
+        return jsonify({'courses': [course.toDict() for course in courses]}), 200
+    except Exception as e:
+        print(f"Error fetching courses: {e}")
+        return jsonify({'error': 'Failed to fetch courses'}), 500
+    
+@app.route('/api/courses/<int:courseId>', methods=['GET'])
+def get_course(courseId):
+    try:
+        course = getCourseByID(courseId)
+        if course:
+            return jsonify(course.toDict()), 200
+        else:
+            return jsonify({'error': 'Course not found'}), 404
+    except Exception as e:
+        print(f"Error fetching course {courseId}: {e}")
+        return jsonify({'error': 'Failed to fetch course'}), 500
+    
+@app.route('/api/courses/enroll', methods=['POST'])
+def enroll():
+    try:
+        data = request.json
+        courseId = data.get('CourseID')
+        employeeId = data.get('EmployeeID')
+        level = data.get('level', 0)  # Default to level 0 if not provided
         
-        # Create a unique name for the blob to avoid overwrites
-        # E.g., using a UUID with the original file extension
-        file_extension = os.path.splitext(original_filename)[1]
-        unique_blob_name = f"{uuid.uuid4()}{file_extension}"
+        success = enrollInCourse(employeeId, courseId, level)
+        if success:
+            return jsonify({'message': 'Successfully enrolled in course'}), 201
+        return jsonify({'error': 'Failed to enroll in course'}), 500
+    except Exception as e:
+        print(f"Error enrolling in course: {e}")
+        return jsonify({'error': 'Failed to enroll in course'}), 500
 
-        try:
-            # Get a blob client using the container name and new blob name
-            blob_client = blob_service_client.get_blob_client(
-                container=AZURE_CONTAINER_NAME, 
-                blob=unique_blob_name
-            )
+@app.route('/api/courses/enrollment/<int:employeeId>/<int:courseId>', methods=['GET'])
+def get_enrollment(employeeId, courseId):
+    try:
+        enrollment = getCourseEnrollment(employeeId, courseId)
+        if enrollment:
+            return jsonify(enrollment.toDict()), 200
+        return jsonify({'message': 'No enrollment found'}), 404
+    except Exception as e:
+        print(f"Error fetching enrollment: {e}")
+        return jsonify({'error': 'Failed to fetch enrollment'}), 500
 
-            # Upload the file stream directly to the blob
-            blob_client.upload_blob(file.stream, overwrite=True)
+@app.route('/api/courses/quiz/submit', methods=['POST'])
+def submit_quiz():
+    try:
+        data = request.json
+        employeeId = data.get('employeeId')
+        courseId = data.get('courseId')
+        currentLevel = data.get('currentLevel', 0)
+        passed = data.get('passed')  # Should be True if user got 7 or more correct
 
-            # Return a success message with the blob name
+        if not all([employeeId, courseId, passed is not None]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        result = updateQuizProgress(employeeId, courseId, currentLevel, passed)
+        if result['success']:
             return jsonify({
-                "message": "File uploaded successfully!",
-                "filename": unique_blob_name
+                'message': 'Quiz progress updated successfully',
+                'newLevel': result['newLevel']
             }), 200
+        else:
+            if 'error' in result:
+                return jsonify({'error': result['error']}), 500
+            return jsonify({
+                'message': 'Quiz failed, try again',
+                'currentLevel': result['newLevel']
+            }), 200
+    except Exception as e:
+        print(f"Error updating quiz progress: {e}")
+        return jsonify({'error': 'Failed to update quiz progress'}), 500
 
-        except Exception as e:
-            # Log the error for debugging
-            print(f"An error occurred: {e}")
-            return jsonify({"error": str(e)}), 500
+@app.route('/api/courses/enrollments/<int:employeeId>', methods=['GET'])
+def get_employee_enrollments(employeeId):
+    try:
+        enrollments = getEnrollmentsByEmployeeId(employeeId)
+        return jsonify({'enrollments': [enrollment.toDict() for enrollment in enrollments]}), 200
+    except Exception as e:
+        print(f"Error fetching enrollments: {e}")
+        return jsonify({'error': 'Failed to fetch enrollments'}), 500
+        
+# # Get Azure Storage connection string and container name from environment
+# AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+# AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")
 
-    return jsonify({"error": "An unknown error occurred"}), 500
+# # Initialize BlobServiceClient
+# blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+
+# @app.route('/api/upload', methods=['POST'])
+# def upload_file():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part in the request"}), 400
+
+#     file = request.files['file']
+
+#     if file.filename == '':
+#         return jsonify({"error": "No file selected for uploading"}), 400
+
+#     if file:
+#         # It's good practice to secure the filename
+#         original_filename = secure_filename(file.filename)
+        
+#         # Create a unique name for the blob to avoid overwrites
+#         # E.g., using a UUID with the original file extension
+#         file_extension = os.path.splitext(original_filename)[1]
+#         unique_blob_name = f"{uuid.uuid4()}{file_extension}"
+
+#         try:
+#             # Get a blob client using the container name and new blob name
+#             blob_client = blob_service_client.get_blob_client(
+#                 container=AZURE_CONTAINER_NAME, 
+#                 blob=unique_blob_name
+#             )
+
+#             # Upload the file stream directly to the blob
+#             blob_client.upload_blob(file.stream, overwrite=True)
+
+#             # Return a success message with the blob name
+#             return jsonify({
+#                 "message": "File uploaded successfully!",
+#                 "filename": unique_blob_name
+#             }), 200
+
+#         except Exception as e:
+#             # Log the error for debugging
+#             print(f"An error occurred: {e}")
+#             return jsonify({"error": str(e)}), 500
+
+#     return jsonify({"error": "An unknown error occurred"}), 500
     
 
 

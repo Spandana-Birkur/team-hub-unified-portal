@@ -1,190 +1,153 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { BookOpen, Play, Award, Clock, Users, Star, CheckCircle, X, Flag } from 'lucide-react';
+import { BookOpen, Play, Award, Clock, Users, Star, CheckCircle, X } from 'lucide-react';
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
+import { useToast } from '@/hooks/use-toast';
+
+import {
+  getCourses,
+  getEmployeeEnrollments,
+  getCourseEnrollment,
+  enrollInCourse,
+  submitQuiz,
+  getQuizForLevel,
+  parseQuizQuestions,
+  validateQuiz,
+  isAnswerCorrect,
+  type Course,
+  type Enrollment,
+  type Quiz
+} from '@/services/courseService';
+
+interface QuestionType {
+  id: number;
+  question: string;
+  options: string[];
+  answer: number;
+}
+
+interface CourseWithUI extends Course {
+  difficulty: string;
+  duration: string;
+  enrolled: number;
+  progress: number;
+  status: 'available' | 'in-progress' | 'completed';
+  category: string;
+  instructor: string;
+  rating?: number;
+  content: Array<{
+    id: number;
+    title: string;
+    duration: string;
+    completed: boolean;
+  }>;
+  quizzes: Array<{
+    title: string;
+    questions: QuestionType[];
+  }>;
+}
 
 const Training = () => {
   const { userRole } = useRole();
   const { profile } = useUserProfile();
+  const { toast } = useToast();
   
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: 'Cybersecurity Fundamentals',
-      description: 'Learn essential cybersecurity principles and best practices.',
-      duration: '4 hours',
-      difficulty: 'Beginner',
-      enrolled: 124,
-      rating: 4.8,
-      progress: 0,
-      category: 'Security',
-      instructor: 'John Security',
-      status: 'available',
-      content: [
-        { id: 1, title: 'Introduction to Cybersecurity', duration: '30 min', completed: false },
-        { id: 2, title: 'Password Security Best Practices', duration: '45 min', completed: false },
-        { id: 3, title: 'Phishing Awareness', duration: '60 min', completed: false },
-        { id: 4, title: 'Data Protection Guidelines', duration: '45 min', completed: false }
-      ],
-      quizzes: [
-        {
-          id: 1,
-          title: 'Cybersecurity Basics Quiz',
-          questions: [
-            {
-              id: 1,
-              question: 'What is phishing?',
-              options: ['A type of malware', 'A social engineering attack', 'A firewall', 'A password manager'],
-              answer: 1
-            },
-            {
-              id: 2,
-              question: 'Which is a strong password?',
-              options: ['password123', 'qwerty', 'MyDog$2024!', '123456'],
-              answer: 2
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Project Management Basics',
-      description: 'Master the fundamentals of effective project management.',
-      duration: '6 hours',
-      difficulty: 'Intermediate',
-      enrolled: 89,
-      rating: 4.6,
-      progress: 45,
-      category: 'Management',
-      instructor: 'Sarah PM',
-      status: 'in-progress',
-      content: [
-        { id: 1, title: 'Project Planning Fundamentals', duration: '90 min', completed: true },
-        { id: 2, title: 'Risk Management', duration: '60 min', completed: true },
-        { id: 3, title: 'Team Communication', duration: '45 min', completed: false },
-        { id: 4, title: 'Project Monitoring', duration: '45 min', completed: false }
-      ],
-      quizzes: [
-        {
-          id: 1,
-          title: 'Project Management Quiz',
-          questions: [
-            {
-              id: 1,
-              question: 'What does a Gantt chart represent?',
-              options: ['Project schedule', 'Budget allocation', 'Risk assessment', 'Quality control'],
-              answer: 0
-            },
-            {
-              id: 2,
-              question: 'Which is a key benefit of effective communication in project management?',
-              options: ['Increased costs', 'Delayed timelines', 'Enhanced collaboration', 'Scope creep'],
-              answer: 2
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Advanced Excel Techniques',
-      description: 'Become proficient in advanced Excel functions and analysis.',
-      duration: '3 hours',
-      difficulty: 'Advanced',
-      enrolled: 67,
-      rating: 4.9,
-      progress: 100,
-      category: 'Technical',
-      instructor: 'Mike Excel',
-      status: 'completed',
-      content: [
-        { id: 1, title: 'Advanced Formulas', duration: '60 min', completed: true },
-        { id: 2, title: 'Data Analysis Tools', duration: '45 min', completed: true },
-        { id: 3, title: 'Pivot Tables', duration: '45 min', completed: true },
-        { id: 4, title: 'Macros and Automation', duration: '30 min', completed: true }
-      ],
-      quizzes: [
-        {
-          id: 1,
-          title: 'Excel Advanced Functions Quiz',
-          questions: [
-            {
-              id: 1,
-              question: 'What does the VLOOKUP function do?',
-              options: ['Looks up values vertically', 'Calculates the average of a range', 'Counts the number of cells', 'Finds the maximum value'],
-              answer: 0
-            },
-            {
-              id: 2,
-              question: 'How can you protect a worksheet from being edited?',
-              options: ['By hiding the sheet', 'By protecting it with a password', 'By making it read-only', 'By encrypting the file'],
-              answer: 1
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: 4,
-      title: 'Leadership and Communication',
-      description: 'Develop essential leadership and communication skills.',
-      duration: '5 hours',
-      difficulty: 'Intermediate',
-      enrolled: 156,
-      rating: 4.7,
-      progress: 0,
-      category: 'Soft Skills',
-      instructor: 'Lisa Leader',
-      status: 'available',
-      content: [
-        { id: 1, title: 'Leadership Styles', duration: '60 min', completed: false },
-        { id: 2, title: 'Effective Communication', duration: '75 min', completed: false },
-        { id: 3, title: 'Conflict Resolution', duration: '60 min', completed: false },
-        { id: 4, title: 'Team Building', duration: '45 min', completed: false }
-      ],
-      quizzes: [
-        {
-          id: 1,
-          title: 'Leadership and Communication Quiz',
-          questions: [
-            {
-              id: 1,
-              question: 'What is the primary focus of servant leadership?',
-              options: ['Achieving results', 'Meeting organizational goals', 'Serving the needs of the team', 'Maintaining authority'],
-              answer: 2
-            },
-            {
-              id: 2,
-              question: 'Which is a key component of effective communication?',
-              options: ['Using complex language', 'Speaking loudly', 'Active listening', 'Avoiding eye contact'],
-              answer: 2
-            }
-          ]
-        }
-      ]
-    }
-  ]);
+  // Fetch courses and enrollments on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log('Fetching courses data...');
+        const [coursesData, enrollmentsData] = await Promise.all([
+          getCourses(),
+          getEmployeeEnrollments(profile.ID)
+        ]);
+        console.log('Courses data received:', coursesData);
 
-  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+        // Transform API courses into UI format
+        const transformedCourses: CourseWithUI[] = coursesData.map(course => {
+          const enrollment = enrollmentsData.find(e => e.CourseID === course.CourseID);
+          return {
+            ...course,
+            difficulty: 'Beginner', // These could be added to the database later
+            duration: '4 hours',
+            enrolled: 100,
+            progress: enrollment?.Level ? (enrollment.Level / 3) * 100 : 0,
+            status: enrollment ? (enrollment.Level === 3 ? 'completed' : 'in-progress') : 'available',
+            category: 'General',
+            instructor: 'Course Instructor',
+            content: [
+              { id: 1, title: 'Course Introduction', duration: '30 min', completed: false },
+              { id: 2, title: 'Core Concepts', duration: '45 min', completed: false },
+              { id: 3, title: 'Practical Application', duration: '60 min', completed: false },
+              { id: 4, title: 'Advanced Topics', duration: '45 min', completed: false }
+            ],
+            quizzes: [
+              {
+                id: 1,
+                title: course.Quiz1?.Title || 'Quiz 1',
+                questions: parseQuizQuestions(course.Quiz1 as Quiz).map((q, i) => ({
+                  ...q,
+                  options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                  answer: parseInt((course.Quiz1?.AnswerString || '0')[i])
+                }))
+              },
+              {
+                id: 2,
+                title: course.Quiz2?.Title || 'Quiz 2',
+                questions: parseQuizQuestions(course.Quiz2 as Quiz).map((q, i) => ({
+                  ...q,
+                  options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                  answer: parseInt((course.Quiz2?.AnswerString || '0')[i])
+                }))
+              },
+              {
+                id: 3,
+                title: course.Quiz3?.Title || 'Quiz 3',
+                questions: parseQuizQuestions(course.Quiz3 as Quiz).map((q, i) => ({
+                  ...q,
+                  options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                  answer: parseInt((course.Quiz3?.AnswerString || '0')[i])
+                }))
+              }
+            ]
+          };
+        });
+
+        setCourses(transformedCourses);
+        setEnrollments(enrollmentsData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load courses. Please try again later.',
+          variant: 'destructive'
+        });
+      }
+    };
+
+    fetchData();
+  }, [profile?.ID]);
+  
+  const [courses, setCourses] = useState<CourseWithUI[]>([]);
+
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseWithUI | null>(null);
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
-  const [selectedModule, setSelectedModule] = useState<any>(null);
-  const [moduleDialogOpen, setModuleDialogOpen] = useState(false);
-  const [activeQuiz, setActiveQuiz] = useState<{ courseId: number; quizId: number } | null>(null);
+  const [activeQuiz, setActiveQuiz] = useState<{ courseId: number; currentLevel: number } | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
   const [quizResult, setQuizResult] = useState<{ correct: number; total: number } | null>(null);
   const [quizSlide, setQuizSlide] = useState(0);
-  const [badgeDialogOpen, setBadgeDialogOpen] = useState(false);
-  const [earnedBadge, setEarnedBadge] = useState<{ courseName: string; quizName: string } | null>(null);
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [currentQuizQuestions, setCurrentQuizQuestions] = useState<QuestionType[]>([]);
   const [certificationDialogOpen, setCertificationDialogOpen] = useState(false);
+  const [earnedBadge, setEarnedBadge] = useState<{ courseName: string; quizName: string } | null>(null);
 
   const achievements = [
     { title: 'First Course Completed', date: '2024-01-10', icon: Award, color: 'bg-yellow-500' },
@@ -217,107 +180,170 @@ const Training = () => {
     }
   };
 
-  const handleEnrollCourse = (course: any) => {
+  const handleEnrollCourse = (course: CourseWithUI) => {
     setSelectedCourse(course);
     setEnrollmentDialogOpen(true);
   };
 
-  const confirmEnrollment = () => {
-    if (selectedCourse) {
+  const confirmEnrollment = async () => {
+    if (!selectedCourse) return;
+    
+    try {
+      await enrollInCourse(profile.ID, selectedCourse.CourseID);
+      
+      // Update local state
       setCourses(prevCourses =>
         prevCourses.map(course =>
-          course.id === selectedCourse.id
-            ? { ...course, status: 'in-progress', progress: 0, content: course.content.map(m => ({ ...m, completed: false })) }
+          course.CourseID === selectedCourse.CourseID
+            ? { ...course, status: 'in-progress', progress: 0 }
             : course
         )
       );
-      setEnrollmentDialogOpen(false);
-      setSelectedCourse(null);
+
+      // Add to enrollments
+      const newEnrollment: Enrollment = {
+        EnrollmentID: Date.now(), // This will be replaced by the server-generated ID
+        CourseID: selectedCourse.CourseID,
+        EmployeeID: profile.ID,
+        Level: 0
+      };
+      setEnrollments(prev => [...prev, newEnrollment]);
+
+      toast({
+        title: 'Success',
+        description: 'Successfully enrolled in course',
+      });
+    } catch (error) {
+      console.error('Error enrolling in course:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to enroll in course. Please try again.',
+        variant: 'destructive'
+      });
+    }
+
+    setEnrollmentDialogOpen(false);
+    setSelectedCourse(null);
+  };
+
+  const handleStartCourse = async (course: CourseWithUI) => {
+    try {
+      // Get current enrollment level
+      const enrollment = await getCourseEnrollment(profile.ID, course.CourseID);
+      if (enrollment) {
+        setSelectedCourse(course);
+        if (enrollment.Level < 3) {
+          // If not mastered, prepare quiz for current level
+          const quiz = getQuizForLevel(course, enrollment.Level);
+          if (quiz) {
+            console.log('Quiz Answer String:', quiz.AnswerString);
+            setCurrentQuiz(quiz);
+            setCurrentQuizQuestions(parseQuizQuestions(quiz).map((q, i) => ({
+              ...q,
+              options: ['Option A', 'Option B', 'Option C', 'Option D'],
+              answer: parseInt(quiz.AnswerString[i])
+            })));
+            setActiveQuiz({ 
+              courseId: course.CourseID, 
+              currentLevel: enrollment.Level 
+            });
+            setQuizAnswers({});
+            setQuizResult(null);
+            setQuizSlide(0);
+          } else {
+            toast({
+              title: 'Error',
+              description: 'No quiz available for current level',
+              variant: 'destructive'
+            });
+          }
+        }
+        setCourseDialogOpen(true);
+      }
+    } catch (error) {
+      console.error('Error starting course:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to start course. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
-  const handleStartCourse = (course: any) => {
-    setSelectedCourse(course);
-    setCourseDialogOpen(true);
-  };
-
-  const handleCompleteModule = (courseId: number, moduleId: number) => {
-    setCourses(prevCourses => 
-      prevCourses.map(course => {
-        if (course.id === courseId) {
-          const updatedContent = course.content.map(module => 
-            module.id === moduleId ? { ...module, completed: true } : module
-          );
-          const completedModules = updatedContent.filter(module => module.completed).length;
-          const progress = Math.round((completedModules / course.content.length) * 100);
-          const status = progress === 100 ? 'completed' : 'in-progress';
-          
-          return { ...course, content: updatedContent, progress, status };
-        }
-        return course;
-      })
-    );
-    
-    // Also update the selected course in the dialog to reflect changes immediately
-    setSelectedCourse(prevCourse => {
-      if (prevCourse && prevCourse.id === courseId) {
-        const updatedContent = prevCourse.content.map(module => 
-          module.id === moduleId ? { ...module, completed: true } : module
-        );
-        const completedModules = updatedContent.filter(module => module.completed).length;
-        const progress = Math.round((completedModules / prevCourse.content.length) * 100);
-        const status = progress === 100 ? 'completed' : 'in-progress';
-        
-        const updatedCourse = { ...prevCourse, content: updatedContent, progress, status };
-        
-        // After completing a module, automatically start the quiz if available
-        if (updatedCourse.quizzes && updatedCourse.quizzes.length > 0) {
-          // Close the course dialog first
-          setCourseDialogOpen(false);
-          // Start the first quiz for this course
-          setTimeout(() => {
-            handleStartQuiz(courseId, updatedCourse.quizzes[0].id);
-          }, 300);
-        }
-        
-        return updatedCourse;
-      }
-      return prevCourse;
-    });
-  };
-
-  const handleStartQuiz = (courseId: number, quizId: number) => {
-    setActiveQuiz({ courseId, quizId });
-    setQuizAnswers({});
-    setQuizResult(null);
-    setQuizSlide(0);
-  };
-
   const handleQuizAnswer = (questionId: number, optionIdx: number) => {
-    setQuizAnswers((prev) => ({ ...prev, [questionId]: optionIdx }));
+    setQuizAnswers(prev => ({ ...prev, [questionId]: optionIdx }));
   };
 
-  const handleSubmitQuiz = () => {
-    if (!activeQuiz) return;
-    const course = courses.find((c) => c.id === activeQuiz.courseId);
-    const quiz = course?.quizzes?.find((q) => q.id === activeQuiz.quizId);
-    if (!quiz) return;
-    let correct = 0;
-    quiz.questions.forEach((q) => {
-      if (quizAnswers[q.id] === q.answer) correct++;
+  const handleSubmitQuiz = async () => {
+    if (!activeQuiz || !currentQuiz) return;
+
+    const passed = validateQuiz(currentQuiz, quizAnswers);
+    const correctAnswers = Object.entries(quizAnswers).reduce((acc, [qIndex, answer]) => {
+      return acc + (isAnswerCorrect(currentQuiz, parseInt(qIndex) - 1, answer) ? 1 : 0);
+    }, 0);
+
+    setQuizResult({ 
+      correct: correctAnswers,
+      total: 10 // Quiz always has 10 questions
     });
-    setQuizResult({ correct, total: quiz.questions.length });
-    
-    // Check if perfect score - show certification directly
-    if (correct === quiz.questions.length) {
-      setTimeout(() => {
-        setEarnedBadge({
-          courseName: course?.title || 'Course',
-          quizName: quiz.title
+
+    try {
+      const result = await submitQuiz({
+        employeeId: profile.ID,
+        courseId: activeQuiz.courseId,
+        currentLevel: activeQuiz.currentLevel,
+        passed
+      });
+
+      if (passed) {
+        // Update local state
+        setCourses(prevCourses =>
+          prevCourses.map(course => {
+            if (course.CourseID === activeQuiz.courseId) {
+              const newLevel = result.newLevel;
+              return {
+                ...course,
+                progress: (newLevel / 3) * 100,
+                status: newLevel === 3 ? 'completed' : 'in-progress'
+              };
+            }
+            return course;
+          })
+        );
+
+        setEnrollments(prev =>
+          prev.map(enrollment => {
+            if (enrollment.CourseID === activeQuiz.courseId) {
+              return { ...enrollment, Level: result.newLevel };
+            }
+            return enrollment;
+          })
+        );
+
+        // If all questions are correct, show certificate
+        if (correctAnswers === 10) {
+          const course = courses.find(c => c.CourseID === activeQuiz.courseId);
+          if (course) {
+            setEarnedBadge({
+              courseName: course.CourseName,
+              quizName: currentQuiz.Title
+            });
+            setCertificationDialogOpen(true);
+          }
+        }
+
+        toast({
+          title: 'Success',
+          description: passed ? 'Quiz passed! Level increased.' : 'Quiz failed. Try again.',
         });
-        // Show certification dialog directly without badge dialog
-        setCertificationDialogOpen(true);
-      }, 1000); // Show certification after 1 second to let results show first
+      }
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to submit quiz. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -361,12 +387,12 @@ const Training = () => {
         <TabsContent value="courses">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {courses.map((course) => (
-              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+              <Card key={course.CourseID} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg mb-2 text-gray-900 dark:text-white">{course.title}</CardTitle>
-                      <p className="text-sm text-gray-900 dark:text-white mb-3">{course.description}</p>
+                      <CardTitle className="text-lg mb-2 text-gray-900 dark:text-white">{course.CourseName}</CardTitle>
+                      <p className="text-sm text-gray-900 dark:text-white mb-3">{course.Description}</p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                         <span className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
@@ -448,7 +474,7 @@ const Training = () => {
                               </div>
                               <Button
                                 size="sm"
-                                onClick={() => handleStartQuiz(course.id, quiz.id)}
+                                onClick={() => handleStartCourse(course)}
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                               >
                                 <Star className="w-3 h-3 mr-1" />
@@ -477,10 +503,10 @@ const Training = () => {
             <CardContent>
               <div className="space-y-6">
                 {enrolledCourses.map((course) => (
-                  <div key={course.id} className="border rounded-lg p-4">
+                  <div key={course.CourseID} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="font-semibold">{course.title}</h4>
+                        <h4 className="font-semibold">{course.CourseName}</h4>
                         <p className="text-sm text-muted-foreground">Category: {course.category}</p>
                       </div>
                       <Badge className={getStatusColor(course.status)}>
@@ -537,11 +563,11 @@ const Training = () => {
                   </div>
                 ))}
                 {completedCourses.map((course) => (
-                  <div key={course.id} className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow">
+                  <div key={course.CourseID} className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow">
                     <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-green-500 flex items-center justify-center">
                       <Award className="w-8 h-8 text-white" />
                     </div>
-                    <h4 className="font-semibold mb-1">{course.title}</h4>
+                    <h4 className="font-semibold mb-1">{course.CourseName}</h4>
                     <p className="text-sm text-muted-foreground">Certificate Earned</p>
                   </div>
                 ))}
@@ -739,9 +765,9 @@ const Training = () => {
        <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
          <DialogContent className="max-w-4xl">
            <DialogHeader>
-             <DialogTitle>{selectedCourse?.title}</DialogTitle>
+             <DialogTitle>{selectedCourse?.CourseName}</DialogTitle>
              <DialogDescription>
-               {selectedCourse?.description}
+               {selectedCourse?.Description}
              </DialogDescription>
            </DialogHeader>
            
@@ -783,7 +809,7 @@ const Training = () => {
                        ) : (
                          <Button 
                            size="sm" 
-                           onClick={() => handleCompleteModule(selectedCourse.id, module.id)}
+                           onClick={() => {/* TODO: Implement handleCompleteModule */}}
                          >
                            Complete
                          </Button>
@@ -812,7 +838,7 @@ const Training = () => {
           <DialogHeader>
             <DialogTitle>Enroll in Course</DialogTitle>
             <DialogDescription>
-              Are you sure you want to enroll in "{selectedCourse?.title}"?
+              Are you sure you want to enroll in "{selectedCourse?.CourseName}"?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -872,8 +898,8 @@ const Training = () => {
 
       {/* Quiz Modal */}
       {activeQuiz && (() => {
-        const course = courses.find((c) => c.id === activeQuiz.courseId);
-        const quiz = course?.quizzes?.find((q) => q.id === activeQuiz.quizId);
+        const course = courses.find((c) => c.CourseID === activeQuiz.courseId);
+        const quiz = course?.quizzes?.[activeQuiz.currentLevel];
         if (!quiz) return null;
         const totalQuestions = quiz.questions.length;
         const currentQuestion = quiz.questions[quizSlide];
@@ -1021,7 +1047,7 @@ const Training = () => {
       })()}
 
       {/* Badge Award Dialog */}
-      <Dialog open={badgeDialogOpen} onOpenChange={setBadgeDialogOpen}>
+      <Dialog open={!!earnedBadge} onOpenChange={(open) => !open && setEarnedBadge(null)}>
         <DialogContent className="max-w-md p-0 overflow-hidden">
           {/* Professional Header */}
           <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-6 text-center text-white">

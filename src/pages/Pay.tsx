@@ -43,12 +43,6 @@ const Pay = () => {
   ]);
 
   // Employee-specific state (only used if not manager)
-  const [payStubs, setPayStubs] = useState([
-    { period: 'Dec 2024', amount: 4500, status: 'Paid', date: '2024-12-15' },
-    { period: 'Nov 2024', amount: 4500, status: 'Paid', date: '2024-11-15' },
-    { period: 'Oct 2024', amount: 4500, status: 'Paid', date: '2024-10-15' },
-  ]);
-
   const [taxInfo, setTaxInfo] = useState({
     w4Status: 'Current',
     exemptions: 2,
@@ -73,10 +67,6 @@ const Pay = () => {
   };
 
   // Employee functions
-  const handleDownloadPayStub = (period: string) => {
-    console.log(`Downloading pay stub for ${period}`);
-  };
-
   const handleDownloadTaxDocument = (docName: string) => {
     console.log(`Downloading ${docName}`);
   };
@@ -360,30 +350,6 @@ const Pay = () => {
                 </p>
               </div>
               <Badge variant="secondary">Full-time</Badge>
-            </div>
-            
-            <div className="space-y-3">
-              <h4 className="font-semibold">Recent Pay Stubs</h4>
-              {payStubs.map((stub, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{stub.period}</p>
-                    <p className="text-sm text-gray-600">${stub.amount}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={stub.status === 'Paid' ? 'default' : 'secondary'}>
-                      {stub.status}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDownloadPayStub(stub.period)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>

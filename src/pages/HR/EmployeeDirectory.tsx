@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { employees } from '@/data/employees';
 import { SearchableDropdown } from '@/components/SearchableDropdown';
 import { 
   Users, 
@@ -15,17 +14,39 @@ import {
   Building,
   CalendarDays,
   Star,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import employeeService, { Employee } from '@/services/employeeService';
 
 const EmployeeDirectory = () => {
-  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleViewProfile = (employee: any) => {
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const data = await employeeService.getAllEmployees();
+        setEmployees(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching employees:', err);
+        setError('Failed to load employees. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  const handleViewProfile = (employee: Employee) => {
     setSelectedEmployee(employee);
     setProfileModalOpen(true);
   };
@@ -35,7 +56,7 @@ const EmployeeDirectory = () => {
     setSelectedEmployee(null);
   };
 
-  const handleContact = (employee: any) => {
+  const handleContact = (employee: Employee) => {
     setSelectedEmployee(employee);
     setContactModalOpen(true);
   };
@@ -78,31 +99,43 @@ const EmployeeDirectory = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {filteredEmployees.length > 0 ? (
-              filteredEmployees.map((employee) => (
-                <div key={employee.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{employee.name}</h4>
-                    <p className="text-sm text-gray-600">{employee.role} • {employee.department}</p>
-                    <p className="text-xs text-gray-500">{employee.email} • {employee.location}</p>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+              <span className="ml-2 text-gray-600">Loading employees...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <h3 className="text-lg font-medium text-red-600 mb-2">Error</h3>
+              <p className="text-gray-500">{error}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map((employee) => (
+                  <div key={employee.id} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{employee.name}</h4>
+                      <p className="text-sm text-gray-600">{employee.role} • {employee.department}</p>
+                      <p className="text-xs text-gray-500">{employee.email} • {employee.location}</p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => handleViewProfile(employee)}>View Profile</Button>
+                      <Button size="sm" variant="outline" onClick={() => handleContact(employee)}>Contact</Button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleViewProfile(employee)}>View Profile</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleContact(employee)}>Contact</Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>
+                  <p className="text-gray-500">
+                    {searchQuery ? `No employees match "${searchQuery}"` : 'No employees available'}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>
-                <p className="text-gray-500">
-                  {searchQuery ? `No employees match "${searchQuery}"` : 'No employees available'}
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

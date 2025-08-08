@@ -42,6 +42,7 @@ interface EventsProviderProps {
 
 export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
   const [events, setEvents] = useState<CalendarEvent[]>([
+    // Existing July 2024 events
     {
       id: 'EVT-001',
       type: 'Meeting',
@@ -147,18 +148,98 @@ export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
       isPersonal: false,
       createdAt: '2024-01-01T00:00:00Z'
     },
+    // New August 2025 events (weekdays only, starting Aug 11)
     {
       id: 'EVT-009',
+      type: 'Meeting',
+      title: 'Weekly Project Check-In',
+      date: '2025-08-11',
+      time: '9:00 AM',
+      endTime: '10:00 AM',
+      isAllDay: false,
+      location: 'Conference Room B',
+      description: 'Weekly status meeting to review project progress and discuss any blockers.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-010',
       type: 'Deadline',
-      title: 'Expense Report Due',
-      date: '2024-07-22',
+      title: 'Submit Monthly Payroll Report',
+      date: '2025-08-12',
+      time: '5:00 PM',
+      endTime: '5:00 PM',
+      isAllDay: false,
+      description: 'Monthly payroll reports must be submitted to HR department by end of day.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-011',
+      type: 'Holiday',
+      title: 'Company Culture Day',
+      date: '2025-08-13',
+      isAllDay: true,
+      location: 'Office & Virtual',
+      description: 'Celebrating our company culture with team building activities, presentations, and appreciation events.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-012',
+      type: 'Meeting',
+      title: 'Design Review – Portal UI',
+      date: '2025-08-14',
+      time: '2:00 PM',
+      endTime: '4:00 PM',
+      isAllDay: false,
+      location: 'Design Lab',
+      description: 'Review and feedback session for the new portal UI designs with the development and UX teams.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-013',
+      type: 'Deadline',
+      title: 'Finalize Q3 Strategy Deck',
+      date: '2025-08-15',
       time: '6:00 PM',
       endTime: '6:00 PM',
       isAllDay: false,
-      description: 'Submit all expense reports for July.',
+      description: 'Final submission deadline for Q3 strategy presentation deck to executive team.',
       createdBy: 'system',
       isPersonal: false,
-      createdAt: '2024-01-01T00:00:00Z'
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-014',
+      type: 'Meeting',
+      title: 'HR & IT Joint Planning Session',
+      date: '2025-08-18',
+      time: '10:00 AM',
+      endTime: '12:00 PM',
+      isAllDay: false,
+      location: 'Executive Conference Room',
+      description: 'Strategic planning session between HR and IT departments for Q4 initiatives and system improvements.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
+    },
+    {
+      id: 'EVT-015',
+      type: 'Holiday',
+      title: 'Admin Appreciation Day',
+      date: '2025-08-20',
+      isAllDay: true,
+      location: 'Office-wide',
+      description: 'Dedicated day to appreciate and celebrate our administrative staff with special events and recognition.',
+      createdBy: 'system',
+      isPersonal: false,
+      createdAt: '2025-08-01T00:00:00Z'
     }
   ]);
 

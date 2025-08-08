@@ -12,6 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Download, Upload, Calendar, DollarSign, Shield, Heart, Clock, FileText, CreditCard, Building2, Users, BarChart3, PieChart, TrendingUp, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
+import DatePicker from 'react-datepicker';
+
 
 const Pay = () => {
   const { userRole } = useRole();
@@ -102,6 +104,14 @@ const Pay = () => {
   const handleTaxInfoUpdate = () => {
     console.log('Tax information updated');
     setShowTaxUpdateModal(false);
+  };
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // This function returns `true` only if the date is a Monday.
+  const isMonday = (date) => {
+    // getDay() returns 0 for Sunday, 1 for Monday, 2 for Tuesday, etc.
+    return date.getDay() === 1;
   };
 
   const handleTimesheetSubmit = () => {
@@ -460,10 +470,10 @@ const Pay = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="week">Week Ending</Label>
-                    <Input 
-                      id="week" 
-                      type="date" 
+                    <Label htmlFor="week">Week Of</Label>
+                    <Input
+                      id="week"
+                      type="date"
                       value={timesheetData.week}
                       onChange={(e) => setTimesheetData({...timesheetData, week: e.target.value})}
                     />

@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const CommunicationsPage = () => {
   const { toast } = useToast();
   const [isCreateTicketOpen, setCreateTicketOpen] = useState(false);
@@ -18,7 +20,7 @@ const CommunicationsPage = () => {
     queryKey: ['employee-tickets'],
     queryFn: async () => {
       // Replace with your actual API endpoint
-      const response = await fetch('/api/tickets/employee');
+      const response = await fetch(`${apiBaseUrl}/api/tickets/employee`);
       if (!response.ok) {
         throw new Error('Failed to fetch tickets');
       }
@@ -38,7 +40,7 @@ const CommunicationsPage = () => {
 
     try {
       // Replace with your actual API endpoint for creating tickets
-      const response = await fetch('/api/tickets', {
+      const response = await fetch(`${apiBaseUrl}/api/tickets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description: ticketDescription }),

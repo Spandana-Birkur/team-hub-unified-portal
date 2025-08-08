@@ -14,6 +14,8 @@ import {
   Sidebar
 } from 'lucide-react';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 interface Message {
   text: string;
   sender: 'user' | 'ai';
@@ -259,7 +261,7 @@ const Chatbot = () => {
 
     try {
       // Send prompt and history to backend
-      const response = await fetch('/api/AIRequestHistory', {
+      const response = await fetch(`${apiBaseUrl}/api/AIRequestHistory`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

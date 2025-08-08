@@ -10,6 +10,8 @@ import { Headphones, CheckCircle2 } from 'lucide-react';
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 // Define the Ticket type based on the backend model
 interface Ticket {
   ticketId: number;
@@ -60,7 +62,7 @@ const SupportTickets = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/tickets');
+        const response = await fetch(`${apiBaseUrl}/api/tickets`);
         const contentType = response.headers.get("content-type");
         if (!response.ok) {
           if (contentType && contentType.includes("application/json")) {
@@ -131,7 +133,8 @@ const SupportTickets = () => {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/tickets/create', {
+        const apiBaseUrl1 = import.meta.env.VITE_API_BASE_URL;
+        const response = await fetch(`${apiBaseUrl1}/api/tickets/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ticketData),
@@ -147,7 +150,7 @@ const SupportTickets = () => {
       setCreateDialogOpen(false);
       
       // Fetch fresh tickets to ensure we have the latest data
-      const ticketsResponse = await fetch('/api/tickets');
+      const ticketsResponse = await fetch(`${apiBaseUrl}/api/tickets`);
       if (!ticketsResponse.ok) {
         throw new Error('Failed to fetch updated tickets');
       }
@@ -166,7 +169,8 @@ const SupportTickets = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/tickets/update/${ticket.ticketId}`, {
+      const apiBaseUrl1 = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${apiBaseUrl1}/api/tickets/update/${ticket.ticketId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'resolved' }),
@@ -179,7 +183,7 @@ const SupportTickets = () => {
       }
 
       // Fetch fresh tickets to ensure we have the latest data
-      const ticketsResponse = await fetch('http://127.0.0.1:8000/api/tickets');
+      const ticketsResponse = await fetch(`${apiBaseUrl}/api/tickets`);
       if (!ticketsResponse.ok) {
         throw new Error('Failed to fetch updated tickets');
       }
@@ -268,7 +272,7 @@ const SupportTickets = () => {
                         >
                           View
                         </Button>
-                        {userRole !== 'employee' && userRole !== 'hr' && ticket.status !== 'resolved' && (
+                        {userRole !== 'employee' && userRole !== 'hr' && ticket.status !== 'Resolved' && (
                           <Button 
                             onClick={() => handleResolveTicket(ticket)}
                             className="h-9 px-3 bg-green-600 hover:bg-green-700 text-white"

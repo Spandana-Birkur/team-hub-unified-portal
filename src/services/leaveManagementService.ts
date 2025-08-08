@@ -1,7 +1,7 @@
 // Leave Management Service
 // Handles all API calls to the backend for leave management functionality
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 export interface LeaveRequest {
   requestId: number;

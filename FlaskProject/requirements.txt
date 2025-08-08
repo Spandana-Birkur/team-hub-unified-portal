@@ -7,5 +7,4 @@ werkzeug
 pyodbc
 azure-search-documents
 azure-identity
-azure.storage
 azure-storage-blob

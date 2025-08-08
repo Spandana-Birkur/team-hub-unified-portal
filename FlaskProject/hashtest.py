@@ -162,17 +162,18 @@ def Authenticate(email, pw):
             return False
         
         # Extract user data
-        employee.ID = row[0]
-        employee.firstName = row[1]
-        employee.lastName = row[2]
-        employee.department = row[3]
-        employee.role = row[4]
-        employee.gender = row[5]
-        stored_pword = row[6]
-        employee.email = row[7]
-        employee.phoneNumber = row[8]
-        employee.bio = row[9]
-        employee.ManagerID = row[10]
+        employee.ID = row.EmployeeID
+        employee.firstName = row.FirstName
+        employee.lastName = row.LastName
+        employee.department = row.Department
+        employee.role = row.Role
+        employee.gender = row.Gender
+        stored_pword = row.Pword
+        employee.email = row.Email
+        employee.phoneNumber = row.PhoneNumber
+        employee.bio = row.Bio
+        employee.ManagerID = row.ManagerID
+        employee.salary = row.Salary
         
         # Remove trailing spaces from stored password
         stored_pword = stored_pword.strip() if stored_pword else ""

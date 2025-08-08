@@ -79,6 +79,7 @@ export const UserProfileProvider: React.FC<{ children: React.ReactNode, initialP
       if (currentProfileData && currentProfileData.ID) {
         try {
           const response = await api.get<ProfileApiResponse>(`/profile/${currentProfileData.ID}`);
+          console.log('API Response for profile:', response.data); // Add this line for debugging
           // Ensure salary is always a number, even if response.data.Salary is null/undefined
           const apiSalary = response.data.Salary !== undefined && response.data.Salary !== null ? response.data.Salary : defaultProfile.salary;
 

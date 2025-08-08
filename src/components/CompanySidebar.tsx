@@ -59,7 +59,7 @@ const CompanySidebar = () => {
     { to: '/calendar', icon: Calendar, label: 'Calendar', roles: ['employee'] },
     { to: '/documents', icon: FileText, label: 'Documents', roles: ['employee'] },
     { to: '/safety', icon: ShieldCheck, label: 'Employee Safety', roles: ['employee'] },
-    { to: '/chatbot', icon: MessageCircle, label: 'AI Chatbot', roles: ['employee'] },
+    { to: '/chatbot', icon: MessageCircle, label: 'Nexis', roles: ['employee'] },
   ];
 
   const bottomNavItems = [

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Download, Upload, Calendar, DollarSign, Shield, Heart, Clock, FileText, CreditCard, Building2, Users, BarChart3, PieChart, TrendingUp, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import TimesheetList from '@/components/TimesheetList';
 import { useRole } from '@/contexts/RoleContext';
 import { useUserProfile } from '@/contexts/UserProfileContext';
 import DatePicker from 'react-datepicker';
@@ -55,29 +56,8 @@ const Pay = () => {
     lastUpdated: '2024-01-15'
   });
 
-  const [timesheetData, setTimesheetData] = useState({
-    week: '',
-    hours: {
-      monday: 8,
-      tuesday: 8,
-      wednesday: 8,
-      thursday: 8,
-      friday: 8,
-      saturday: 0,
-      sunday: 0
-    },
-    notes: ''
-  });
-
-  const [timesheets, setTimesheets] = useState([
-    { week: 'Dec 9-15, 2024', status: 'Approved', totalHours: 40, submitted: '2024-12-16' },
-    { week: 'Dec 2-8, 2024', status: 'Approved', totalHours: 40, submitted: '2024-12-09' },
-    { week: 'Nov 25-Dec 1, 2024', status: 'Approved', totalHours: 40, submitted: '2024-12-02' },
-  ]);
-
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const [showTaxUpdateModal, setShowTaxUpdateModal] = useState(false);
-  const [showTimesheetModal, setShowTimesheetModal] = useState(false);
 
   // Manager functions
   const handleApproveRequest = (id: number) => {
@@ -114,29 +94,7 @@ const Pay = () => {
     return date.getDay() === 1;
   };
 
-  const handleTimesheetSubmit = () => {
-    const newTimesheet = {
-      week: timesheetData.week,
-      status: 'Pending',
-      totalHours: Object.values(timesheetData.hours).reduce((a, b) => a + b, 0),
-      submitted: new Date().toISOString().split('T')[0]
-    };
-    setTimesheets([newTimesheet, ...timesheets]);
-    setShowTimesheetModal(false);
-    setTimesheetData({
-      week: '',
-      hours: {
-        monday: 8,
-        tuesday: 8,
-        wednesday: 8,
-        thursday: 8,
-        friday: 8,
-        saturday: 0,
-        sunday: 0
-      },
-      notes: ''
-    });
-  };
+
 
   const handleBenefitsUpdate = () => {
     console.log('Benefits information updated');
@@ -432,152 +390,7 @@ const Pay = () => {
         
         
         {/* Timesheets */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Timesheets
-            </CardTitle>
-            <CardDescription>Submit and track your work hours</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {timesheets.map((timesheet, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{timesheet.week}</p>
-                    <p className="text-sm text-gray-600">{timesheet.totalHours} hours</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={timesheet.status === 'Approved' ? 'default' : 'secondary'}>
-                      {timesheet.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <Dialog open={showTimesheetModal} onOpenChange={setShowTimesheetModal}>
-              <DialogTrigger asChild>
-                <Button className="w-full">Submit Timesheet</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Submit Timesheet</DialogTitle>
-                  <DialogDescription>
-                    Enter your work hours for the week
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="week">Week Of</Label>
-                    <Input
-                      id="week"
-                      type="date"
-                      value={timesheetData.week}
-                      onChange={(e) => setTimesheetData({...timesheetData, week: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Label>Daily Hours</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="monday">Monday</Label>
-                        <Input 
-                          id="monday" 
-                          type="number" 
-                          value={timesheetData.hours.monday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, monday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="tuesday">Tuesday</Label>
-                        <Input 
-                          id="tuesday" 
-                          type="number" 
-                          value={timesheetData.hours.tuesday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, tuesday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="wednesday">Wednesday</Label>
-                        <Input 
-                          id="wednesday" 
-                          type="number" 
-                          value={timesheetData.hours.wednesday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, wednesday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="thursday">Thursday</Label>
-                        <Input 
-                          id="thursday" 
-                          type="number" 
-                          value={timesheetData.hours.thursday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, thursday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="friday">Friday</Label>
-                        <Input 
-                          id="friday" 
-                          type="number" 
-                          value={timesheetData.hours.friday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, friday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="saturday">Saturday</Label>
-                        <Input 
-                          id="saturday" 
-                          type="number" 
-                          value={timesheetData.hours.saturday}
-                          onChange={(e) => setTimesheetData({
-                            ...timesheetData, 
-                            hours: {...timesheetData.hours, saturday: parseInt(e.target.value)}
-                          })}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="notes">Notes</Label>
-                    <Textarea 
-                      id="notes" 
-                      placeholder="Any additional notes..."
-                      value={timesheetData.notes}
-                      onChange={(e) => setTimesheetData({...timesheetData, notes: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button onClick={handleTimesheetSubmit}>Submit Timesheet</Button>
-                    <Button variant="outline" onClick={() => setShowTimesheetModal(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
+        <TimesheetList />
 
         {/* Retirement & Savings */}
         <Card>

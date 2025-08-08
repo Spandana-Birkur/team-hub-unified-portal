@@ -1,6 +1,11 @@
 from urllib import request
 import os
 import sys
+from werkzeug.utils import secure_filename
+from azure.storage.blob import BlobServiceClient
+from dotenv import load_dotenv
+import uuid # Recommended for unique filenames
+import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__), 'site_packages'))
 
 from dotenv import load_dotenv
@@ -12,6 +17,8 @@ from aiconnect import *
 from hashtest import *
 from tickets import *
 from leave_management import *
+from timesheets import *
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -80,6 +87,13 @@ def employees():
     emps = [employee.toDict() for employee in employees]
     return jsonify({ 'employees' : emps })
 
+@app.route('/api/employees/<int:id>', methods=['GET'])
+def get_employee(id):
+    employee = getEmployeeById(id)
+    if employee:
+        return jsonify(employee.toDict())
+    return jsonify({'message': 'Employee not found'}), 404
+
 @app.route('/api/employees/count', methods=['GET'])
 def get_employee_count():
     employees = parseDB()
@@ -117,7 +131,7 @@ def get_manager(id):
 @app.route('/api/profile/<int:id>', methods=['GET'])
 def get_profile(id):
     # In a real app, you'd get the user ID from a session or token
-    employee = getEmployeeById(id)
+    employee = getEmployeeByID(id)
     if employee:
         print(f"Employee object before toDict(): {employee.toDict()}") # Add this line
         return jsonify(employee.toDict())
@@ -293,6 +307,100 @@ def get_leave_balance_route(employeeId):
     except Exception as e:
         print(f"Error fetching leave balance: {e}")
         return jsonify({'error': 'Failed to fetch leave balance'}), 500
+    
+"""
+Timesheet Management API
+"""
+@app.route('/api/timesheets', methods=['GET'])
+def get_timesheets():
+    try:
+        timesheets = getTimesheets()
+        return jsonify({'timesheets': [ts.toDict() for ts in timesheets]}), 200
+    except Exception as e:
+        print(f"Error fetching timesheets: {e}")
+        return jsonify({'error': 'Failed to fetch timesheets'}), 500
+
+@app.route('/api/timesheets/<int:employeeId>', methods=['GET'])
+def get_timesheets_by_employee(employeeId):
+    try:
+        timesheets = getTimesheetsByEmployeeId(employeeId)
+        return jsonify({'timesheets': [ts.toDict() for ts in timesheets]}), 200
+    except Exception as e:
+        print(f"Error fetching timesheets for employee {employeeId}: {e}")
+        return jsonify({'error': 'Failed to fetch timesheets for employee'}), 500
+
+@app.route('/api/timesheets/create', methods=['POST'])
+def create_timesheet():
+    try:
+        data = request.json
+        employeeId = data.get('employeeId')
+        weekOf = data.get('weekOf')
+        monday = data.get('monday')
+        tuesday = data.get('tuesday')
+        wednesday = data.get('wednesday')
+        thursday = data.get('thursday')
+        friday = data.get('friday')
+        saturday = data.get('saturday')
+        totalHours = data.get('totalHours')
+        notes = data.get('notes')
+
+        createTimesheet(employeeId, weekOf, monday, tuesday, wednesday, thursday, friday, saturday, totalHours, notes)
+        return jsonify({'message': 'Timesheet created successfully'}), 201
+    except Exception as e:
+        print(f"Error creating timesheet: {e}")
+        return jsonify({'error': 'Failed to create timesheet'}), 500
+
+
+# Get Azure Storage connection string and container name from environment
+AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")
+
+# Initialize BlobServiceClient
+blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No file selected for uploading"}), 400
+
+    if file:
+        # It's good practice to secure the filename
+        original_filename = secure_filename(file.filename)
+        
+        # Create a unique name for the blob to avoid overwrites
+        # E.g., using a UUID with the original file extension
+        file_extension = os.path.splitext(original_filename)[1]
+        unique_blob_name = f"{uuid.uuid4()}{file_extension}"
+
+        try:
+            # Get a blob client using the container name and new blob name
+            blob_client = blob_service_client.get_blob_client(
+                container=AZURE_CONTAINER_NAME, 
+                blob=unique_blob_name
+            )
+
+            # Upload the file stream directly to the blob
+            blob_client.upload_blob(file.stream, overwrite=True)
+
+            # Return a success message with the blob name
+            return jsonify({
+                "message": "File uploaded successfully!",
+                "filename": unique_blob_name
+            }), 200
+
+        except Exception as e:
+            # Log the error for debugging
+            print(f"An error occurred: {e}")
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"error": "An unknown error occurred"}), 500
+    
+
 
 # ✅ Root health-check route
 @app.route('/')
@@ -318,7 +426,10 @@ def index():
             '/api/leave-requests/<int:requestId>/reject',
             '/api/leave-requests/employee/<int:employeeId>',
             '/api/leave-requests/pending',
-            '/api/leave-balance/<int:employeeId>'
+            '/api/leave-balance/<int:employeeId>',
+            '/api/timesheets',
+            '/api/timesheets/<int:employeeId>',
+            '/api/timesheets/create',
         ]
     })
 

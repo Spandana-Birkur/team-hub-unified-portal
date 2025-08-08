@@ -90,11 +90,7 @@ const Documents = () => {
 	const [uploadOpen, setUploadOpen] = useState(false);
 	const [uploadData, setUploadData] = useState({
 		name: '',
-		owner: '',
-		type: typeOptions[0],
-		version: '',
 		file: null as File | null,
-		category: categories[0] || '',
 	});
 
 	const documentsByCategory = documents.reduce(
@@ -120,39 +116,50 @@ const Documents = () => {
 		}
 	};
 
-	const handleUploadSubmit = (e: React.FormEvent) => {
+	const handleUploadSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (
-			!uploadData.name ||
-			!uploadData.owner ||
-			!uploadData.type ||
-			!uploadData.version ||
-			!uploadData.category
-		)
-			return;
-		const newDoc = {
-			id: documents.length + 1,
-			title: uploadData.name,
-			type: uploadData.type,
-			lastUpdated: new Date().toISOString().slice(0, 10),
-			version: uploadData.version,
-			owner: uploadData.owner,
-			category: uploadData.category,
-			file: uploadData.file,
-		};
-		setDocuments([...documents, newDoc]);
-		if (!categories.includes(uploadData.category)) {
-			setCategories([...categories, uploadData.category]);
+		if (!uploadData.name || !uploadData.file) return;
+
+		try {
+			const formData = new FormData();
+			formData.append('file', uploadData.file);
+			formData.append('name', uploadData.name);
+
+			const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/upload`, {
+				method: 'POST',
+				body: formData,
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to upload file');
+			}
+
+			const result = await response.json();
+			
+			// Add the new document to the list
+			const newDoc = {
+				id: documents.length + 1,
+				title: uploadData.name,
+				type: 'Document',
+				lastUpdated: new Date().toISOString().slice(0, 10),
+				version: '1.0',
+				owner: 'System',
+				category: 'Uploaded Documents',
+				file: result.url, // If the API returns a URL to access the file
+			};
+
+			setDocuments([...documents, newDoc]);
+			
+			// Reset form
+			setUploadOpen(false);
+			setUploadData({
+				name: '',
+				file: null,
+			});
+		} catch (error) {
+			console.error('Upload failed:', error);
+			// You might want to show an error toast here
 		}
-		setUploadOpen(false);
-		setUploadData({
-			name: '',
-			owner: '',
-			type: typeOptions[0],
-			version: '',
-			file: null,
-			category: categories[0] || '',
-		});
 	};
 
 	return (
@@ -263,72 +270,6 @@ const Documents = () => {
 									}
 									required
 								/>
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
-									Owner
-								</label>
-								<input
-									type="text"
-									className="border rounded px-2 py-1 w-full text-gray-900 dark:text-white"
-									value={uploadData.owner}
-									onChange={(e) =>
-										setUploadData({ ...uploadData, owner: e.target.value })
-									}
-									required
-								/>
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
-									Type
-								</label>
-								<select
-									className="border rounded px-2 py-1 w-full text-gray-900 dark:text-white"
-									value={uploadData.type}
-									onChange={(e) =>
-										setUploadData({ ...uploadData, type: e.target.value })
-									}
-									required
-								>
-									{typeOptions.map((type) => (
-										<option key={type} value={type}>
-											{type}
-										</option>
-									))}
-								</select>
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
-									Version
-								</label>
-								<input
-									type="text"
-									className="border rounded px-2 py-1 w-full text-gray-900 dark:text-white"
-									value={uploadData.version}
-									onChange={(e) =>
-										setUploadData({ ...uploadData, version: e.target.value })
-									}
-									required
-								/>
-							</div>
-							<div>
-								<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">
-									Category
-								</label>
-								<select
-									className="border rounded px-2 py-1 w-full text-gray-900 dark:text-white"
-									value={uploadData.category}
-									onChange={(e) =>
-										setUploadData({ ...uploadData, category: e.target.value })
-									}
-									required
-								>
-									{categories.map((category) => (
-										<option key={category} value={category}>
-											{category}
-										</option>
-									))}
-								</select>
 							</div>
 							<div>
 								<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">

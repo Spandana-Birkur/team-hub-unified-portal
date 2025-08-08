@@ -11,6 +11,7 @@ import { UserProfileProvider } from "@/contexts/UserProfileContext";
 import { LeaveRequestProvider } from "@/contexts/LeaveRequestContext";
 import { EventsProvider } from "@/contexts/EventsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ProfileRefreshProvider } from "@/contexts/ProfileRefreshProvider";
 import CompanyHeader from "./components/CompanyHeader";
 import CompanySidebar from "./components/CompanySidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -228,7 +229,9 @@ const App = () => (
               <NotificationProvider>
                 <LeaveRequestProvider>
                   <EventsProvider>
-                    <AppContent />
+                    <ProfileRefreshProvider>
+                      <AppContent />
+                    </ProfileRefreshProvider>
                   </EventsProvider>
                 </LeaveRequestProvider>
               </NotificationProvider>
